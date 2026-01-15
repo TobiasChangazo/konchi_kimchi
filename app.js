@@ -36,7 +36,7 @@ let modalProduct = null;
 
 const CATEGORY_META = [
   { name: "Promo", special: true,  img: "url('img/cats/promos.PNG')" },
-  { name: "Picante",  special: false, img: "url('img/cats/picantetest.PNG')" },
+  { name: "Picante",  special: false, img: "url('img/cats/picantetest.png')" },
   { name: "Sin picante", special: false, img: "url('img/cats/sinpicante.PNG')" },
   { name: "Especiales", special: false, img: "url('img/cats/especiales.PNG')" },
   { name: "Salsas",   special: false, img: "url('img/cats/salsas.PNG')" },
