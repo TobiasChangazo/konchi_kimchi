@@ -363,64 +363,75 @@ body{
   font-size:12px;
 }
 
+/* ===== BANNER REAL (la imagen se ve, sin tarjeta blanca encima) ===== */
 .banner{
   margin-top:14px;
-  background:#fff;
+  padding:0;                 /* <- clave: que no achique la imagen */
   border-radius: 12px;
   border:1px solid rgba(0,0,0,.08);
   box-shadow:0 10px 25px rgba(0,0,0,.08);
-  padding:12px;
   position:relative;
+  overflow:hidden;           /* <- flechas/dots adentro prolijo */
+  background:none !important;/* <- anulamos el bg en .banner */
 }
 
 .banner__track{
   overflow:hidden;
 }
 
+/* el slide ahora ES la imagen */
 .banner__slide{
   display:none;
-  height:92px;
-  border-radius:10px;
-  background: linear-gradient(135deg, #e9f7f0, #ffffff);
-  border:1px solid rgba(0,0,0,.06);
-  display:grid;
-  place-items:center;
-  font-weight:900;
-  color:var(--muted);
+  height: 160px;             /* ajustá a gusto */
+  border-radius: 0;
+  border:0;
+  background: var(--banner-img) center/cover no-repeat;
 }
 
+/* activo */
 .banner__slide.is-active{
-  display:grid;          
+  display:block;
 }
 
+/* flechas arriba del banner */
 .banner__arrow{
-  position:absolute;
   top:50%;
   transform:translateY(-50%);
-  width:32px; height:32px;
+  width:34px; height:34px;
   border-radius:999px;
   border:0;
-  background: rgba(0,0,0,.35);
+  background: rgba(0,0,0,.45);
   color:#fff;
   cursor:pointer;
+  z-index:5;
 }
-
 .banner__arrow--left{left:10px;}
 .banner__arrow--right{right:10px;}
 
+/* dots abajo encima del banner */
 .banner__dots{
+  position:absolute;
+  left:0; right:0;
+  bottom:10px;
   display:flex;
   justify-content:center;
   gap:6px;
-  margin-top:8px;
+  margin:0;
+  z-index:5;
+}
+.dot{
+  width:7px; height:7px;
+  border-radius:999px;
+  background: rgba(255,255,255,.55);
+}
+.dot.is-active{
+  background: rgba(255,255,255,.95);
 }
 
-.dot{
-  width:6px; height:6px;
-  border-radius:999px;
-  background: rgba(0,0,0,.25);
+/* responsive: banner más alto en pantallas grandes */
+@media (min-width: 700px){
+  .banner__slide{ height: 220px; }
 }
-.dot.is-active{background: rgba(0,0,0,.6);}
 
 .search--big{
   margin: 12px auto 0;
@@ -1363,3 +1374,154 @@ body{
   background: #fff;
   border-radius: 16px;
 }
+
+/* =========================
+   DESKTOP PRO (solo PC)
+   No toca mobile
+========================= */
+@media (min-width: 901px){
+  .cats{
+    max-width: 720px;                 /* mismo “ancho de celu” visual */
+    margin: 18px auto 0;
+    grid-template-columns: repeat(2, 1fr) !important;  /* <- clave */
+    gap: 18px;
+    grid-auto-rows: 120px;            /* tamaño parecido a mobile */
+  }
+
+  .cat{
+    border-radius: 22px;
+  }
+
+  .cat--special{
+    grid-column: 1 / -1 !important;   /* la grande ocupa 2 columnas */
+    min-height: 230px;                /* altura tipo mobile */
+  }
+
+  /* 2) SECCIÓN PRODUCTOS: que no quede raro el título + grilla */
+  #catalogo .section__title{
+    margin-bottom: 14px;
+  }
+
+  /* 3) FOOTER - centrado, ordenado y con mejor spacing */
+  .footer{
+    margin-top: 34px;
+    padding: 28px 0 22px;
+  }
+
+  .footer__heading{
+    margin-bottom: 18px;
+    font-size: 22px;
+  }
+
+  /* el grid del footer centrado y con ancho "controlado" */
+  .footer__grid{
+    max-width: 1040px;
+    margin: 0 auto;
+    gap: 22px;
+    grid-template-columns: 1fr 1.3fr;
+    align-items: stretch;
+  }
+
+  .footer__box{
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  /* “Categorías” del footer: más aire entre links */
+  .footer__nav{
+    gap: 14px;
+  }
+  .footer__nav a{
+    padding: 6px 0;            /* aire vertical */
+    line-height: 1.2;
+  }
+
+  /* Contacto más legible */
+  .footer__contact{
+    gap: 12px;
+  }
+  .footer__row{
+    font-size: 15px;
+  }
+
+  /* Redes: en desktop mejor alineadas a la izquierda (más prolijo) */
+  .contact-social{
+    justify-content: flex-start;
+    padding-top: 12px;
+  }
+
+  /* Copyright: centrado y con el mismo ancho que el grid */
+  .footer__copy{
+    max-width: 1040px;
+    margin: 18px auto 0;
+  }
+}
+
+/* PC: mismo layout que teléfono (sin superposición) */
+@media (min-width: 901px){
+  .cats{
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-auto-rows: 118px;  /* igual que tu base */
+    gap: 14px;
+    max-width: 720px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .cat--special{
+    grid-column: 1 / -1 !important;
+    grid-row: span 2 !important;   /* <- CLAVE (igual que teléfono) */
+    min-height: unset !important;  /* <- evita que se desborde */
+  }
+}
+
+.banner__slide{
+  display:none;
+  width:100%;
+  height:180px;                 /* MOBILE */
+  background: var(--banner-img) center/cover no-repeat;
+}
+
+/* activo */
+.banner__slide.is-active{
+  display:block;
+}
+
+@media (min-width: 700px){
+  .banner__slide{
+    height:260px;
+  }
+}
+
+@media (min-width: 1024px){
+  .banner__slide{
+    height:320px;
+  }
+}
+
+.banner__slide{
+  background-position: center top !important;
+}
+
+@media (min-width: 1024px){
+  .banner__slide{ height:320px; }
+}
+
+/* Banner sin "aire": el contenedor define el alto por ratio */
+.banner{
+  padding:0 !important;
+}
+
+.banner__slide{
+  height:auto !important;
+  aspect-ratio: 16 / 5; /* ~3.2:1 */
+  width:100%;
+  background-position:center !important;
+  background-size:cover !important;
+  background-repeat:no-repeat !important;
+}
+
+.banner__track{ padding:0 !important; }
+.banner__slide{ margin:0 !important; border:0 !important; }
+
+.banner__slide{ background-image: var(--banner-img) !important; }

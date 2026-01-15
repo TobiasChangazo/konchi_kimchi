@@ -144,7 +144,7 @@ window.KIMCHI_PRODUCTS = [
   name: "Kimchi de Sandia",
   price: 20000,
   category: "Picante",
-  bestSeller: false,
+  bestSeller: true,
 
   short: "Sandia, Cebolla Morada, Cilantro, Verdeo, Ajo, Jengibre y Pasta de Kimchi.",
   long: "Sandia, Cebolla Morada, Cilantro, Verdeo, Ajo, Jengibre y Pasta de Kimchi.",
@@ -176,7 +176,7 @@ window.KIMCHI_PRODUCTS = [
   name: "Kimchi de Pera",
   price: 20000,
   category: "Picante",
-  bestSeller: false,
+  bestSeller: true,
 
   short: "Pera, Manzana Verde, Cebolla, Verdeo, Ajo, Jengibre y Pasta de Kimchi.",
   long: "Pera, Manzana Verde, Cebolla, Verdeo, Ajo, Jengibre y Pasta de Kimchi.",
