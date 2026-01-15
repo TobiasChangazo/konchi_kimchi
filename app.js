@@ -16,7 +16,7 @@ const cartBtn = $("#cartBtn");
 const cartModal = $("#cartModal");
 const cartClose = $("#cartClose");
 const cartItems = $("#cartItems");
-const cartCount = $("#cartCount");
+const cartCountEls = document.querySelectorAll(".cart-badge");
 const cartTotal = $("#cartTotal"); // puede ser null ahora
 const cartTotal2 = $("#cartTotal2");
 const cartCheckoutBtn = $("#cartCheckoutBtn");
@@ -35,11 +35,11 @@ let activeCategory = null;
 let modalProduct = null;
 
 const CATEGORY_META = [
-  { name: "Promo", special: true,  img: "url('img/cats/promos.PNG')" },
-  { name: "Picante",  special: false, img: "url('img/cats/picantetest.png')" },
-  { name: "Sin picante", special: false, img: "url('img/cats/sinpicante.PNG')" },
-  { name: "Especiales", special: false, img: "url('img/cats/especiales.PNG')" },
-  { name: "Salsas",   special: false, img: "url('img/cats/salsas.PNG')" },
+  { name: "Promo", special: true,  img: "url('img/cats/.png')" },
+  { name: "Picante",  special: false, img: "url('img/cats/.png')" },
+  { name: "Sin picante", special: false, img: "url('img/cats/.png')" },
+  { name: "Especiales", special: false, img: "url('img/cats/.png')" },
+  { name: "Salsas",   special: false, img: "url('img/cats/.png')" },
 ];
 
 
@@ -68,32 +68,206 @@ function getProductById(id){
   return products.find(p => p.id === id);
 }
 
+function isPromoEligibleKimchiNoEspecial(p){
+  if (!p) return false;
+  const blocked = ["Especiales", "Salsas", "Promo"];
+  return !blocked.includes(p.category);
+}
+
+function isSalsa(p){
+  return p && p.category === "Salsas";
+}
+
+function isAkusay(p){
+  return p && /akusay/i.test(p.name);
+}
+
+function isTofu(p){
+  return p && /tofu/i.test(p.name);
+}
+
+function sumCartTotal(cartObj){
+  let total = 0;
+  for (const [id, qty] of Object.entries(cartObj)){
+    const p = getProductById(id);
+    if (!p) continue;
+    total += (p.price * qty);
+  }
+  return total;
+}
+
+/**
+ * Calcula promos automáticamente sin modificar el carrito real.
+ * Devuelve:
+ * - applied: [{ title, price, items:[{id,qty}], savings }]
+ * - discount: total de descuento (baseTotal - promoTotalItems)
+ */
+function computePromos(cartObj){
+  const remaining = { ...cartObj }; // trabajamos sobre copia
+  const applied = [];
+
+  // helpers
+  const getQty = (id) => remaining[id] || 0;
+  const take = (id, n) => {
+    remaining[id] = (remaining[id] || 0) - n;
+    if (remaining[id] <= 0) delete remaining[id];
+  };
+
+  const expandIds = (predicate) => {
+    const arr = [];
+    for (const [id, qty] of Object.entries(remaining)){
+      const p = getProductById(id);
+      if (!p) continue;
+      if (!predicate(p)) continue;
+      for (let i=0;i<qty;i++) arr.push(id);
+    }
+    // ordena por precio DESC para maximizar ahorro cuando el pack es precio fijo
+    arr.sort((a,b) => (getProductById(b)?.price||0) - (getProductById(a)?.price||0));
+    return arr;
+  };
+
+  // --- PROMO 1: 1 Akusay (picante o blanco) + 1 Tofu (especial) = $35.000
+  {
+  const akusayIds = expandIds(p =>
+    isAkusay(p) && p.category !== "Promo" && p.category !== "Salsas"
+  );
+
+  const tofuIds = expandIds(p =>
+    isTofu(p) && p.category === "Especiales" // <- clave
+  );
+
+  let pairs = Math.min(akusayIds.length, tofuIds.length);
+  while (pairs-- > 0){
+    const aId = akusayIds.shift();
+    const tId = tofuIds.shift();
+    take(aId, 1);
+    take(tId, 1);
+
+    const base = (getProductById(aId)?.price||0) + (getProductById(tId)?.price||0);
+    const promoPrice = 35000;
+
+    applied.push({
+      title: "Promo: 1 Akusay + 1 Tofu",
+      price: promoPrice,
+      items: [{ id: aId, qty: 1 }, { id: tId, qty: 1 }],
+      savings: Math.max(0, base - promoPrice),
+      });
+    }
+  }
+
+  // --- PROMO 4: 3 Salsas = $40.000 (combina como quieran)
+  {
+    const salsaIds = expandIds(isSalsa);
+    while (salsaIds.length >= 3){
+      const ids = [salsaIds.shift(), salsaIds.shift(), salsaIds.shift()];
+      ids.forEach(id => take(id, 1));
+
+      const base = ids.reduce((acc,id)=> acc + (getProductById(id)?.price||0), 0);
+      const promoPrice = 40000;
+      applied.push({
+        title: "Promo: 3 Salsas",
+        price: promoPrice,
+        items: ids.map(id => ({ id, qty: 1 })),
+        savings: Math.max(0, base - promoPrice),
+      });
+    }
+  }
+
+  // --- PROMO 3: 3 Kimchis = $50.000 (variados) excluye especiales
+  // La hacemos ANTES de "2 iguales" porque generalmente conviene más.
+  {
+    const kimchiIds = expandIds(isPromoEligibleKimchiNoEspecial);
+    while (kimchiIds.length >= 3){
+      const ids = [kimchiIds.shift(), kimchiIds.shift(), kimchiIds.shift()];
+      ids.forEach(id => take(id, 1));
+
+      const base = ids.reduce((acc,id)=> acc + (getProductById(id)?.price||0), 0);
+      const promoPrice = 50000;
+      applied.push({
+        title: "Promo: 3 Kimchis (sin especiales)",
+        price: promoPrice,
+        items: ids.map(id => ({ id, qty: 1 })),
+        savings: Math.max(0, base - promoPrice),
+      });
+    }
+  }
+
+  // --- PROMO 2: 2 Kimchis Iguales = $35.000 excluye especiales
+  {
+    // buscamos pares por id dentro de lo elegible
+    const ids = Object.keys(remaining);
+    for (const id of ids){
+      const p = getProductById(id);
+      if (!isPromoEligibleKimchiNoEspecial(p)) continue;
+
+      let pairs = Math.floor(getQty(id) / 2);
+      while (pairs-- > 0){
+        take(id, 2);
+
+        const base = (p.price || 0) * 2;
+        const promoPrice = 35000;
+        applied.push({
+          title: "Promo: 2 Kimchis Iguales (sin especiales)",
+          price: promoPrice,
+          items: [{ id, qty: 2 }],
+          savings: Math.max(0, base - promoPrice),
+        });
+      }
+    }
+  }
+
+  const baseTotal = sumCartTotal(cartObj);
+  const promoItemsBaseTotal = applied.reduce((acc, pr) => {
+    const sum = pr.items.reduce((a,it) => a + (getProductById(it.id)?.price||0) * it.qty, 0);
+    return acc + sum;
+  }, 0);
+  const promoTotal = applied.reduce((acc, pr) => acc + pr.price, 0);
+
+  const discount = Math.max(0, promoItemsBaseTotal - promoTotal);
+
+  return { applied, discount };
+}
+
 function cartSummary(){
   let count = 0;
   let total = 0;
+
   for (const [id, qty] of Object.entries(cart)){
     const p = getProductById(id);
     if (!p) continue;
     count += qty;
     total += p.price * qty;
   }
+
+  const { discount } = computePromos(cart);
+  total = Math.max(0, total - discount);
+
   return { count, total };
 }
 
 function updateCartUI(){
   const { count, total } = cartSummary();
-  cartCount.textContent = String(count);
-  cartTotal2.textContent = money(total);
-  if (cartTotal) cartTotal.textContent = money(total);
 
-  // items
-  cartItems.innerHTML = "";
-  const entries = Object.entries(cart).filter(([_,q]) => q > 0);
+  // ✅ actualiza TODOS los badges (home + categoria)
+  cartCountEls.forEach(el => {
+    el.textContent = String(count);
+    el.style.display = count > 0 ? "grid" : "none";
+  });
 
-  if (!entries.length){
-    cartItems.innerHTML = `<div class="tip">Tu carrito está vacío.</div>`;
-    return;
-  }
+  // totales (protegidos por si no existen)
+  if (cartTotal2) cartTotal2.textContent = money(total);
+  if (cartTotal)  cartTotal.textContent  = money(total);
+
+  // limpiar items del modal (si existe)
+if (cartItems) cartItems.innerHTML = "";
+
+// items
+const entries = Object.entries(cart).filter(([_,q]) => q > 0);
+
+if (!entries.length){
+  if (cartItems) cartItems.innerHTML = `<div class="tip">Tu carrito está vacío.</div>`;
+  return;
+}
 
   for (const [id, qty] of entries){
     const p = getProductById(id);
@@ -104,7 +278,7 @@ function updateCartUI(){
     row.innerHTML = `
       <div>
         <div class="cart__name">${escapeHtml(p.name)}</div>
-        <div class="cart__mini">${money(p.price)} c/u</div>
+        <div class="cart__mini">${money(p.price)}</div>
       </div>
       <div class="qty">
         <button data-act="dec" data-id="${p.id}">−</button>
@@ -113,6 +287,28 @@ function updateCartUI(){
       </div>
     `;
     cartItems.appendChild(row);
+  }
+
+  const promoBox = document.createElement("div");
+promoBox.className = "cart__promos";
+
+const { applied, discount } = computePromos(cart);
+
+  if (applied.length){
+  promoBox.innerHTML = `
+    <div class="cart__promoTitle">Promos aplicadas</div>
+    ${applied.map(pr => `
+      <div class="cart__promoRow">
+        <div>${escapeHtml(pr.title)}</div>
+        <strong>${money(pr.price)}</strong>
+      </div>
+    `).join("")}
+    <div class="cart__promoRow">
+      <div>Ahorro</div>
+      <strong>−${money(discount)}</strong>
+    </div>
+  `;
+  cartItems.appendChild(promoBox);
   }
 }
 
@@ -208,7 +404,8 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// Product modal open
+if (modalClose) modalClose.addEventListener("click", () => closeModal(productModal));
+
 function openProductModal(p){
   modalProduct = p;
   modalTitle.textContent = p.name;
@@ -218,63 +415,281 @@ function openProductModal(p){
   modalImg.style.backgroundSize = p.image ? "cover" : "";
   modalImg.style.backgroundPosition = "center";
 
-const extra = document.getElementById("modalExtra");
-if (!extra) return;
+  const extra = document.getElementById("modalExtra");
+  if (extra) {
+    const info = p.info || {};
+    let html = "";
 
-const info = p.info || {};
-let html = "";
+    /* Tiempo de fermentación */
+    if (info.fermentacion){
+      html += `
+        <h4>Tiempo de fermentación</h4>
+        <div style="margin-bottom:10px;">${escapeHtml(info.fermentacion)}</div>
+      `;
+    }
 
-/* Tiempo de fermentación */
-if (info.fermentacion){
-  html += `
-    <h4>Tiempo de fermentación</h4>
-    <div style="margin-bottom:10px;">${escapeHtml(info.fermentacion)}</div>
-  `;
-}
+    /* Nivel de picante (🔥) */
+    if (typeof info.nivelPicante === "number"){
+      const flames = `<span style="font-size:18px;">${"🔥".repeat(info.nivelPicante)}</span>`;
+      html += `
+        <h4>Nivel de picante</h4>
+        <div style="margin-bottom:10px;">${flames}</div>
+      `;
+    }
 
-/* Nivel de picante (🔥) */
-if (typeof info.nivelPicante === "number"){
-  const flames = `<span style="font-size:18px;">${"🔥".repeat(info.nivelPicante)}</span>`;
-  html += `
-    <h4>Nivel de picante</h4>
-    <div style="margin-bottom:10px;">${flames}</div>
-  `;
-}
+    /* Beneficios */
+    if (Array.isArray(info.beneficios) && info.beneficios.length){
+      html += `
+        <h4>Beneficios</h4>
+        <ul>
+          ${info.beneficios.map(b => `<li>${escapeHtml(b)}</li>`).join("")}
+        </ul>
+      `;
+    }
 
-/* Beneficios */
-if (Array.isArray(info.beneficios) && info.beneficios.length){
-  html += `
-    <h4>Beneficios</h4>
-    <ul>
-      ${info.beneficios.map(b => `<li>${escapeHtml(b)}</li>`).join("")}
-    </ul>
-  `;
-}
+    extra.innerHTML = html;
 
-extra.innerHTML = html;
+      // ===== Detectar si es promo y preparar bundle =====
+  const kind = promoKindFromProduct(p);
+
+  if (kind === "3salsas"){
+    modalBundle = { kind, targetPerPack: 3, poolFn: isSalsa, picks: {} };
+
+  } else if (kind === "3kimchis"){
+    modalBundle = { kind, targetPerPack: 3, poolFn: eligibleKimchiNoEspecial, picks: {} };
+
+  } else if (kind === "2iguales"){
+    modalBundle = { kind, targetPerPack: 2, poolFn: eligibleKimchiNoEspecial, picks: {}, lockId: null };
+
+  } else if (kind === "akusaytofu"){
+    modalBundle = { kind, targetPerPack: 1, poolFn: (x) => isAkusay(x) && eligibleKimchiNoEspecial(x), picks: {} };
+
+  } else {
+    modalBundle = null;
+  }
+  }
+
+  setModalQty(1);
+
+  const qtyBox = document.querySelector(".modal__qty");
+  if (qtyBox) {
+    qtyBox.style.display = modalBundle ? "none" : "flex";
+  }
+
+  if (modalBundle){
+  renderBundleUI();
+  }
 
 
   openModal(productModal);
 }
 
-modalClose.addEventListener("click", () => closeModal(productModal));
+const modalQtyDec = document.getElementById("modalQtyDec");
+const modalQtyInc = document.getElementById("modalQtyInc");
+const modalQtyVal = document.getElementById("modalQtyVal");
+let modalQty = 1;
+
+function setModalQty(n){
+  modalQty = Math.max(1, Number(n) || 1);
+  if (modalQtyVal) modalQtyVal.textContent = String(modalQty);
+}
+
+// ===== Promo Builder (modal) =====
+let modalBundle = null; 
+// { kind, targetPerPack, poolFn, picks:{[id]:qty}, lockId?:string, autoAdds?:[{id,qtyPerPack}] }
+
+function isPromoProduct(p){
+  return p && p.category === "Promo";
+}
+
+function promoKindFromProduct(p){
+  if (!isPromoProduct(p)) return null;
+
+  const name = (p.name || "").toLowerCase();
+
+  if (name.includes("3 salsas")) return "3salsas";
+  if (name.includes("3 kimchis")) return "3kimchis";
+  if (name.includes("2 kimchis iguales")) return "2iguales";
+  if (name.includes("akusay") && name.includes("tofu")) return "akusaytofu";
+
+  return null;
+}
+
+function eligibleKimchiNoEspecial(p){
+  return p && p.category !== "Especiales" && p.category !== "Salsas" && p.category !== "Promo";
+}
+
+function isSalsa(p){ return p && p.category === "Salsas"; }
+function isAkusay(p){ return p && /akusay/i.test(p.name); }
+function isTofu(p){ return p && /tofu/i.test(p.name); }
+
+// Buscamos el tofu especial por id (asumiendo que existe uno)
+function findTofuEspecialId(){
+  const tofu = products.find(p => p.category === "Especiales" && isTofu(p));
+  return tofu ? tofu.id : null;
+}
+
+function bundleTargetCount(){
+  if (!modalBundle) return 0;
+  return modalBundle.targetPerPack * modalQty; // qty del modal multiplica la promo
+}
+
+function bundleSelectedCount(){
+  if (!modalBundle) return 0;
+  return Object.values(modalBundle.picks).reduce((a,b)=>a+b,0);
+}
+
+function buildPoolItems(){
+  if (!modalBundle) return [];
+  const pool = products.filter(modalBundle.poolFn);
+  // orden por precio desc (opcional)
+  pool.sort((a,b)=> (b.price||0) - (a.price||0));
+  return pool;
+}
+
+function setAddBtnState(ok){
+  if (!modalAddBtn) return;
+  modalAddBtn.disabled = !ok;
+  modalAddBtn.style.opacity = ok ? "1" : ".55";
+  modalAddBtn.style.pointerEvents = ok ? "auto" : "none";
+}
+
+function renderBundleUI(){
+  const extra = document.getElementById("modalExtra");
+  if (!extra || !modalBundle) return;
+
+  const pool = buildPoolItems();
+  const target = bundleTargetCount();
+  const selected = bundleSelectedCount();
+
+  const title =
+    modalBundle.kind === "3salsas" ? "Elegí tus salsas" :
+    modalBundle.kind === "3kimchis" ? "Elegí tus kimchis" :
+    modalBundle.kind === "2iguales" ? "Elegí 2 kimchis iguales" :
+    "Elegí tu Akusay";
+
+  extra.innerHTML = `
+    <h4>${title}</h4>
+
+    <div class="promoPick__meta">
+      <strong>Seleccionadas: <span id="promoPickCount">${selected}</span> / <span id="promoPickTarget">${target}</span></strong>
+      <div class="promoPick__hint" id="promoPickHint"></div>
+    </div>
+
+    <div class="promoPick__list">
+      ${pool.map(item => `
+        <div class="promoPick__row">
+          <div class="promoPick__name">${escapeHtml(item.name)}</div>
+          <div class="promoPick__ctrl">
+            <button class="promoPick__btn" data-pick-act="dec" data-pick-id="${item.id}">−</button>
+            <strong class="promoPick__val" id="pickVal_${item.id}">${modalBundle.picks[item.id] || 0}</strong>
+            <button class="promoPick__btn" data-pick-act="inc" data-pick-id="${item.id}">+</button>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+
+  const hint = extra.querySelector("#promoPickHint");
+  if (hint){
+    const left = target - selected;
+    if (modalBundle.kind === "2iguales" && modalBundle.lockId){
+      const lockedName = escapeHtml(getProductById(modalBundle.lockId)?.name || "");
+      hint.textContent = left > 0
+        ? `Elegiste: ${lockedName}. Te faltan ${left}.`
+        : `Promo completa ✅ (${lockedName})`;
+    } else {
+      hint.textContent = left > 0 ? `Te faltan ${left} para completar la promo.` : `Promo completa ✅`;
+    }
+  }
+
+  setAddBtnState(selected === target);
+}
+
+// Delegación para +/− dentro del modal
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-pick-act]");
+  if (!btn || !modalBundle) return;
+
+  const act = btn.dataset.pickAct;
+  const id = String(btn.dataset.pickId || "");
+  if (!id) return;
+
+  const target = bundleTargetCount();
+  const selected = bundleSelectedCount();
+
+  if (act === "inc"){
+    if (selected >= target) return;
+
+    // Regla "2 iguales": si ya elegiste un tipo, bloquea otros
+    if (modalBundle.kind === "2iguales"){
+      if (modalBundle.lockId && modalBundle.lockId !== id) return; // bloquea
+      if (!modalBundle.lockId) modalBundle.lockId = id; // lock al primer inc
+    }
+
+    modalBundle.picks[id] = (modalBundle.picks[id] || 0) + 1;
+  } else {
+    modalBundle.picks[id] = Math.max(0, (modalBundle.picks[id] || 0) - 1);
+    if (modalBundle.picks[id] === 0) delete modalBundle.picks[id];
+
+    // Si era "2 iguales" y ya no queda nada del lockId, liberar lock
+    if (modalBundle.kind === "2iguales" && modalBundle.lockId){
+      const leftOfLocked = modalBundle.picks[modalBundle.lockId] || 0;
+      if (leftOfLocked === 0) modalBundle.lockId = null;
+    }
+  }
+
+  renderBundleUI();
+});
+
+
+if (modalQtyInc) modalQtyInc.addEventListener("click", () => setModalQty(modalQty + 1));
+if (modalQtyDec) modalQtyDec.addEventListener("click", () => setModalQty(modalQty - 1));
+
 modalAddBtn.addEventListener("click", () => {
   if (!modalProduct) return;
-  addToCart(modalProduct.id, 1);
+
+  // Si es promo, agrego los productos elegidos (y tofu auto si aplica)
+  if (modalBundle){
+    const target = bundleTargetCount();
+    const selected = bundleSelectedCount();
+    if (selected !== target) return;
+
+    // agrega los elegidos
+    for (const [id, qty] of Object.entries(modalBundle.picks)){
+      addToCart(id, qty);
+    }
+
+    // Promo Akusay + Tofu: sumar tofu especial automáticamente por cada Akusay
+    if (modalBundle.kind === "akusaytofu"){
+      const tofuId = findTofuEspecialId();
+      if (tofuId){
+        addToCart(tofuId, modalQty); // 1 tofu por pack, multiplicado por qty
+      }
+    }
+
+    closeModal(productModal);
+    return;
+  }
+
+  // Producto normal
+  addToCart(modalProduct.id, modalQty);
   closeModal(productModal);
 });
 
 // Cart modal
-cartBtn.addEventListener("click", () => openModal(cartModal));
-cartClose.addEventListener("click", () => closeModal(cartModal));
-cartItems.addEventListener("click", (e) => {
-  const btn = e.target.closest("button[data-act]");
-  if (!btn) return;
-  const id = btn.dataset.id;
-  const act = btn.dataset.act;
-  if (act === "inc") addToCart(id, 1);
-  if (act === "dec") addToCart(id, -1);
-});
+cartBtn.addEventListener("click", () => {
+  window.location.href = "checkout.html";
+})
+// cartClose.addEventListener("click", () => closeModal(cartModal));
+// cartItems.addEventListener("click", (e) => {
+//  const btn = e.target.closest("button[data-act]");
+//  if (!btn) return;
+//  const id = btn.dataset.id;
+//  const act = btn.dataset.act;
+//  if (act === "inc") addToCart(id, 1);
+//  if (act === "dec") addToCart(id, -1);
+// });
 
 // --- Categories / Render ---
 
@@ -328,7 +743,7 @@ function productCard(p){
       <div class="card__body">
         <div class="card__title">${escapeHtml(p.name)}</div>
         <div class="card__desc">${escapeHtml(p.short || "")}</div>
-        <div class="card__price">${money(p.price)} <span style="font-weight:700; opacity:.7">c/u</span></div>
+        <div class="card__price">${money(p.price)}</div>
         <button class="btn" data-add="${p.id}">AGREGAR AL 🛒</button>
       </div>
     `;
@@ -388,12 +803,17 @@ function renderBest(){
 
 
 function renderProducts(){
+  // ✅ si en esta página no existe el grid, no hagas nada
+  if (!productsGrid) return;
+
   productsGrid.innerHTML = "";
   const list = products.filter(matchesFilters);
+
   if (!list.length){
     productsGrid.innerHTML = `<div class="tip">No se encontraron productos.</div>`;
     return;
   }
+
   list.forEach(p => productsGrid.appendChild(productCard(p)));
 }
 
@@ -467,6 +887,16 @@ function buildWhatsAppMessage(){
     if (!p) continue;
     msg += `(x${qty}) ${p.name} — ${money(p.price * qty)}\n`;
   }
+
+  const promos = computePromos(cart);
+  if (promos.applied.length){
+  msg += `\nPromos aplicadas:\n`;
+  promos.applied.forEach(pr => {
+    msg += `• ${pr.title} — ${money(pr.price)}\n`;
+  });
+  msg += `Ahorro: -${money(promos.discount)}\n`;
+  }
+
   const { total } = cartSummary();
   msg += `\nTotal: ${money(total)}\n`;
   return msg;

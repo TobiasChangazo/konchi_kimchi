@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Konchi - Checkout</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="page-checkout">
+
+<header class="header" id="top">
+  <div class="container">
+    <div class="header__inner header__inner--centerLogo">
+      <button class="icon-btn icon-btn--square" onclick="window.location.href='index.html'" aria-label="Volver">←</button>
+
+      <a class="brand brand--center" href="index.html" aria-label="Inicio">
+        <img class="brand__img" src="img/logotest.png" alt="Konchi" />
+      </a>
+    </div>
+  </div>
+</header>
+
+<section class="section">
+  <div class="container">
+
+    <div class="checkoutFlow" id="checkoutFlow">
+      <div class="checkoutFlow__track" id="checkoutTrack">
+
+        <!-- Paso 1: Resumen -->
+        <div class="checkoutStep">
+          <h2 class="checkout__title">Tu pedido</h2>
+
+          <div class="checkout__card">
+            <div id="checkoutItems"></div>
+
+            <div class="checkout__totals" id="checkoutTotals"></div>
+
+            <button class="btn btn--primary checkout__cta" id="goStep2Btn">
+              Continuar
+            </button>
+          </div>
+        </div>
+
+        <!-- Paso 2: Datos -->
+        <div class="checkoutStep">
+          <div class="checkoutStep__head">
+        <button class="btn btn--ghost" id="backStep1Btn">← Volver</button>
+            <h2 class="checkout__title" style="margin:0;">Datos para el pedido</h2>
+            <div></div>
+          </div>
+
+          <div class="checkout__card">
+            <label class="field">
+              <span>Nombre y apellido</span>
+              <input id="custName" type="text" placeholder="Ej: Juan Pérez" />
+            </label>
+
+            <label class="field">
+              <span>Medio de pago</span>
+              <select id="payMethod">
+                <option value="">Elegí una opción</option>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia">Transferencia</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Notas (opcional)</span>
+              <textarea id="custNotes" rows="3" placeholder="Ej: sin picante / entregar en portería..."></textarea>
+            </label>
+
+            <button class="btn btn--primary" id="sendWhatsAppBtn">
+              Enviar pedido por WhatsApp
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script src="productos.js"></script>
+<script src="checkout.js"></script>
+</body>
+</html>
