@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Konchi - Categoría</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="page-category">
+
+<header class="header" id="top">
+  <div class="container">
+    <div class="header__inner header__inner--centerLogo">
+      <button class="icon-btn icon-btn--square" onclick="window.location.href='index.html'" aria-label="Volver">←</button>
+
+      <a class="brand brand--center" href="index.html" aria-label="Inicio">
+        <img class="brand__img" src="img/logo.png" alt="Konchi" />
+      </a>
+
+      <button class="icon-btn icon-btn--square cart-btn" id="cartBtn" aria-label="Abrir carrito">
+        <span class="cart-ico" aria-hidden="true">🛒</span>
+        <span class="cart-badge" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="catalogo">
+  <div class="container">
+    <div class="crumb" id="crumb"></div>
+    <div class="grid" id="productsGrid"></div>
+  </div>
+</section>
+
+<!-- Modal carrito (copiá el mismo bloque de tu index.html para que funcione igual) -->
+<div class="modal" id="cartModal" aria-hidden="true">
+  <div class="modal__overlay" data-close="1"></div>
+  <div class="modal__card modal__card--cart" role="dialog" aria-modal="true" aria-label="Carrito">
+    <button class="modal__close" id="cartClose" aria-label="Cerrar">✕</button>
+    <div class="modal__body">
+      <div class="modal__title">Carrito</div>
+      <div class="cart" id="cartItems"></div>
+      <div class="cart__footer">
+        <div class="cart__total">Total: <strong id="cartTotal2">$0</strong></div>
+        <button class="btn btn--primary" id="cartCheckoutBtn">Enviar por WhatsApp</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal producto (si querés seguir usando el modal por ahora) -->
+<div class="modal" id="productModal" aria-hidden="true">
+  <div class="modal__overlay" data-close="1"></div>
+  <div class="modal__card" role="dialog" aria-modal="true" aria-label="Detalle de producto">
+    <button class="modal__close" id="modalClose" aria-label="Cerrar">✕</button>
+    <div class="modal__img" id="modalImg"></div>
+    <div class="modal__body">
+      <div class="modal__title" id="modalTitle">Producto</div>
+      <div class="modal__price" id="modalPrice">$0</div>
+      <div class="modal__desc" id="modalDesc">Descripción...</div>
+      <button class="btn btn--primary" id="modalAddBtn">Agregar al carrito</button>
+
+      <div class="modal__extra" id="modalExtra"></div>
+    </div>
+  </div>
+</div>
+
+<script src="productos.js"></script>
+<script src="app.js"></script>
+<script src="categoria.js"></script>
+</body>
+</html>
