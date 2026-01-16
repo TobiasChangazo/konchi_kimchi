@@ -11,6 +11,8 @@ const searchInput = $("#searchInput");
 
 const menuBtn = $("#menuBtn");
 const drawer = $("#drawer");
+const drawerOverlay = document.getElementById("drawerOverlay");
+const drawerClose = document.getElementById("drawerClose");
 
 const cartBtn = $("#cartBtn");
 const cartModal = $("#cartModal");
@@ -313,11 +315,18 @@ const { applied, discount } = computePromos(cart);
 }
 
 function addToCart(id, qty=1){
+  const p = getProductById(id);
+  if (p && p.category === "Promo") {
+    openProductModal(p);
+    return;
+  }
+
   cart[id] = (cart[id] || 0) + qty;
   if (cart[id] <= 0) delete cart[id];
   saveCart();
   updateCartUI();
 }
+
 
 function escapeHtml(str){
   return String(str)
@@ -369,23 +378,6 @@ function renderCrumb(){
   }
 }
 
-// --- Drawer ---
-if (menuBtn && drawer){
-  menuBtn.addEventListener("click", () => {
-    const isOpen = drawer.classList.toggle("is-open");
-    menuBtn.setAttribute("aria-expanded", String(isOpen));
-    drawer.setAttribute("aria-hidden", String(!isOpen));
-  });
-
-  drawer.addEventListener("click", (e) => {
-    if (e.target.matches("a")){
-      drawer.classList.remove("is-open");
-      menuBtn.setAttribute("aria-expanded","false");
-      drawer.setAttribute("aria-hidden","true");
-    }
-  });
-}
-
 // --- Modal helpers ---
 function openModal(el){
   el.classList.add("is-open");
@@ -399,12 +391,19 @@ function closeModal(el){
 document.addEventListener("click", (e) => {
   const overlay = e.target.closest("[data-close='1']");
   if (overlay){
-    closeModal(productModal);
+    closeProductModalAndResetRoute();
     closeModal(cartModal);
   }
 });
 
-if (modalClose) modalClose.addEventListener("click", () => closeModal(productModal));
+if (modalClose) modalClose.addEventListener("click", closeProductModalAndResetRoute);
+
+function closeProductModalAndResetRoute(){
+  closeModal(productModal);
+  const { pid } = getRoute();
+  if (pid) location.hash = ""; // vuelve a inicio y recupera todos los "Más vendidos"
+}
+
 
 function openProductModal(p){
   modalProduct = p;
@@ -734,52 +733,67 @@ function productCard(p){
 
   const isCategoryPage = document.body.classList.contains("page-category");
 
-  if (isCategoryPage){
+  if (isCategoryPage) {
     const imgStyle = p.image
     ? `background-image:url('${p.image}');`
     : "";
-    el.innerHTML = `
-      <div class="card__img" style="${imgStyle}"></div>
-      <div class="card__body">
-        <div class="card__title">${escapeHtml(p.name)}</div>
-        <div class="card__desc">${escapeHtml(p.short || "")}</div>
-        <div class="card__price">${money(p.price)}</div>
-        <button class="btn" data-add="${p.id}">AGREGAR AL 🛒</button>
-      </div>
-    `;
 
-    // En categoría: al tocar abre el modal (si querés después lo hacemos pantalla producto)
-    el.querySelector(".card__img").addEventListener("click", () => openProductModal(p));
-    el.querySelector(".card__title").addEventListener("click", () => openProductModal(p));
-    el.querySelector("[data-add]").addEventListener("click", () => addToCart(p.id, 1));
+    const isPromo = (p.category === "Promo");
+
+    el.innerHTML = `
+    <div class="card__img" style="${imgStyle}"></div>
+    <div class="card__body">
+      <div class="card__title">${escapeHtml(p.name)}</div>
+      <div class="card__desc">${escapeHtml(p.short || "")}</div>
+      <div class="card__price">${money(p.price)}</div>
+      <button class="btn" data-add="${p.id}">${isPromo ? "ARMAR PROMO 🧩" : "AGREGAR AL 🛒"}</button>
+    </div>
+    `;
+    
+    // Click en cualquier parte de la card (menos el botón)
+    el.addEventListener("click", (e) => {
+    if (e.target.closest("button")) return; // evita doble acción
+      openProductModal(p);
+    });
+
+    // Botón: si es promo -> abrir modal (builder). Si no -> agregar directo.
+    el.querySelector("[data-add]").addEventListener("click", () => {
+    if (isPromo) {
+      openProductModal(p);
+    } else {
+      addToCart(p.id, 1);
+    }
+    });
 
     return el;
   }
+
 
   // Layout normal (inicio / más vendidos)
   el.innerHTML = `
     <div class="card__img" style="${imgStyle}"></div>
     <div class="card__body">
-      <div class="card__row">
-        <div class="card__title">${escapeHtml(p.name)}</div>
-        <div class="card__price">${money(p.price)}</div>
-      </div>
-      <div class="card__desc">${escapeHtml(p.short || "")}</div>
-      <button class="btn btn--primary" data-add="${p.id}">Agregar</button>
+      <div class="card__title">${escapeHtml(p.name)}</div>
+      <div class="card__price">${money(p.price)}</div>
+      <button class="btn btn--primary" data-view="${p.id}">VER PRODUCTO</button>
     </div>
   `;
 
-  el.querySelector(".card__img").addEventListener("click", () => {
-    setHash({ cat: p.category, p: p.id });
+  // Click en cualquier parte de la card (menos el botón) -> abre modal
+  el.addEventListener("click", (e) => {
+  if (e.target.closest("button")) return;
+    openProductModal(p);
   });
-  el.querySelector(".card__title").addEventListener("click", () => {
-    setHash({ cat: p.category, p: p.id });
+
+  el.querySelector("[data-view]").addEventListener("click", () => {
+    openProductModal(p);
   });
-  el.querySelector("[data-add]").addEventListener("click", () => addToCart(p.id, 1));
 
   return el;
 }
 
+
+let bestInfiniteCleanup = null;
 
 function renderBest(){
   if (!bestGrid) return;
@@ -789,8 +803,7 @@ function renderBest(){
 
   const best = products
     .filter(p => p.bestSeller)
-    .filter(matchesFilters)
-    .slice(0, 8);
+    .slice(0, 10);
 
   if (!best.length){
     if (bestEmpty) bestEmpty.style.display = "block";
@@ -798,8 +811,61 @@ function renderBest(){
   }
 
   if (bestEmpty) bestEmpty.style.display = "none";
-  best.forEach(p => bestGrid.appendChild(productCard(p)));
+
+  // ✅ armamos infinito
+  setupBestInfinite(best);
 }
+
+function setupBestInfinite(best){
+  // limpia listeners viejos si re-renderiza
+  if (typeof bestInfiniteCleanup === "function") bestInfiniteCleanup();
+
+  // si hay 1 solo producto, no tiene sentido infinito
+  if (best.length < 2){
+    best.forEach(p => bestGrid.appendChild(productCard(p)));
+    bestInfiniteCleanup = null;
+    return;
+  }
+
+  // 3 tandas: [A][A][A] y arrancamos en la del medio
+  const tripled = [...best, ...best, ...best];
+
+  const frag = document.createDocumentFragment();
+  tripled.forEach(p => frag.appendChild(productCard(p)));
+  bestGrid.appendChild(frag);
+
+  // esperamos a que el DOM calcule anchos
+  requestAnimationFrame(() => {
+    const segment = bestGrid.scrollWidth / 3;
+    bestGrid.scrollLeft = segment; // centro (tanda del medio)
+  });
+
+  const onScroll = () => {
+    const segment = bestGrid.scrollWidth / 3;
+    if (!segment) return;
+
+    // cerca del inicio -> saltamos hacia adelante 1 segmento
+    if (bestGrid.scrollLeft < segment * 0.5){
+      bestGrid.classList.add("is-jumping");
+      bestGrid.scrollLeft += segment;
+      requestAnimationFrame(() => bestGrid.classList.remove("is-jumping"));
+    }
+    // cerca del final -> saltamos hacia atrás 1 segmento
+    else if (bestGrid.scrollLeft > segment * 1.5){
+      bestGrid.classList.add("is-jumping");
+      bestGrid.scrollLeft -= segment;
+      requestAnimationFrame(() => bestGrid.classList.remove("is-jumping"));
+    }
+  };
+
+  bestGrid.addEventListener("scroll", onScroll, { passive: true });
+
+  bestInfiniteCleanup = () => {
+    bestGrid.removeEventListener("scroll", onScroll);
+    bestInfiniteCleanup = null;
+  };
+}
+
 
 
 function renderProducts(){
@@ -845,8 +911,188 @@ function renderAll(){
   updateCartUI();
 }
 
+// ---------- Search dropdown (pro) ----------
+let searchDrop = null;
 
-if (searchInput) searchInput.addEventListener("input", () => renderAll());
+function ensureSearchDropdown(){
+  if (!searchInput || searchDrop) return;
+
+  searchDrop = document.createElement("div");
+  searchDrop.className = "search-drop is-hidden";
+  searchDrop.innerHTML = `<div class="search-drop__list"></div>`;
+
+  // lo metemos al mismo contenedor del input (así queda pegado abajo)
+  const wrap = searchInput.parentElement;
+  if (wrap) {
+    wrap.style.position = "relative";
+    wrap.appendChild(searchDrop);
+  } else {
+    document.body.appendChild(searchDrop);
+  }
+
+  // cerrar al tocar afuera
+  document.addEventListener("click", (e) => {
+    if (!searchDrop) return;
+    if (e.target === searchInput) return;
+    if (searchDrop.contains(e.target)) return;
+    hideSearchDrop();
+  });
+}
+
+function hideSearchDrop(){
+  if (!searchDrop) return;
+  searchDrop.classList.add("is-hidden");
+  const list = searchDrop.querySelector(".search-drop__list");
+  if (list) list.innerHTML = "";
+}
+
+function normalize(s){
+  return (s || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, ""); // saca acentos
+}
+
+function searchProducts(q){
+  const qq = normalize(q).trim();
+  if (!qq) return [];
+
+  return products
+    .map(p => {
+      const hay = normalize([
+        p.name,
+        p.short,
+        p.long,
+        p.category
+      ].filter(Boolean).join(" "));
+      return { p, hay };
+    })
+    .filter(x => x.hay.includes(qq))
+    .slice(0, 8)
+    .map(x => x.p);
+}
+
+function getHeatTag(p){
+  // 0) Si la categoría ya define el picante, usarla (más confiable)
+  const cat = (p?.category || "").toString().toLowerCase();
+  if (cat === "sin picante") return { text: "Sin picante", cls: "meta--sin-picante" };
+  if (cat === "picante")     return { text: "Picante", cls: "meta--picante" };
+
+  // 1) Si hay nivelPicante numérico (acepta "0" / "5" string también)
+  const n = Number(p?.nivelPicante);
+  if (Number.isFinite(n)) {
+    if (n === 0) return { text: "Sin picante", cls: "meta--sin-picante" };
+    if (n > 0)   return { text: "Picante", cls: "meta--picante" };
+  }
+
+  // 2) Si viene como string tipo "Picante"/"Sin picante"
+  const lvl = (p?.picante || p?.nivel || p?.heat || "").toString().toLowerCase();
+  if (lvl.includes("sin picante") || lvl.includes("sin")) return { text: "Sin picante", cls: "meta--sin-picante" };
+  if (lvl.includes("picante") || lvl.includes("pic"))     return { text: "Picante", cls: "meta--picante" };
+
+  // 3) Heurística por texto (IMPORTANTE: sin picante primero)
+  const hay = `${p?.name || ""} ${p?.short || ""} ${p?.long || ""} ${p?.category || ""}`.toLowerCase();
+  if (hay.includes("sin picante")) return { text: "Sin picante", cls: "meta--sin-picante" };
+  if (hay.includes("picante"))     return { text: "Picante", cls: "meta--picante" };
+
+  // 4) Si no sabemos, no inventamos
+  return { text: "Clásico", cls: "meta--neutral" };
+}
+
+
+
+function renderSearchDrop(q){
+  ensureSearchDropdown();
+  if (!searchDrop) return;
+
+  const results = searchProducts(q);
+  const list = searchDrop.querySelector(".search-drop__list");
+  if (!list) return;
+
+  if (!q.trim() || !results.length){
+    hideSearchDrop();
+    return;
+  }
+
+  list.innerHTML = results.map(p => {
+  const img = p.image ? `style="background-image:url('${p.image}')"` : "";
+
+let meta = "";
+let metaClass = "";
+
+// Prioridad 1: Promo / Especiales
+if (p.category === "Promo"){
+  meta = "Promo";
+  metaClass = "meta--promo";
+}
+else if (p.category === "Especiales"){
+  meta = "Especiales";
+  metaClass = "meta--especial";
+}
+// Prioridad 2: Salsa
+else if (p.category === "Salsas"){
+  meta = "Salsa";
+  metaClass = "meta--salsa";
+}
+// Prioridad 3: Picante / Sin picante (robusto)
+else {
+  const heat = getHeatTag(p);
+  meta = heat.text;
+  metaClass = heat.cls;
+}
+
+  return `
+    <button class="search-item" type="button" data-id="${p.id}">
+      <div class="search-item__img" ${img}></div>
+      <div class="search-item__txt">
+        <div class="search-item__top">
+          <div class="search-item__name">${escapeHtml(p.name)}</div>
+          <div class="search-item__price">${money(p.price)}</div>
+        </div>
+        <div class="search-item__meta ${metaClass}">${meta}</div>
+      </div>
+    </button>
+  `;
+  }).join("");
+
+
+  searchDrop.classList.remove("is-hidden");
+
+  // click en resultado -> abre modal SIN setHash (no scrollea arriba)
+  list.querySelectorAll("[data-id]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.id;
+      const p = getProductById(id);
+      if (p) openProductModal(p);
+      hideSearchDrop();
+      searchInput.blur();
+    });
+  });
+}
+
+if (searchInput){
+  ensureSearchDropdown();
+
+  searchInput.addEventListener("input", () => {
+    const isCategoryPage = document.body.classList.contains("page-category");
+
+    // En categoría, podés seguir filtrando la grilla si querés:
+    if (isCategoryPage) renderProducts();
+
+    // Siempre mostramos dropdown flotante:
+    renderSearchDrop(searchInput.value);
+  });
+
+  searchInput.addEventListener("focus", () => {
+    renderSearchDrop(searchInput.value);
+  });
+
+  searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") hideSearchDrop();
+  });
+}
+
 
 // --- Slider simple (fase 2 ya está, pero lo dejamos andando) ---
 let bannerIndex = 0;
@@ -914,6 +1160,85 @@ cartCheckoutBtn.addEventListener("click", openWhatsApp);
 if (checkoutBtn) {
   checkoutBtn.addEventListener("click", openWhatsApp);
 }
+
+const sidePanel = document.getElementById("sidePanel");
+const sidePanelTitle = document.getElementById("sidePanelTitle");
+const sidePanelBody = document.getElementById("sidePanelBody");
+
+function openSidePanel({ title, content }) {
+  sidePanelTitle.textContent = title;
+  sidePanelBody.innerHTML = content;
+
+  sidePanel.classList.add("is-open");
+  sidePanel.setAttribute("aria-hidden", "false");
+}
+
+function closeSidePanel(){
+  sidePanel.classList.remove("is-open");
+  sidePanel.setAttribute("aria-hidden", "true");
+}
+
+document.addEventListener("click", (e) => {
+  if (e.target.matches("[data-panel-close]")) {
+    closeSidePanel();
+  }
+});
+
+function closeDrawer(){
+  if (!drawer) return;
+  drawer.classList.remove("is-open");
+  if (menuBtn) menuBtn.setAttribute("aria-expanded","false");
+  drawer.setAttribute("aria-hidden","true");
+  if (drawerOverlay) drawerOverlay.hidden = true;
+}
+
+function openDrawer(){
+  if (!drawer) return;
+  drawer.classList.add("is-open");
+  if (menuBtn) menuBtn.setAttribute("aria-expanded","true");
+  drawer.setAttribute("aria-hidden","false");
+  if (drawerOverlay) drawerOverlay.hidden = false;
+}
+
+if (menuBtn && drawer){
+  menuBtn.addEventListener("click", () => {
+    const isOpen = drawer.classList.contains("is-open");
+    isOpen ? closeDrawer() : openDrawer();
+  });
+
+  if (drawerClose) drawerClose.addEventListener("click", closeDrawer);
+  if (drawerOverlay) drawerOverlay.addEventListener("click", closeDrawer);
+
+  drawer.addEventListener("click", (e) => {
+    // Paneles (Información / Contacto)
+    const btn = e.target.closest("[data-panel]");
+    if (btn){
+      const key = btn.dataset.panel;
+
+      if (key === "about"){
+        openSidePanel({ title: "¿Quiénes somos?", content: `<p>...</p>` });
+      }
+      if (key === "kimchis"){
+        openSidePanel({ title: "Sobre nuestros Kimchis", content: `<p>...</p>` });
+      }
+      if (key === "faq"){
+        openSidePanel({ title: "Preguntas frecuentes", content: `<p>...</p>` });
+      }
+      if (key === "contact"){
+        openSidePanel({ title: "Contactos", content: `<p>...</p>` });
+      }
+
+      closeDrawer();
+      return;
+    }
+
+    // Navegación normal (links)
+    if (e.target.matches("a.drawer__link")){
+      closeDrawer();
+    }
+  });
+}
+
 
 // init
 renderAll();

@@ -2,11 +2,11 @@
 window.KIMCHI_PRODUCTS = [
   
   { 
-    id:"p1",
+    id:"promo_akusay_tofu",
     name:"1 Kimchi Akusay + 1 Kimchi Tofu", 
     price:35000, 
     category:"Promo", 
-    bestSeller:false,
+    bestSeller:true,
 
     short:"............", 
     long:"............", 
@@ -14,7 +14,7 @@ window.KIMCHI_PRODUCTS = [
     image:"img/productos/.png",
   },
   { 
-    id:"p1",
+    id:"promo_2_iguales",
     name:"2 Kimchis Iguales", 
     price:35000, 
     category:"Promo", 
@@ -26,7 +26,7 @@ window.KIMCHI_PRODUCTS = [
     image:"img/productos/.png",
   },
   { 
-    id:"p1",
+    id:"promo_3_kimchis",
     name:"3 Kimchis", 
     price:50000, 
     category:"Promo", 
@@ -38,7 +38,7 @@ window.KIMCHI_PRODUCTS = [
     image:"img/productos/.png",
   },
   { 
-    id:"p1",
+    id:"promo_3_salsas",
     name:"3 Salsas", 
     price:40000, 
     category:"Promo", 
@@ -110,7 +110,7 @@ window.KIMCHI_PRODUCTS = [
   name: "Kimchi de Anana",
   price: 20000,
   category: "Picante",
-  bestSeller: true,
+  bestSeller: false,
 
   short: "Anana, Cebolla Morada, Verdeo, Ajo, Jengibre, Pasta de Kimchi.",
   long: "Anana, Cebolla Morada, Verdeo, Ajo, Jengibre, Pasta de Kimchi.",
@@ -144,7 +144,7 @@ window.KIMCHI_PRODUCTS = [
   name: "Kimchi de Sandia",
   price: 20000,
   category: "Picante",
-  bestSeller: true,
+  bestSeller: false,
 
   short: "Sandia, Cebolla Morada, Cilantro, Verdeo, Ajo, Jengibre y Pasta de Kimchi.",
   long: "Sandia, Cebolla Morada, Cilantro, Verdeo, Ajo, Jengibre y Pasta de Kimchi.",
@@ -176,7 +176,7 @@ window.KIMCHI_PRODUCTS = [
   name: "Kimchi de Pera",
   price: 20000,
   category: "Picante",
-  bestSeller: true,
+  bestSeller: false,
 
   short: "Pera, Manzana Verde, Cebolla, Verdeo, Ajo, Jengibre y Pasta de Kimchi.",
   long: "Pera, Manzana Verde, Cebolla, Verdeo, Ajo, Jengibre y Pasta de Kimchi.",
@@ -236,7 +236,7 @@ window.KIMCHI_PRODUCTS = [
   name: "Kimchi de Remolacha",
   price: 20000,
   category: "Picante",
-  bestSeller: false,
+  bestSeller: true,
 
   short: "Remolacha, Nabo, Cebolla, Ajo, Jengibre y Pasta de Kimchi.",
   long: "Remolacha, Nabo, Cebolla, Ajo, Jengibre y Pasta de Kimchi.",
@@ -271,7 +271,7 @@ window.KIMCHI_PRODUCTS = [
     name:"Kimchi de Akusay Blanco", 
     price:20000, 
     category:"Sin picante", 
-    bestSeller:false,
+    bestSeller: true,
 
     short:"Akusay, Zanahoria, Cebolla, Cebolla de Verdeo, Gochujang Vegano Blanco", 
     long:"Akusay, Zanahoria, Cebolla, Cebolla de Verdeo, Gochujang Vegano Blanco", 
@@ -472,7 +472,7 @@ window.KIMCHI_PRODUCTS = [
     name:"Salsa Verde", 
     price:15000, 
     category:"Salsas", 
-    bestSeller:false,
+    bestSeller:true,
 
     short:"Jalapeño Verde, Tomatillo, Ajo, Vinagre de Alcohol", 
     long:"Jalapeño Verde, Tomatillo, Ajo, Vinagre de Alcohol", 
