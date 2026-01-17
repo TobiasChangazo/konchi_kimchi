@@ -37,8 +37,8 @@ let activeCategory = null;
 let modalProduct = null;
 
 const CATEGORY_META = [
-  { name: "Promo", special: true,  img: "url('img/cats/.png')" },
-  { name: "Picante",  special: false, img: "url('img/cats/.png')" },
+  { name: "Promo", special: true,  img: "url('img/cats/cat1.jpg')" },
+  { name: "Picante",  special: false, img: "url('img/cats/cat2.jpg')" },
   { name: "Sin picante", special: false, img: "url('img/cats/.png')" },
   { name: "Especiales", special: false, img: "url('img/cats/.png')" },
   { name: "Salsas",   special: false, img: "url('img/cats/.png')" },
@@ -840,30 +840,50 @@ function setupBestInfinite(best){
     bestGrid.scrollLeft = segment; // centro (tanda del medio)
   });
 
-  const onScroll = () => {
-    const segment = bestGrid.scrollWidth / 3;
-    if (!segment) return;
+  let jumping = false;
+  let snapTimer = 0;
 
-    // cerca del inicio -> saltamos hacia adelante 1 segmento
-    if (bestGrid.scrollLeft < segment * 0.5){
-      bestGrid.classList.add("is-jumping");
-      bestGrid.scrollLeft += segment;
-      requestAnimationFrame(() => bestGrid.classList.remove("is-jumping"));
-    }
-    // cerca del final -> saltamos hacia atrás 1 segmento
-    else if (bestGrid.scrollLeft > segment * 1.5){
-      bestGrid.classList.add("is-jumping");
-      bestGrid.scrollLeft -= segment;
-      requestAnimationFrame(() => bestGrid.classList.remove("is-jumping"));
-    }
+  const getSegment = () => Math.round(bestGrid.scrollWidth / 3);
+
+  const doJump = (delta) => {
+    const seg = getSegment();
+    if (!seg) return;
+
+    jumping = true;
+    bestGrid.classList.add("is-jumping"); // <- clave (usa tu CSS)
+    bestGrid.scrollLeft += delta;
+
+    requestAnimationFrame(() => {
+      bestGrid.classList.remove("is-jumping");
+      jumping = false;
+    });
+  };
+
+  const onScroll = () => {
+    if (jumping) return;
+
+    // esperamos a que termine la inercia del swipe
+    clearTimeout(snapTimer);
+    snapTimer = setTimeout(() => {
+      const seg = getSegment();
+      if (!seg) return;
+
+      const left = bestGrid.scrollLeft;
+
+      // usá umbrales más “lejos” para no llegar al borde real
+      if (left < seg * 0.25) doJump(+seg);
+      else if (left > seg * 1.75) doJump(-seg);
+    }, 90);
   };
 
   bestGrid.addEventListener("scroll", onScroll, { passive: true });
 
   bestInfiniteCleanup = () => {
+    clearTimeout(snapTimer);
     bestGrid.removeEventListener("scroll", onScroll);
     bestInfiniteCleanup = null;
   };
+
 }
 
 
@@ -1099,24 +1119,54 @@ let bannerIndex = 0;
 
 function bannerInit(){
   const slides = $$("#bannerTrack .banner__slide");
-  const dots = $$("#bannerDots .dot");
+  const dots   = $$(".banner__dots .dot");
   if (!slides.length) return;
 
   function show(i){
     slides.forEach(s => s.classList.remove("is-active"));
     dots.forEach(d => d.classList.remove("is-active"));
+
     bannerIndex = (i + slides.length) % slides.length;
+
     slides[bannerIndex].classList.add("is-active");
     if (dots[bannerIndex]) dots[bannerIndex].classList.add("is-active");
   }
 
-  const btnL = document.querySelector(".banner__arrow--left");
-  const btnR = document.querySelector(".banner__arrow--right");
-  if (btnL) btnL.addEventListener("click", () => show(bannerIndex - 1));
-  if (btnR) btnR.addEventListener("click", () => show(bannerIndex + 1));
+  // ✅ Dots clickeables SOLO en PC
+  const isDesktopPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-  // auto
-  setInterval(() => show(bannerIndex + 1), 5000);
+  if (isDesktopPointer) {
+  dots.forEach((dot, i) => {
+    dot.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      show(i);
+      });
+    });
+  }
+
+  // ✅ Autoplay
+  const timer = setInterval(() => show(bannerIndex + 1), 5000);
+
+  // ✅ Swipe mobile (simple)
+  const bannerEl = document.querySelector(".banner");
+  if (bannerEl){
+    let startX = 0;
+
+    bannerEl.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+    }, { passive: true });
+
+    bannerEl.addEventListener("touchend", (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const diff = startX - endX;
+
+      if (Math.abs(diff) > 50){
+        if (diff > 0) show(bannerIndex + 1);  // swipe izquierda
+        else          show(bannerIndex - 1);  // swipe derecha
+      }
+    }, { passive: true });
+  }
 
   show(0);
 }
@@ -1239,6 +1289,35 @@ if (menuBtn && drawer){
   });
 }
 
+
+// ===== Banner slider =====
+const bannerSlides = document.querySelectorAll(".banner__slide");
+const bannerDots   = document.querySelectorAll(".banner__dots .dot");
+const bannerPrev   = document.querySelector(".banner__arrow--left");
+const bannerNext   = document.querySelector(".banner__arrow--right");
+
+let bannerCurrent = 0;
+
+function showBanner(i){
+  if (!bannerSlides.length) return;
+
+  bannerSlides.forEach(s => s.classList.remove("is-active"));
+  bannerDots.forEach(d => d.classList.remove("is-active"));
+
+  bannerCurrent = (i + bannerSlides.length) % bannerSlides.length;
+
+  bannerSlides[bannerCurrent].classList.add("is-active");
+  if (bannerDots[bannerCurrent]) {
+    bannerDots[bannerCurrent].classList.add("is-active");
+  }
+}
+
+if (bannerPrev && bannerNext){
+  bannerPrev.addEventListener("click", () => showBanner(bannerCurrent - 1));
+  bannerNext.addEventListener("click", () => showBanner(bannerCurrent + 1));
+}
+// autoplay
+setInterval(() => showBanner(bannerCurrent + 1), 6000);
 
 // init
 renderAll();

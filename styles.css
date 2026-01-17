@@ -363,76 +363,6 @@ body{
   font-size:12px;
 }
 
-/* ===== BANNER REAL (la imagen se ve, sin tarjeta blanca encima) ===== */
-.banner{
-  margin-top:14px;
-  padding:0;                 /* <- clave: que no achique la imagen */
-  border-radius: 12px;
-  border:1px solid rgba(0,0,0,.08);
-  box-shadow:0 10px 25px rgba(0,0,0,.08);
-  position:relative;
-  overflow:hidden;           /* <- flechas/dots adentro prolijo */
-  background:none !important;/* <- anulamos el bg en .banner */
-}
-
-.banner__track{
-  overflow:hidden;
-}
-
-/* el slide ahora ES la imagen */
-.banner__slide{
-  display:none;
-  height: 160px;             /* ajustá a gusto */
-  border-radius: 0;
-  border:0;
-  background: var(--banner-img) center/cover no-repeat;
-}
-
-/* activo */
-.banner__slide.is-active{
-  display:block;
-}
-
-/* flechas arriba del banner */
-.banner__arrow{
-  top:50%;
-  transform:translateY(-50%);
-  width:34px; height:34px;
-  border-radius:999px;
-  border:0;
-  background: rgba(0,0,0,.45);
-  color:#fff;
-  cursor:pointer;
-  z-index:5;
-}
-.banner__arrow--left{left:10px;}
-.banner__arrow--right{right:10px;}
-
-/* dots abajo encima del banner */
-.banner__dots{
-  position:absolute;
-  left:0; right:0;
-  bottom:10px;
-  display:flex;
-  justify-content:center;
-  gap:6px;
-  margin:0;
-  z-index:5;
-}
-.dot{
-  width:7px; height:7px;
-  border-radius:999px;
-  background: rgba(255,255,255,.55);
-}
-.dot.is-active{
-  background: rgba(255,255,255,.95);
-}
-
-/* responsive: banner más alto en pantallas grandes */
-@media (min-width: 700px){
-  .banner__slide{ height: 220px; }
-}
-
 .search__icon{
   position:absolute;
   right:16px;
@@ -768,7 +698,7 @@ body{
   gap: 12px;
   overflow-x: auto;
   padding: 2px 2px 10px;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: none;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -1459,57 +1389,6 @@ body{
   }
 }
 
-.banner__slide{
-  display:none;
-  width:100%;
-  height:180px;                 /* MOBILE */
-  background: var(--banner-img) center/cover no-repeat;
-}
-
-/* activo */
-.banner__slide.is-active{
-  display:block;
-}
-
-@media (min-width: 700px){
-  .banner__slide{
-    height:260px;
-  }
-}
-
-@media (min-width: 1024px){
-  .banner__slide{
-    height:320px;
-  }
-}
-
-.banner__slide{
-  background-position: center top !important;
-}
-
-@media (min-width: 1024px){
-  .banner__slide{ height:320px; }
-}
-
-/* Banner sin "aire": el contenedor define el alto por ratio */
-.banner{
-  padding:0 !important;
-}
-
-.banner__slide{
-  height:auto !important;
-  aspect-ratio: 16 / 5; /* ~3.2:1 */
-  width:100%;
-  background-position:center !important;
-  background-size:cover !important;
-  background-repeat:no-repeat !important;
-}
-
-.banner__track{ padding:0 !important; }
-.banner__slide{ margin:0 !important; border:0 !important; }
-
-.banner__slide{ background-image: var(--banner-img) !important; }
-
 .card {
   cursor: pointer;
 }
@@ -1951,4 +1830,136 @@ p {
   border-radius: 0 0 18px 0;  /* esquina inferior redondeada */
 }
 
+#bestGrid {
+  scroll-behavior: auto; /* clave */
+}
 
+#bestGrid .product-card {
+  flex: 0 0 78%;   /* o el ancho que uses */
+  max-width: 78%;
+}
+#bestGrid img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* =========================
+   BANNER / CARRUSEL (ÚNICO)
+   ========================= */
+
+.banner{
+  margin-top:14px;
+  padding:0;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.08);
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+  position:relative;
+  overflow:hidden;          /* flechas/dots adentro */
+  background:none;
+}
+
+.banner__track{
+  overflow:hidden;
+}
+
+/* Slide = imagen */
+.banner__slide{
+  display:none;
+  width:100%;
+  aspect-ratio: 3 / 2; 
+  border:0;
+  border-radius:0;
+  background-image: var(--banner-img);
+  background-repeat:no-repeat;
+  background-size: contain;
+  background-position: center;  /* si querés menos recorte arriba: center top */
+}
+
+.banner__slide.is-active{
+  display:block;
+}
+
+/* Flechas */
+.banner__arrow{
+  position:absolute;
+  display:none;
+  top:50%;
+  transform:translateY(-50%);
+  width:34px;
+  height:34px;
+  border-radius:999px;
+  border:0;
+  background: rgba(0,0,0,.45);
+  color:#fff;
+  cursor:pointer;
+  z-index:5;
+}
+.banner__arrow--left{ left:10px; }
+.banner__arrow--right{ right:10px; }
+
+/* Dots */
+.banner__dots{
+  position:absolute;
+  left:0; right:0;
+  bottom:10px;
+  display:flex;
+  pointer-events:auto;
+  justify-content:center;
+  gap:6px;
+  margin:0;
+  z-index:5;
+}
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  cursor:pointer; 
+  pointer-events:auto;
+  background: rgba(255,255,255,.55);
+}
+.dot.is-active{
+  background: rgba(255,255,255,.95);
+}
+
+/* Responsive */
+@media (min-width: 700px){
+  .banner__slide{ height:260px; }
+}
+
+@media (max-width: 380px){
+  .banner__slide{
+    height: 230px;
+    background-position: 45% center;
+  }
+}
+@media (max-width: 900px){
+  .banner__slide{
+    aspect-ratio: 3 / 2;       /* igual que base */
+    height: 210px;              /* no fuerces 260px */
+    background-size: 100% auto;/* igual que desktop */
+    background-position: center;/* ✅ no recorta izquierda */
+  }
+}
+@media (min-width: 901px){
+  .banner{
+    max-width: 1200px;
+    margin: 18px auto 0;
+    border-radius: 26px;
+    overflow: hidden;
+    background: #f2f2f2;
+  }
+
+  .banner__slide{
+    height: clamp(420px, 34vw, 600px);
+
+    background-size: 100% auto;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .banner__arrow{
+    display: grid;
+    place-items: center;
+  }
+}
