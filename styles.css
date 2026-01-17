@@ -1963,3 +1963,134 @@ p {
     place-items: center;
   }
 }
+
+/* ===== Panel lateral (Información/Contacto) ===== */
+.side-panel{
+  position:fixed;
+  inset:0;
+  z-index:120;
+  display:none;
+}
+.side-panel.is-open{ display:block; }
+
+.side-panel__overlay{
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,.35);
+}
+
+.side-panel__card{
+  position:absolute;
+  inset: 16px;                /* 🔥 MISMO margen en todos los lados */
+  margin-left: auto;           /* lo empuja a la derecha */
+  width: min(92vw, 520px);     /* mantiene el ancho */
+  
+  background:#fff;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:18px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.18);
+  overflow:hidden;
+}
+
+.side-panel.is-open .side-panel__card{
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.side-panel__header{
+  display:grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items:center;
+  gap:10px;
+  padding:12px 12px;
+  border-bottom:1px solid rgba(0,0,0,.08);
+}
+
+.side-panel__title{
+  font-weight:900;
+  text-align:center;
+}
+
+.side-panel__back,
+.side-panel__close{
+  width:40px;
+  height:40px;
+  border-radius:999px;                 /* círculo suave */
+  border:1px solid rgba(0,0,0,.08);
+  background:#f4f6f5;                  /* gris verdoso suave */
+  color:#1f2a27;                       /* texto Konchi */
+  cursor:pointer;
+  font-size:18px;
+  font-weight:700;
+  display:grid;
+  place-items:center;
+  transition: background .15s ease, transform .15s ease;
+}
+
+.side-panel__back:hover,
+.side-panel__close:hover{
+  background:#e8eeeb;
+  transform: scale(1.05);
+}
+
+.side-panel__close{
+  font-size:20px;                      /* la X un poco más chica visualmente */
+  line-height:1;
+}
+
+.side-panel__body{
+  padding:14px;
+  overflow:auto;
+  height: calc(100% - 69px);
+  color: var(--text);
+}
+.side-panel__body p{ color: var(--muted); line-height:1.45; }
+
+/* Para que los anchors no queden “tapados” por el header */
+#inicio, #catalogo, #mas-vendidos{
+  scroll-margin-top: 90px;
+}
+
+.about__subtitle{
+  margin: 18px 0 10px;
+  font-size: 15px;
+  font-weight: 900;
+  text-align: center;
+  color: #111;
+}
+
+.about__list{
+  margin: 10px 0 16px;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.about__list li{
+  list-style: disc;
+}
+
+.about__cta{
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0,0,0,.08);
+  text-align: center;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.footer__link{
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  opacity: .85;
+  font-weight: 600;
+  cursor: pointer;
+}
+.footer__link:hover{ opacity: 1; }

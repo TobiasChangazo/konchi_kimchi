@@ -123,7 +123,7 @@
   </div>
 </header>
 
-  <section class="banner">
+  <section class="banner" id="inicio">
   <div class="banner__track" id="bannerTrack">
 
     <div class="banner__slide is-active"
@@ -156,8 +156,8 @@
 
       <div class="cats" id="cats"></div>
 
-<div class="subhead">
-  <h3 class="subhead__title">Más vendidos</h3>
+<div class="subhead" id="mas-vendidos">
+  <div class="subhead__title">Más vendidos</div>
 </div>
 
 <div class="best-wrap">
@@ -172,14 +172,33 @@
   <h3 class="about__title">¿QUIÉNES SOMOS?</h3>
 
   <div class="about__card">
-    <p class="about__text">
-      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    </p>
-  </div>
+  <p class="about__text">
+    Somos una familia que lleva 23 años explorando sabores en el mundo de la gastronomía.
+    Nuestra cocina siempre fue un laboratorio de curiosidad, donde lo tradicional se mezcla
+    con lo inesperado. Así conocimos el kimchi… y lo hicimos propio.
+  </p>
+
+  <p class="about__text">
+    Hace 4 años nació <strong>KONCHI</strong>, un proyecto que fermenta ideas, ingredientes y
+    principios. Desde el primer frasco, decidimos salirnos del molde y crear versiones únicas
+    de kimchi, con ingredientes que sorprenden y respetan lo que creemos.
+  </p>
+
+  <h4 class="about__subtitle">¿Qué vas a encontrar en KONCHI?</h4>
+
+  <ul class="about__list">
+    <li><strong>Kimchi vegano</strong>, porque creemos en una alimentación consciente.</li>
+    <li><strong>Un proceso sustentable</strong>, porque cuidamos lo que comemos y el entorno donde lo hacemos.</li>
+    <li><strong>Ingredientes frescos y locales</strong>, porque lo real sabe mejor.</li>
+    <li><strong>Presentaciones que invitan</strong> a jugar, probar y compartir.</li>
+    <li><strong>Atención cercana</strong>, porque cada frasco lleva nuestra historia… y queremos conocer la tuya.</li>
+  </ul>
+
+  <p class="about__cta">
+    💌 <strong>Sumate a nuestra comunidad fermentada.</strong><br>
+    Recibí recetas, promos exclusivas y tips para que el kimchi sea parte de tu día a día.
+  </p>
+</div>
 </section>
 
   </div> 
@@ -194,10 +213,17 @@
       <div class="footer__box">
         <div class="footer__boxTitle">Categorías</div>
         <nav class="footer__nav">
-          <a href="#top">Inicio</a>
-          <a href="#catalogo">Productos</a>
-          <a href="#info">Quiénes somos</a>
-        </nav>
+  <!-- Navegación (scroll) -->
+  <a href="#inicio">Inicio</a>
+  <a href="#catalogo">Productos</a>
+  <a href="#mas-vendidos">Más vendidos</a>
+
+  <!-- Información (paneles) -->
+  <button type="button" class="footer__link" data-panel="about">Quiénes somos</button>
+  <button type="button" class="footer__link" data-panel="kimchis">Sobre nuestros Kimchis</button>
+  <button type="button" class="footer__link" data-panel="faq">Preguntas frecuentes</button>
+  <button type="button" class="footer__link" data-panel="contact">Contactos</button>
+</nav>
       </div>
 
       <div class="footer__box">
@@ -308,7 +334,34 @@
 
   <div class="side-panel__card">
     <header class="side-panel__header">
-    </header>
+  <button class="side-panel__back" type="button" data-panel-close aria-label="Volver">‹</button>
+  <div class="side-panel__title" id="sidePanelTitle">Panel</div>
+  <button class="side-panel__close" type="button" data-panel-close aria-label="Cerrar">✕</button>
+</header>
+
+<div class="side-panel__body" id="sidePanelBody"></div>
+
+<!-- Contenido editable (lo cambiás acá, no en JS) -->
+<template id="tpl-about">
+  <h3>¿Quiénes somos?</h3>
+  <p>DDDSDSDSDSDSDSD</p>
+</template>
+
+<template id="tpl-kimchis">
+  <h3>Sobre nuestros Kimchis</h3>
+  <p>DDDSDSDSDSDSDSD</p>
+</template>
+
+<template id="tpl-faq">
+  <h3>Preguntas frecuentes</h3>
+  <p>DDDSDSDSDSDSDSD</p>
+</template>
+
+<template id="tpl-contact">
+  <h3>Contactos</h3>
+  <p>DDDSDSDSDSDSDSD</p>
+</template>
+
 
     <div class="side-panel__body" id="sidePanelBody"></div>
   </div>

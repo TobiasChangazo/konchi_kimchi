@@ -1265,26 +1265,57 @@ if (menuBtn && drawer){
     if (btn){
       const key = btn.dataset.panel;
 
-      if (key === "about"){
-        openSidePanel({ title: "¿Quiénes somos?", content: `<p>...</p>` });
-      }
-      if (key === "kimchis"){
-        openSidePanel({ title: "Sobre nuestros Kimchis", content: `<p>...</p>` });
-      }
-      if (key === "faq"){
-        openSidePanel({ title: "Preguntas frecuentes", content: `<p>...</p>` });
-      }
-      if (key === "contact"){
-        openSidePanel({ title: "Contactos", content: `<p>...</p>` });
-      }
+      // agarramos el contenido desde <template id="tpl-...">
+      const tpl = document.getElementById(`tpl-${key}`);
+      const html = tpl ? tpl.innerHTML : `<p>Contenido no configurado.</p>`;
+
+      const titles = {
+        about: "¿Quiénes somos?",
+        kimchis: "Sobre nuestros Kimchis",
+        faq: "Preguntas frecuentes",
+        contact: "Contactos",
+      };
+
+      openSidePanel({
+        title: titles[key] || "Panel",
+        content: html
+      });
 
       closeDrawer();
       return;
     }
 
     // Navegación normal (links)
-    if (e.target.matches("a.drawer__link")){
+    // Navegación normal (links)
+    const a = e.target.closest("a.drawer__link");
+      if (a){
+      const href = a.getAttribute("href") || "";
+
+      if (href.startsWith("#")){
+        e.preventDefault();
+
+      const target = document.querySelector(href);
+        closeDrawer();
+
+      if (target){
+      setTimeout(() => {
+        const header = document.querySelector(".header");
+        const offset = (header?.offsetHeight || 0) + 8;
+
+        const y =
+          target.getBoundingClientRect().top +
+          window.pageYOffset -
+          offset;
+
+        window.scrollTo({
+          top: Math.max(0, y),
+          behavior: "smooth"
+            });
+          }, 50);
+        }
+      } else {
       closeDrawer();
+    }
     }
   });
 }
@@ -1318,6 +1349,56 @@ if (bannerPrev && bannerNext){
 }
 // autoplay
 setInterval(() => showBanner(bannerCurrent + 1), 6000);
+
+// ===== Scroll con offset (para cualquier link #... fuera del drawer también) =====
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("a[href^='#']");
+  if (!a) return;
+
+  const href = a.getAttribute("href");
+  if (!href || href === "#") return;
+
+  const target = document.querySelector(href);
+  if (!target) return;
+
+  e.preventDefault();
+
+  const header = document.querySelector(".header");
+  const offset = (header?.offsetHeight || 0) + 8;
+
+  const y = target.getBoundingClientRect().top + window.pageYOffset - offset;
+
+  window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+});
+
+
+// ===== Paneles desde cualquier lado (footer incluido) =====
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-panel]");
+  if (!btn) return;
+
+  const key = btn.dataset.panel;
+
+  const tpl = document.getElementById(`tpl-${key}`);
+  const html = tpl ? tpl.innerHTML : `<p>Contenido no configurado.</p>`;
+
+  const titles = {
+    about: "¿Quiénes somos?",
+    kimchis: "Sobre nuestros Kimchis",
+    faq: "Preguntas frecuentes",
+    contact: "Contactos",
+  };
+
+  openSidePanel({
+    title: titles[key] || "Panel",
+    content: html
+  });
+
+  // si el click vino del drawer, también cerralo (si está abierto)
+  if (drawer && drawer.classList.contains("is-open")) closeDrawer();
+});
+
+
 
 // init
 renderAll();
