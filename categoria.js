@@ -5,12 +5,11 @@ function getCat(){
 
 (function init(){
   const cat = getCat();
-  activeCategory = cat; // usa tu filtro actual :contentReference[oaicite:4]{index=4}
+  activeCategory = cat;
 
   const crumb = document.getElementById("crumb");
   crumb.innerHTML = `<a href="index.html">Inicio</a> / ${cat || "Categoría"}`;
 
-  // IMPORTANTÍSIMO: en esta página NO llamamos renderBest()
-  renderProducts();      // usa productsGrid :contentReference[oaicite:5]{index=5}
+  renderProducts();     
   updateCartUI();
 })();

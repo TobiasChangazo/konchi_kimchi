@@ -1,4 +1,3 @@
-// checkout.js
 const products = window.KIMCHI_PRODUCTS || [];
 
 const CART_KEY = "kimchi_cart_v1";
@@ -39,7 +38,6 @@ function sumCartTotal(cartObj){
   return total;
 }
 
-// helpers promos (pegalo arriba de computePromos o antes de cartSummary)
 function isPromoEligibleKimchiNoEspecial(p){
   if (!p) return false;
   const blocked = ["Especiales", "Salsas", "Promo"];
@@ -50,7 +48,7 @@ function isAkusay(p){ return p && /akusay/i.test(p.name); }
 function isTofu(p){ return p && /tofu/i.test(p.name); }
 
 function computePromos(cartObj){
-  const remaining = { ...cartObj }; // copia
+  const remaining = { ...cartObj }; 
   const applied = [];
 
   const getQty = (id) => remaining[id] || 0;
@@ -67,12 +65,10 @@ function computePromos(cartObj){
       if (!predicate(p)) continue;
       for (let i=0;i<qty;i++) arr.push(id);
     }
-    // precio DESC para maximizar ahorro en packs precio fijo
     arr.sort((a,b) => (getProductById(b)?.price||0) - (getProductById(a)?.price||0));
     return arr;
   };
 
-  // PROMO 1: 1 Akusay (picante o blanco) + 1 Tofu (especial) = 35.000
   {
     const akusayIds = expandIds(p =>
       isAkusay(p) && p.category !== "Promo" && p.category !== "Salsas"
@@ -101,7 +97,6 @@ function computePromos(cartObj){
     }
   }
 
-  // PROMO 4: 3 Salsas = 40.000
   {
     const salsaIds = expandIds(isSalsa);
     while (salsaIds.length >= 3){
@@ -120,7 +115,6 @@ function computePromos(cartObj){
     }
   }
 
-  // PROMO 3: 3 Kimchis = 50.000 (variados) excluye especiales
   {
     const kimchiIds = expandIds(isPromoEligibleKimchiNoEspecial);
     while (kimchiIds.length >= 3){
@@ -139,7 +133,6 @@ function computePromos(cartObj){
     }
   }
 
-  // PROMO 2: 2 Kimchis Iguales = 35.000 (sin especiales)
   {
     const ids = Object.keys(remaining);
     for (const id of ids){
@@ -163,7 +156,6 @@ function computePromos(cartObj){
     }
   }
 
-  // descuento total
   const baseTotal = sumCartTotal(cartObj);
   const promoItemsBaseTotal = applied.reduce((acc, pr) => {
     const sum = pr.items.reduce((a,it) => a + (getProductById(it.id)?.price||0) * it.qty, 0);
@@ -209,20 +201,17 @@ function renderCheckout(){
         Ver productos
       </button>
     </div>
-  `;
+    `;
 
-  totalsEl.innerHTML = "";
+    totalsEl.innerHTML = "";
 
-  // 👇 OCULTAR botón Continuar
-  if (goStep2Btn) goStep2Btn.style.display = "none";
+    if (goStep2Btn) goStep2Btn.style.display = "none";
 
-  return;
-}
+    return;
+  }
 
-// 👇 hay productos → mostrar botón Continuar
 if (goStep2Btn) goStep2Btn.style.display = "";
 
-    // Items (con foto)
 itemsEl.innerHTML = entries.map(([id, qty]) => {
   const p = getProductById(id);
   if (!p) return "";
@@ -266,7 +255,6 @@ totalsEl.innerHTML = `
 `;
 }
 
-// Click +/−
 document.addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-act]");
   if (!btn) return;
@@ -276,7 +264,6 @@ document.addEventListener("click", (e) => {
   if (act === "dec") addToCart(id, -1);
 });
 
-// WhatsApp
 function buildWhatsAppMessage(){
   const name = (document.getElementById("custName").value || "").trim();
   const pay  = (document.getElementById("payMethod").value || "").trim();
@@ -313,8 +300,29 @@ function buildWhatsAppMessage(){
   return msg;
 }
 
+function initPayPills(){
+  const select = document.getElementById("payMethod");
+  const wrap = document.getElementById("payPills");
+  if (!select || !wrap) return;
+
+  const btns = Array.from(wrap.querySelectorAll(".payPill"));
+
+  function setActive(value){
+    select.value = value || "";
+    btns.forEach(b => {
+      const on = (b.dataset.pay === select.value);
+      b.classList.toggle("is-active", on);
+      b.setAttribute("aria-checked", on ? "true" : "false");
+    });
+  }
+
+  btns.forEach(b => b.addEventListener("click", () => setActive(b.dataset.pay)));
+  select.addEventListener("change", () => setActive(select.value));
+
+  setActive(select.value);
+}
+
 function openWhatsApp(){
-  // poné tu número real:
   const phone = "5490000000000";
   const text = buildWhatsAppMessage();
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
@@ -325,7 +333,6 @@ document.getElementById("sendWhatsAppBtn").addEventListener("click", () => {
   const name = (document.getElementById("custName").value || "").trim();
   const pay  = (document.getElementById("payMethod").value || "").trim();
 
-  // validación simple
   if (!name){
     alert("Poné tu nombre y apellido.");
     return;
@@ -345,13 +352,28 @@ const backStep1Btn = document.getElementById("backStep1Btn");
 function setStep(n){
   if (!flowEl) return;
   flowEl.classList.toggle("is-step2", n === 2);
+
+  document.body.classList.toggle("is-step2", n === 2);
 }
 
 if (goStep2Btn) goStep2Btn.addEventListener("click", () => setStep(2));
-if (backStep1Btn) backStep1Btn.addEventListener("click", () => setStep(1));
+
+if (backStep1Btn) backStep1Btn.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (flowEl && flowEl.classList.contains("is-step2")) {
+    setStep(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  window.location.href = "index.html";
+});
+
 
 setStep(1);
 
 
-// init
+initPayPills();
 renderCheckout();

@@ -350,7 +350,6 @@ window.KIMCHI_PRODUCTS = [
       ]
     }
   },
-
   { 
     id:"Tofu",
     name:"Kimchi de Tofu", 

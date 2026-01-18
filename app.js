@@ -1,4 +1,3 @@
-// app.js
 const products = window.KIMCHI_PRODUCTS || [];
 
 const $ = (sel) => document.querySelector(sel);
@@ -19,12 +18,11 @@ const cartModal = $("#cartModal");
 const cartClose = $("#cartClose");
 const cartItems = $("#cartItems");
 const cartCountEls = document.querySelectorAll(".cart-badge");
-const cartTotal = $("#cartTotal"); // puede ser null ahora
+const cartTotal = $("#cartTotal");
 const cartTotal2 = $("#cartTotal2");
 const cartCheckoutBtn = $("#cartCheckoutBtn");
 const checkoutBtn = $("#checkoutBtn");
 
-// product modal
 const productModal = $("#productModal");
 const modalClose = $("#modalClose");
 const modalImg = $("#modalImg");
@@ -44,10 +42,8 @@ const CATEGORY_META = [
   { name: "Salsas",   special: false, img: "url('img/cats/.png')" },
 ];
 
-
-// --- Cart state ---
 const CART_KEY = "kimchi_cart_v1";
-let cart = loadCart(); // { [id]: qty }
+let cart = loadCart(); 
 
 function loadCart(){
   try{
@@ -62,7 +58,6 @@ function saveCart(){
 }
 
 function money(n){
-  // simple ARS formatting
   return "$" + (n || 0).toLocaleString("es-AR");
 }
 
@@ -98,17 +93,10 @@ function sumCartTotal(cartObj){
   return total;
 }
 
-/**
- * Calcula promos automáticamente sin modificar el carrito real.
- * Devuelve:
- * - applied: [{ title, price, items:[{id,qty}], savings }]
- * - discount: total de descuento (baseTotal - promoTotalItems)
- */
 function computePromos(cartObj){
-  const remaining = { ...cartObj }; // trabajamos sobre copia
+  const remaining = { ...cartObj }; 
   const applied = [];
 
-  // helpers
   const getQty = (id) => remaining[id] || 0;
   const take = (id, n) => {
     remaining[id] = (remaining[id] || 0) - n;
@@ -123,19 +111,17 @@ function computePromos(cartObj){
       if (!predicate(p)) continue;
       for (let i=0;i<qty;i++) arr.push(id);
     }
-    // ordena por precio DESC para maximizar ahorro cuando el pack es precio fijo
     arr.sort((a,b) => (getProductById(b)?.price||0) - (getProductById(a)?.price||0));
     return arr;
   };
 
-  // --- PROMO 1: 1 Akusay (picante o blanco) + 1 Tofu (especial) = $35.000
   {
   const akusayIds = expandIds(p =>
     isAkusay(p) && p.category !== "Promo" && p.category !== "Salsas"
   );
 
   const tofuIds = expandIds(p =>
-    isTofu(p) && p.category === "Especiales" // <- clave
+    isTofu(p) && p.category === "Especiales" 
   );
 
   let pairs = Math.min(akusayIds.length, tofuIds.length);
@@ -157,7 +143,6 @@ function computePromos(cartObj){
     }
   }
 
-  // --- PROMO 4: 3 Salsas = $40.000 (combina como quieran)
   {
     const salsaIds = expandIds(isSalsa);
     while (salsaIds.length >= 3){
@@ -175,8 +160,6 @@ function computePromos(cartObj){
     }
   }
 
-  // --- PROMO 3: 3 Kimchis = $50.000 (variados) excluye especiales
-  // La hacemos ANTES de "2 iguales" porque generalmente conviene más.
   {
     const kimchiIds = expandIds(isPromoEligibleKimchiNoEspecial);
     while (kimchiIds.length >= 3){
@@ -194,9 +177,7 @@ function computePromos(cartObj){
     }
   }
 
-  // --- PROMO 2: 2 Kimchis Iguales = $35.000 excluye especiales
   {
-    // buscamos pares por id dentro de lo elegible
     const ids = Object.keys(remaining);
     for (const id of ids){
       const p = getProductById(id);
@@ -250,20 +231,17 @@ function cartSummary(){
 function updateCartUI(){
   const { count, total } = cartSummary();
 
-  // ✅ actualiza TODOS los badges (home + categoria)
   cartCountEls.forEach(el => {
     el.textContent = String(count);
     el.style.display = count > 0 ? "grid" : "none";
   });
 
-  // totales (protegidos por si no existen)
   if (cartTotal2) cartTotal2.textContent = money(total);
   if (cartTotal)  cartTotal.textContent  = money(total);
 
-  // limpiar items del modal (si existe)
+
 if (cartItems) cartItems.innerHTML = "";
 
-// items
 const entries = Object.entries(cart).filter(([_,q]) => q > 0);
 
 if (!entries.length){
@@ -355,19 +333,16 @@ function renderCrumb(){
 
   const { cat, pid } = getRoute();
 
-  // Inicio
   if (!cat && !pid){
     crumb.innerHTML = "";
     return;
   }
 
-  // Inicio/Categoria
   if (cat && !pid){
     crumb.innerHTML = `<a href="#top" onclick="location.hash='';return false;">Inicio</a> / ${escapeHtml(cat)}`;
     return;
   }
 
-  // Inicio/Categoria/Producto
   if (cat && pid){
     const p = getProductById(pid);
     const pname = p ? p.name : "Producto";
@@ -378,7 +353,7 @@ function renderCrumb(){
   }
 }
 
-// --- Modal helpers ---
+// helpers
 function openModal(el){
   el.classList.add("is-open");
   el.setAttribute("aria-hidden", "false");
@@ -386,6 +361,23 @@ function openModal(el){
 function closeModal(el){
   el.classList.remove("is-open");
   el.setAttribute("aria-hidden", "true");
+}
+
+function resetProductModalState(){
+  modalBundle = null;
+
+  modalProduct = null;
+
+  setModalQty(1);
+
+  const qtyBox = document.querySelector(".modal__qty");
+  if (qtyBox) qtyBox.style.display = "flex";
+
+  if (modalAddBtn){
+    modalAddBtn.disabled = false;
+    modalAddBtn.style.opacity = "1";
+    modalAddBtn.style.pointerEvents = "auto";
+  }
 }
 
 document.addEventListener("click", (e) => {
@@ -400,8 +392,10 @@ if (modalClose) modalClose.addEventListener("click", closeProductModalAndResetRo
 
 function closeProductModalAndResetRoute(){
   closeModal(productModal);
+  resetProductModalState(); 
+
   const { pid } = getRoute();
-  if (pid) location.hash = ""; // vuelve a inicio y recupera todos los "Más vendidos"
+  if (pid) location.hash = "";
 }
 
 
@@ -448,7 +442,6 @@ function openProductModal(p){
 
     extra.innerHTML = html;
 
-      // ===== Detectar si es promo y preparar bundle =====
   const kind = promoKindFromProduct(p);
 
   if (kind === "3salsas"){
@@ -493,9 +486,7 @@ function setModalQty(n){
   if (modalQtyVal) modalQtyVal.textContent = String(modalQty);
 }
 
-// ===== Promo Builder (modal) =====
 let modalBundle = null; 
-// { kind, targetPerPack, poolFn, picks:{[id]:qty}, lockId?:string, autoAdds?:[{id,qtyPerPack}] }
 
 function isPromoProduct(p){
   return p && p.category === "Promo";
@@ -522,7 +513,6 @@ function isSalsa(p){ return p && p.category === "Salsas"; }
 function isAkusay(p){ return p && /akusay/i.test(p.name); }
 function isTofu(p){ return p && /tofu/i.test(p.name); }
 
-// Buscamos el tofu especial por id (asumiendo que existe uno)
 function findTofuEspecialId(){
   const tofu = products.find(p => p.category === "Especiales" && isTofu(p));
   return tofu ? tofu.id : null;
@@ -530,7 +520,7 @@ function findTofuEspecialId(){
 
 function bundleTargetCount(){
   if (!modalBundle) return 0;
-  return modalBundle.targetPerPack * modalQty; // qty del modal multiplica la promo
+  return modalBundle.targetPerPack * modalQty;
 }
 
 function bundleSelectedCount(){
@@ -541,7 +531,6 @@ function bundleSelectedCount(){
 function buildPoolItems(){
   if (!modalBundle) return [];
   const pool = products.filter(modalBundle.poolFn);
-  // orden por precio desc (opcional)
   pool.sort((a,b)=> (b.price||0) - (a.price||0));
   return pool;
 }
@@ -605,7 +594,6 @@ function renderBundleUI(){
   setAddBtnState(selected === target);
 }
 
-// Delegación para +/− dentro del modal
 document.addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-pick-act]");
   if (!btn || !modalBundle) return;
@@ -620,10 +608,9 @@ document.addEventListener("click", (e) => {
   if (act === "inc"){
     if (selected >= target) return;
 
-    // Regla "2 iguales": si ya elegiste un tipo, bloquea otros
     if (modalBundle.kind === "2iguales"){
-      if (modalBundle.lockId && modalBundle.lockId !== id) return; // bloquea
-      if (!modalBundle.lockId) modalBundle.lockId = id; // lock al primer inc
+      if (modalBundle.lockId && modalBundle.lockId !== id) return;
+      if (!modalBundle.lockId) modalBundle.lockId = id;
     }
 
     modalBundle.picks[id] = (modalBundle.picks[id] || 0) + 1;
@@ -631,7 +618,6 @@ document.addEventListener("click", (e) => {
     modalBundle.picks[id] = Math.max(0, (modalBundle.picks[id] || 0) - 1);
     if (modalBundle.picks[id] === 0) delete modalBundle.picks[id];
 
-    // Si era "2 iguales" y ya no queda nada del lockId, liberar lock
     if (modalBundle.kind === "2iguales" && modalBundle.lockId){
       const leftOfLocked = modalBundle.picks[modalBundle.lockId] || 0;
       if (leftOfLocked === 0) modalBundle.lockId = null;
@@ -648,49 +634,35 @@ if (modalQtyDec) modalQtyDec.addEventListener("click", () => setModalQty(modalQt
 modalAddBtn.addEventListener("click", () => {
   if (!modalProduct) return;
 
-  // Si es promo, agrego los productos elegidos (y tofu auto si aplica)
   if (modalBundle){
     const target = bundleTargetCount();
     const selected = bundleSelectedCount();
     if (selected !== target) return;
 
-    // agrega los elegidos
     for (const [id, qty] of Object.entries(modalBundle.picks)){
       addToCart(id, qty);
     }
 
-    // Promo Akusay + Tofu: sumar tofu especial automáticamente por cada Akusay
     if (modalBundle.kind === "akusaytofu"){
       const tofuId = findTofuEspecialId();
       if (tofuId){
-        addToCart(tofuId, modalQty); // 1 tofu por pack, multiplicado por qty
+        addToCart(tofuId, modalQty);
       }
     }
 
     closeModal(productModal);
+    resetProductModalState();
     return;
   }
 
-  // Producto normal
   addToCart(modalProduct.id, modalQty);
   closeModal(productModal);
+  resetProductModalState(); 
 });
 
-// Cart modal
 cartBtn.addEventListener("click", () => {
   window.location.href = "checkout.html";
 })
-// cartClose.addEventListener("click", () => closeModal(cartModal));
-// cartItems.addEventListener("click", (e) => {
-//  const btn = e.target.closest("button[data-act]");
-//  if (!btn) return;
-//  const id = btn.dataset.id;
-//  const act = btn.dataset.act;
-//  if (act === "inc") addToCart(id, 1);
-//  if (act === "dec") addToCart(id, -1);
-// });
-
-// --- Categories / Render ---
 
 function renderCategories(){
   catsEl.innerHTML = "";
@@ -750,13 +722,11 @@ function productCard(p){
     </div>
     `;
     
-    // Click en cualquier parte de la card (menos el botón)
     el.addEventListener("click", (e) => {
-    if (e.target.closest("button")) return; // evita doble acción
+    if (e.target.closest("button")) return; 
       openProductModal(p);
     });
 
-    // Botón: si es promo -> abrir modal (builder). Si no -> agregar directo.
     el.querySelector("[data-add]").addEventListener("click", () => {
     if (isPromo) {
       openProductModal(p);
@@ -768,18 +738,15 @@ function productCard(p){
     return el;
   }
 
-
-  // Layout normal (inicio / más vendidos)
   el.innerHTML = `
     <div class="card__img" style="${imgStyle}"></div>
     <div class="card__body">
       <div class="card__title">${escapeHtml(p.name)}</div>
       <div class="card__price">${money(p.price)}</div>
-      <button class="btn btn--primary" data-view="${p.id}">VER PRODUCTO</button>
+      <button class="btn btn--primary btnBest" data-view="${p.id}">VER PRODUCTO</button>
     </div>
   `;
 
-  // Click en cualquier parte de la card (menos el botón) -> abre modal
   el.addEventListener("click", (e) => {
   if (e.target.closest("button")) return;
     openProductModal(p);
@@ -812,32 +779,27 @@ function renderBest(){
 
   if (bestEmpty) bestEmpty.style.display = "none";
 
-  // ✅ armamos infinito
   setupBestInfinite(best);
 }
 
 function setupBestInfinite(best){
-  // limpia listeners viejos si re-renderiza
   if (typeof bestInfiniteCleanup === "function") bestInfiniteCleanup();
 
-  // si hay 1 solo producto, no tiene sentido infinito
   if (best.length < 2){
     best.forEach(p => bestGrid.appendChild(productCard(p)));
     bestInfiniteCleanup = null;
     return;
   }
 
-  // 3 tandas: [A][A][A] y arrancamos en la del medio
   const tripled = [...best, ...best, ...best];
 
   const frag = document.createDocumentFragment();
   tripled.forEach(p => frag.appendChild(productCard(p)));
   bestGrid.appendChild(frag);
 
-  // esperamos a que el DOM calcule anchos
   requestAnimationFrame(() => {
     const segment = bestGrid.scrollWidth / 3;
-    bestGrid.scrollLeft = segment; // centro (tanda del medio)
+    bestGrid.scrollLeft = segment;
   });
 
   let jumping = false;
@@ -850,7 +812,7 @@ function setupBestInfinite(best){
     if (!seg) return;
 
     jumping = true;
-    bestGrid.classList.add("is-jumping"); // <- clave (usa tu CSS)
+    bestGrid.classList.add("is-jumping");
     bestGrid.scrollLeft += delta;
 
     requestAnimationFrame(() => {
@@ -862,7 +824,6 @@ function setupBestInfinite(best){
   const onScroll = () => {
     if (jumping) return;
 
-    // esperamos a que termine la inercia del swipe
     clearTimeout(snapTimer);
     snapTimer = setTimeout(() => {
       const seg = getSegment();
@@ -870,7 +831,6 @@ function setupBestInfinite(best){
 
       const left = bestGrid.scrollLeft;
 
-      // usá umbrales más “lejos” para no llegar al borde real
       if (left < seg * 0.25) doJump(+seg);
       else if (left > seg * 1.75) doJump(-seg);
     }, 90);
@@ -889,7 +849,6 @@ function setupBestInfinite(best){
 
 
 function renderProducts(){
-  // ✅ si en esta página no existe el grid, no hagas nada
   if (!productsGrid) return;
 
   productsGrid.innerHTML = "";
@@ -911,27 +870,22 @@ window.addEventListener("hashchange", renderAll);
 function renderAll(){
   const { cat, pid } = getRoute();
 
-  // Estado por ruta
   activeCategory = cat || null;
 
   renderCategories();
   renderCrumb();
 
-  // Si estoy en producto, abro modal y muestro lista de su categoría abajo
   if (pid){
     const p = getProductById(pid);
     if (p) openProductModal(p);
   }
 
-  // En Inicio: muestro Más vendidos + (opcional) todos los productos
-  // En Categoría: muestro lista de esa categoría (productsGrid)
   renderBest();
   renderProducts();
 
   updateCartUI();
 }
 
-// ---------- Search dropdown (pro) ----------
 let searchDrop = null;
 
 function ensureSearchDropdown(){
@@ -941,7 +895,6 @@ function ensureSearchDropdown(){
   searchDrop.className = "search-drop is-hidden";
   searchDrop.innerHTML = `<div class="search-drop__list"></div>`;
 
-  // lo metemos al mismo contenedor del input (así queda pegado abajo)
   const wrap = searchInput.parentElement;
   if (wrap) {
     wrap.style.position = "relative";
@@ -950,7 +903,6 @@ function ensureSearchDropdown(){
     document.body.appendChild(searchDrop);
   }
 
-  // cerrar al tocar afuera
   document.addEventListener("click", (e) => {
     if (!searchDrop) return;
     if (e.target === searchInput) return;
@@ -971,7 +923,7 @@ function normalize(s){
     .toString()
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, ""); // saca acentos
+    .replace(/[\u0300-\u036f]/g, "");
 }
 
 function searchProducts(q){
@@ -994,29 +946,24 @@ function searchProducts(q){
 }
 
 function getHeatTag(p){
-  // 0) Si la categoría ya define el picante, usarla (más confiable)
   const cat = (p?.category || "").toString().toLowerCase();
   if (cat === "sin picante") return { text: "Sin picante", cls: "meta--sin-picante" };
   if (cat === "picante")     return { text: "Picante", cls: "meta--picante" };
 
-  // 1) Si hay nivelPicante numérico (acepta "0" / "5" string también)
   const n = Number(p?.nivelPicante);
   if (Number.isFinite(n)) {
     if (n === 0) return { text: "Sin picante", cls: "meta--sin-picante" };
     if (n > 0)   return { text: "Picante", cls: "meta--picante" };
   }
 
-  // 2) Si viene como string tipo "Picante"/"Sin picante"
   const lvl = (p?.picante || p?.nivel || p?.heat || "").toString().toLowerCase();
   if (lvl.includes("sin picante") || lvl.includes("sin")) return { text: "Sin picante", cls: "meta--sin-picante" };
   if (lvl.includes("picante") || lvl.includes("pic"))     return { text: "Picante", cls: "meta--picante" };
 
-  // 3) Heurística por texto (IMPORTANTE: sin picante primero)
   const hay = `${p?.name || ""} ${p?.short || ""} ${p?.long || ""} ${p?.category || ""}`.toLowerCase();
   if (hay.includes("sin picante")) return { text: "Sin picante", cls: "meta--sin-picante" };
   if (hay.includes("picante"))     return { text: "Picante", cls: "meta--picante" };
 
-  // 4) Si no sabemos, no inventamos
   return { text: "Clásico", cls: "meta--neutral" };
 }
 
@@ -1041,7 +988,7 @@ function renderSearchDrop(q){
 let meta = "";
 let metaClass = "";
 
-// Prioridad 1: Promo / Especiales
+
 if (p.category === "Promo"){
   meta = "Promo";
   metaClass = "meta--promo";
@@ -1050,12 +997,12 @@ else if (p.category === "Especiales"){
   meta = "Especiales";
   metaClass = "meta--especial";
 }
-// Prioridad 2: Salsa
+
 else if (p.category === "Salsas"){
   meta = "Salsa";
   metaClass = "meta--salsa";
 }
-// Prioridad 3: Picante / Sin picante (robusto)
+
 else {
   const heat = getHeatTag(p);
   meta = heat.text;
@@ -1079,7 +1026,6 @@ else {
 
   searchDrop.classList.remove("is-hidden");
 
-  // click en resultado -> abre modal SIN setHash (no scrollea arriba)
   list.querySelectorAll("[data-id]").forEach(btn => {
     btn.addEventListener("click", () => {
       const id = btn.dataset.id;
@@ -1097,10 +1043,8 @@ if (searchInput){
   searchInput.addEventListener("input", () => {
     const isCategoryPage = document.body.classList.contains("page-category");
 
-    // En categoría, podés seguir filtrando la grilla si querés:
     if (isCategoryPage) renderProducts();
 
-    // Siempre mostramos dropdown flotante:
     renderSearchDrop(searchInput.value);
   });
 
@@ -1113,8 +1057,6 @@ if (searchInput){
   });
 }
 
-
-// --- Slider simple (fase 2 ya está, pero lo dejamos andando) ---
 let bannerIndex = 0;
 
 function bannerInit(){
@@ -1132,7 +1074,6 @@ function bannerInit(){
     if (dots[bannerIndex]) dots[bannerIndex].classList.add("is-active");
   }
 
-  // ✅ Dots clickeables SOLO en PC
   const isDesktopPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
   if (isDesktopPointer) {
@@ -1145,10 +1086,8 @@ function bannerInit(){
     });
   }
 
-  // ✅ Autoplay
   const timer = setInterval(() => show(bannerIndex + 1), 5000);
 
-  // ✅ Swipe mobile (simple)
   const bannerEl = document.querySelector(".banner");
   if (bannerEl){
     let startX = 0;
@@ -1162,8 +1101,8 @@ function bannerInit(){
       const diff = startX - endX;
 
       if (Math.abs(diff) > 50){
-        if (diff > 0) show(bannerIndex + 1);  // swipe izquierda
-        else          show(bannerIndex - 1);  // swipe derecha
+        if (diff > 0) show(bannerIndex + 1); 
+        else          show(bannerIndex - 1); 
       }
     }, { passive: true });
   }
@@ -1173,7 +1112,6 @@ function bannerInit(){
 
 bannerInit();
 
-// --- WhatsApp checkout (por ahora placeholder) ---
 function buildWhatsAppMessage(){
   const entries = Object.entries(cart).filter(([_,q]) => q > 0);
   if (!entries.length) return "Hola! Quiero hacer un pedido.\n\n(El carrito está vacío)";
@@ -1199,7 +1137,7 @@ function buildWhatsAppMessage(){
 }
 
 function openWhatsApp(){
-  const phone = "5490000000000"; // TODO: reemplazar
+  const phone = "5490000000000"; 
   const text = buildWhatsAppMessage();
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
   window.open(url, "_blank");
@@ -1226,6 +1164,7 @@ function openSidePanel({ title, content }) {
 function closeSidePanel(){
   sidePanel.classList.remove("is-open");
   sidePanel.setAttribute("aria-hidden", "true");
+  delete sidePanel.dataset.panel; 
 }
 
 document.addEventListener("click", (e) => {
@@ -1260,21 +1199,21 @@ if (menuBtn && drawer){
   if (drawerOverlay) drawerOverlay.addEventListener("click", closeDrawer);
 
   drawer.addEventListener("click", (e) => {
-    // Paneles (Información / Contacto)
     const btn = e.target.closest("[data-panel]");
     if (btn){
       const key = btn.dataset.panel;
 
-      // agarramos el contenido desde <template id="tpl-...">
       const tpl = document.getElementById(`tpl-${key}`);
       const html = tpl ? tpl.innerHTML : `<p>Contenido no configurado.</p>`;
 
       const titles = {
-        about: "¿Quiénes somos?",
+        about: "Nuestra Historia",
         kimchis: "Sobre nuestros Kimchis",
         faq: "Preguntas frecuentes",
         contact: "Contactos",
       };
+
+      if (sidePanel) sidePanel.dataset.panel = key;
 
       openSidePanel({
         title: titles[key] || "Panel",
@@ -1285,8 +1224,6 @@ if (menuBtn && drawer){
       return;
     }
 
-    // Navegación normal (links)
-    // Navegación normal (links)
     const a = e.target.closest("a.drawer__link");
       if (a){
       const href = a.getAttribute("href") || "";
@@ -1320,8 +1257,6 @@ if (menuBtn && drawer){
   });
 }
 
-
-// ===== Banner slider =====
 const bannerSlides = document.querySelectorAll(".banner__slide");
 const bannerDots   = document.querySelectorAll(".banner__dots .dot");
 const bannerPrev   = document.querySelector(".banner__arrow--left");
@@ -1347,10 +1282,9 @@ if (bannerPrev && bannerNext){
   bannerPrev.addEventListener("click", () => showBanner(bannerCurrent - 1));
   bannerNext.addEventListener("click", () => showBanner(bannerCurrent + 1));
 }
-// autoplay
 setInterval(() => showBanner(bannerCurrent + 1), 6000);
 
-// ===== Scroll con offset (para cualquier link #... fuera del drawer también) =====
+
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a[href^='#']");
   if (!a) return;
@@ -1371,10 +1305,8 @@ document.addEventListener("click", (e) => {
   window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
 });
 
-
-// ===== Paneles desde cualquier lado (footer incluido) =====
 document.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-panel]");
+  const btn = e.target.closest("button[data-panel], a[data-panel]");
   if (!btn) return;
 
   const key = btn.dataset.panel;
@@ -1383,22 +1315,29 @@ document.addEventListener("click", (e) => {
   const html = tpl ? tpl.innerHTML : `<p>Contenido no configurado.</p>`;
 
   const titles = {
-    about: "¿Quiénes somos?",
+    about: "Nuestra Historia",
     kimchis: "Sobre nuestros Kimchis",
     faq: "Preguntas frecuentes",
     contact: "Contactos",
   };
+
+  sidePanel.dataset.panel = key;
 
   openSidePanel({
     title: titles[key] || "Panel",
     content: html
   });
 
-  // si el click vino del drawer, también cerralo (si está abierto)
   if (drawer && drawer.classList.contains("is-open")) closeDrawer();
 });
 
+document.addEventListener("click", (e) => {
+  const backBtn = e.target.closest("[data-panel-back]");
+  if (!backBtn) return;
+
+  closeSidePanel();
+  openDrawer();
+});
 
 
-// init
 renderAll();

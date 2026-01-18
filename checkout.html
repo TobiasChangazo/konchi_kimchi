@@ -11,11 +11,17 @@
 <header class="header" id="top">
   <div class="container">
     <div class="header__inner header__inner--centerLogo">
-      <button class="icon-btn icon-btn--square" onclick="window.location.href='index.html'" aria-label="Volver">←</button>
+
+      <button class="icon-btn icon-btn--square" id="backStep1Btn" type="button" aria-label="Volver">
+        ←
+      </button>
 
       <a class="brand brand--center" href="index.html" aria-label="Inicio">
-        <img class="brand__img" src="img/logo.png" alt="Konchi" />
+        <img class="brand__img" src="img/logotransparente.png" alt="Konchi" />
       </a>
+
+      <div class="header__spacer" aria-hidden="true"></div>
+
     </div>
   </div>
 </header>
@@ -26,7 +32,6 @@
     <div class="checkoutFlow" id="checkoutFlow">
       <div class="checkoutFlow__track" id="checkoutTrack">
 
-        <!-- Paso 1: Resumen -->
         <div class="checkoutStep">
           <h2 class="checkout__title">Tu pedido</h2>
 
@@ -41,43 +46,54 @@
           </div>
         </div>
 
-        <!-- Paso 2: Datos -->
         <div class="checkoutStep">
-          <div class="checkoutStep__head">
-        <button class="btn btn--ghost" id="backStep1Btn">← Volver</button>
-            <h2 class="checkout__title" style="margin:0;">Datos para el pedido</h2>
-            <div></div>
-          </div>
+          <h2 class="checkout__title">Datos para el pedido</h2>
 
           <div class="checkout__card">
-            <label class="field">
-              <span>Nombre y apellido</span>
-              <input id="custName" type="text" placeholder="Ej: Juan Pérez" />
-            </label>
+            <div class="checkout__form">
 
-            <label class="field">
-              <span>Medio de pago</span>
-              <select id="payMethod">
-                <option value="">Elegí una opción</option>
-                <option value="Efectivo">Efectivo</option>
-                <option value="Transferencia">Transferencia</option>
-              </select>
-            </label>
+              <label class="field">
+                <span>Nombre y apellido</span>
+                <input id="custName" type="text" placeholder="Ej: Juan Pérez" />
+              </label>
 
-            <label class="field">
-              <span>Notas (opcional)</span>
-              <textarea id="custNotes" rows="3" placeholder="Ej: sin picante / entregar en portería..."></textarea>
-            </label>
+              <label class="field">
+                <span>Medio de pago</span>
 
-            <button class="btn btn--primary" id="sendWhatsAppBtn">
+                <select id="payMethod" class="sr-only" aria-hidden="true" tabindex="-1">
+                  <option value="">Elegí una opción</option>
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Transferencia">Transferencia</option>
+                </select>
+
+                <div class="payPills" id="payPills" role="radiogroup" aria-label="Medio de pago">
+                  <button type="button" class="payPill" data-pay="Efectivo" role="radio" aria-checked="false">
+                    Efectivo
+                  </button>
+
+                  <button type="button" class="payPill" data-pay="Transferencia" role="radio" aria-checked="false">
+                    Transferencia
+                  </button>
+                </div>
+              </label>
+
+              <label class="field">
+                <span>Notas (opcional)</span>
+                <textarea
+                  id="custNotes"
+                  rows="3"
+                  placeholder="Ej: sin picante / entregar en portería..."
+                ></textarea>
+              </label>
+            </div>
+
+            <button type="button" class="btn btn--primary checkout__cta" id="sendWhatsAppBtn">
               Enviar pedido por WhatsApp
             </button>
           </div>
         </div>
-
       </div>
     </div>
-
   </div>
 </section>
 
