@@ -1864,7 +1864,7 @@
 }
  .panel-hero{
      border: 1px solid rgba(0,0,0,.08);
-     background: linear-gradient(180deg, #ffffff, #f2fbf6);
+     background: #fff;
      border-radius: 16px;
      padding: 14px;
      box-shadow: 0 10px 20px rgba(0,0,0,.06);
@@ -2244,9 +2244,16 @@
   --sp-p: #1f2a27;
 }
 
-.panel-card span,
-.panel-card p,
-.panel-card .value {
-  color: #1f2a27;
-  font-weight: 900;
+/* TODOS los textos del panel igual que "Origen" */
+.side-panel__body p,
+.side-panel__body .panel-card__title,
+.side-panel__body .panel-hero__title{
+  color: var(--muted);
+}
+
+.panel-hero__title,
+.panel-card__title{
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--muted);
 }
