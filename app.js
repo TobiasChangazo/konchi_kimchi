@@ -7,6 +7,10 @@ const catsEl = $("#cats");
 const bestGrid = $("#bestGrid");
 const productsGrid = $("#productsGrid");
 const searchInput = $("#searchInput");
+const searchModal = $("#searchModal");
+const searchBtn = $("#searchBtn");
+const drawerSearchBtn = $("#drawerSearchBtn");
+const searchSuggestions = $("#searchSuggestions");
 
 const menuBtn = $("#menuBtn");
 const drawer = $("#drawer");
@@ -35,8 +39,8 @@ let activeCategory = null;
 let modalProduct = null;
 
 const CATEGORY_META = [
-  { name: "Promo", special: true,  img: "url('img/cats/cat1.jpg')" },
-  { name: "Picante",  special: false, img: "url('img/cats/cat2.jpg')" },
+  { name: "Promo", special: true,  img: "url('img/cats/cat122222.jpg')" },
+  { name: "Picante",  special: false, img: "url('img/cats/cat222222.jpg')" },
   { name: "Sin picante", special: false, img: "url('img/cats/.png')" },
   { name: "Especiales", special: false, img: "url('img/cats/.png')" },
   { name: "Salsas",   special: false, img: "url('img/cats/.png')" },
@@ -315,6 +319,21 @@ function escapeHtml(str){
     .replaceAll("'","&#039;");
 }
 
+function splitNameSize(name){
+  const raw = (name || "").toString();
+  const parts = raw.split("•");
+  if (parts.length < 2) return { main: raw.trim(), size: "" };
+  return { main: parts[0].trim(), size: parts.slice(1).join("•").trim() };
+}
+
+function renderNameWithSize(name){
+  const { main, size } = splitNameSize(name);
+  return size
+    ? `${escapeHtml(main)} <span class="name-sep">•</span> <span class="name-size">${escapeHtml(size).replace(" ml", "&nbsp;ml")}</span>`
+    : escapeHtml(main);
+}
+
+
 function setHash(params){
   const qs = new URLSearchParams(params);
   location.hash = qs.toString();
@@ -363,6 +382,100 @@ function closeModal(el){
   el.setAttribute("aria-hidden", "true");
 }
 
+function setSearchSuggestionsVisible(){
+  if (!searchSuggestions || !searchInput) return;
+  const hasText = !!searchInput.value.trim();
+  searchSuggestions.style.display = hasText ? "none" : "block";
+}
+
+function openSearchModal(){
+  if (!searchModal) return;
+
+  // si viene desde mobile drawer, cerralo para que no se superponga
+  closeDrawer?.();
+
+  openModal(searchModal);
+
+  // reset visual
+  if (searchInput){
+    searchInput.value = "";
+    hideSearchDrop?.();
+    setSearchSuggestionsVisible();
+    // focus con pequeño delay para mobile
+    setTimeout(() => searchInput.focus(), 50);
+  }
+}
+
+function closeSearchModal(){
+  if (!searchModal) return;
+  closeModal(searchModal);
+
+  hideSearchDrop?.();
+  if (searchInput) searchInput.blur();
+}
+
+function isSearchOpen(){
+  return !!searchModal && searchModal.classList.contains("is-open");
+}
+
+// Abrir desde header (lupa)
+if (searchBtn){
+  searchBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    openSearchModal();
+  });
+}
+
+// Abrir desde drawer (mobile)
+if (drawerSearchBtn){
+  drawerSearchBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    openSearchModal();
+  });
+}
+
+// Cerrar por overlay / botón X (todo lo que tenga data-search-close)
+if (searchModal){
+  searchModal.addEventListener("click", (e) => {
+    const closeEl = e.target.closest("[data-search-close]");
+    if (closeEl) closeSearchModal();
+  });
+}
+
+// Chips de sugerencias
+document.addEventListener("click", (e) => {
+  const chip = e.target.closest("[data-search-chip]");
+  if (!chip || !searchInput) return;
+
+  // abre modal si el chip se tocara fuera (por si reusas chips en otro lado)
+  if (searchModal && !isSearchOpen()) openModal(searchModal);
+
+  searchInput.value = chip.dataset.searchChip || chip.textContent || "";
+  setSearchSuggestionsVisible();
+  renderSearchDrop(searchInput.value);
+  searchInput.focus();
+});
+
+// Escape: si el modal está abierto, cierra modal; si no, solo oculta dropdown
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+
+  if (isSearchOpen()){
+    e.preventDefault();
+    closeSearchModal();
+  } else {
+    hideSearchDrop?.();
+  }
+});
+
+// Cuando escribe: mostrar/ocultar sugerencias
+if (searchInput){
+  searchInput.addEventListener("input", () => {
+    setSearchSuggestionsVisible();
+  });
+}
+
+
 function resetProductModalState(){
   modalBundle = null;
 
@@ -401,7 +514,7 @@ function closeProductModalAndResetRoute(){
 
 function openProductModal(p){
   modalProduct = p;
-  modalTitle.textContent = p.name;
+  modalTitle.innerHTML = renderNameWithSize(p.name);
   modalPrice.textContent = money(p.price);
   modalDesc.textContent = p.long || p.short || "";
   modalImg.style.backgroundImage = p.image ? `url('${p.image}')` : "";
@@ -417,7 +530,7 @@ function openProductModal(p){
     if (info.fermentacion){
       html += `
         <h4>Tiempo de fermentación</h4>
-        <div style="margin-bottom:10px;">${escapeHtml(info.fermentacion)}</div>
+        <div style="margin-bottom:10px; color: #354F49;;">${escapeHtml(info.fermentacion)}</div>
       `;
     }
 
@@ -715,7 +828,7 @@ function productCard(p){
     el.innerHTML = `
     <div class="card__img" style="${imgStyle}"></div>
     <div class="card__body">
-      <div class="card__title">${escapeHtml(p.name)}</div>
+      <div class="card__title">${renderNameWithSize(p.name)}</div>
       <div class="card__desc">${escapeHtml(p.short || "")}</div>
       <div class="card__price">${money(p.price)}</div>
       <button class="btn" data-add="${p.id}">${isPromo ? "ARMAR PROMO 🧩" : "AGREGAR AL 🛒"}</button>
@@ -723,9 +836,10 @@ function productCard(p){
     `;
     
     el.addEventListener("click", (e) => {
-    if (e.target.closest("button")) return; 
-      openProductModal(p);
-    });
+      if (bestGrid?.classList.contains("is-dragging")) return;
+      if (e.target.closest("button")) return;
+        openProductModal(p);
+      });
 
     el.querySelector("[data-add]").addEventListener("click", () => {
     if (isPromo) {
@@ -741,7 +855,7 @@ function productCard(p){
   el.innerHTML = `
     <div class="card__img" style="${imgStyle}"></div>
     <div class="card__body">
-      <div class="card__title">${escapeHtml(p.name)}</div>
+      <div class="card__title">${renderNameWithSize(p.name)}</div>
       <div class="card__price">${money(p.price)}</div>
       <button class="btn btn--primary btnBest" data-view="${p.id}">VER PRODUCTO</button>
     </div>
@@ -821,8 +935,71 @@ function setupBestInfinite(best){
     });
   };
 
-  const onScroll = () => {
-    if (jumping) return;
+const onScroll = () => {
+  if (jumping) return;
+  if (isPointerDown) return;
+
+  clearTimeout(snapTimer);
+  snapTimer = setTimeout(() => {
+    const seg = getSegment();
+    if (!seg) return;
+
+    const left = bestGrid.scrollLeft;
+
+    if (left < seg * 0.25) doJump(+seg);
+    else if (left > seg * 1.75) doJump(-seg);
+  }, 90);
+};
+
+
+const isDesktopPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+let dragMoved = false;
+let captured = false;
+let startX = 0;
+let startLeft = 0;
+
+const onPointerDown = (e) => {
+  if (!isDesktopPointer) return;
+  if (e.button !== 0) return; // click izquierdo
+
+  isPointerDown = true;
+  dragMoved = false;
+  captured = false;
+
+  startX = e.clientX;
+  startLeft = bestGrid.scrollLeft;
+};
+
+const onPointerMove = (e) => {
+  if (!isDesktopPointer) return;
+  if (!isPointerDown) return;
+
+  const dx = e.clientX - startX;
+
+  // recién si se movió “de verdad” lo tratamos como drag
+  if (!dragMoved && Math.abs(dx) > 6) {
+    dragMoved = true;
+    bestGrid.classList.add("is-dragging");
+
+    if (!captured) {
+      bestGrid.setPointerCapture?.(e.pointerId);
+      captured = true;
+    }
+  }
+
+  if (!dragMoved) return;
+  bestGrid.scrollLeft = startLeft - dx;
+};
+
+const onPointerUp = () => {
+  if (!isDesktopPointer) return;
+
+  isPointerDown = false;
+
+  if (dragMoved) {
+    bestGrid.classList.remove("is-dragging");
+    dragMoved = false;
 
     clearTimeout(snapTimer);
     snapTimer = setTimeout(() => {
@@ -830,19 +1007,44 @@ function setupBestInfinite(best){
       if (!seg) return;
 
       const left = bestGrid.scrollLeft;
-
       if (left < seg * 0.25) doJump(+seg);
       else if (left > seg * 1.75) doJump(-seg);
-    }, 90);
-  };
+    }, 120);
+  }
+};
+
+// listeners
+bestGrid.addEventListener("pointerdown", onPointerDown);
+bestGrid.addEventListener("pointermove", onPointerMove);
+bestGrid.addEventListener("pointerup", onPointerUp);
+bestGrid.addEventListener("pointercancel", onPointerUp);
+bestGrid.addEventListener("pointerleave", onPointerUp);
+
+
+bestGrid.addEventListener("click", (e) => {
+  // si hubo drag, cancelamos el click que aparece al soltar
+  if (bestGrid.classList.contains("is-dragging")) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, true);
+
 
   bestGrid.addEventListener("scroll", onScroll, { passive: true });
 
   bestInfiniteCleanup = () => {
-    clearTimeout(snapTimer);
-    bestGrid.removeEventListener("scroll", onScroll);
-    bestInfiniteCleanup = null;
+  clearTimeout(snapTimer);
+  bestGrid.removeEventListener("scroll", onScroll);
+
+  bestGrid.removeEventListener("pointerdown", onPointerDown);
+  bestGrid.removeEventListener("pointermove", onPointerMove);
+  bestGrid.removeEventListener("pointerup", onPointerUp);
+  bestGrid.removeEventListener("pointercancel", onPointerUp);
+  bestGrid.removeEventListener("pointerleave", onPointerUp);
+
+  bestInfiniteCleanup = null;
   };
+
 
 }
 
@@ -1027,14 +1229,25 @@ else {
   searchDrop.classList.remove("is-hidden");
 
   list.querySelectorAll("[data-id]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = btn.dataset.id;
-      const p = getProductById(id);
-      if (p) openProductModal(p);
-      hideSearchDrop();
-      searchInput.blur();
+  btn.addEventListener("click", () => {
+    const id = btn.dataset.id;
+    const p = getProductById(id);
+
+    if (p) openProductModal(p);
+
+    hideSearchDrop();
+    searchInput.blur();
+
+    // ✅ si el search modal está abierto, lo cerramos también
+    if (typeof closeSearchModal === "function") {
+      closeSearchModal();
+    } else if (searchModal && searchModal.classList.contains("is-open")) {
+      // fallback por si no creaste closeSearchModal()
+      closeModal(searchModal);
+      }
     });
   });
+
 }
 
 if (searchInput){
@@ -1207,7 +1420,6 @@ if (menuBtn && drawer){
       const html = tpl ? tpl.innerHTML : `<p>Contenido no configurado.</p>`;
 
       const titles = {
-        about: "Nuestra Historia",
         kimchis: "Sobre nuestros Kimchis",
         faq: "Preguntas frecuentes",
         contact: "Contactos",
@@ -1315,7 +1527,6 @@ document.addEventListener("click", (e) => {
   const html = tpl ? tpl.innerHTML : `<p>Contenido no configurado.</p>`;
 
   const titles = {
-    about: "Nuestra Historia",
     kimchis: "Sobre nuestros Kimchis",
     faq: "Preguntas frecuentes",
     contact: "Contactos",

@@ -52,7 +52,7 @@ window.KIMCHI_PRODUCTS = [
 
   {
   id: "Akusay picante",
-  name: "Kimchi de Akusay",
+  name: "Akusay • 660 Ml",
   price: 20000,
   category: "Picante",
   bestSeller: true,
@@ -79,7 +79,7 @@ window.KIMCHI_PRODUCTS = [
   },
   {
   id: "Nabo picante",
-  name: "Kimchi de Nabo",
+  name: "Nabo • 660 Ml",
   price: 20000,
   category: "Picante",
   bestSeller: true,
@@ -107,7 +107,7 @@ window.KIMCHI_PRODUCTS = [
   },
   {
   id: "Anana picante",
-  name: "Kimchi de Anana",
+  name: "Anana • 660 Ml",
   price: 20000,
   category: "Picante",
   bestSeller: false,
@@ -141,7 +141,7 @@ window.KIMCHI_PRODUCTS = [
   },
   {
   id: "Sandia picante",
-  name: "Kimchi de Sandia",
+  name: "Sandia • 660 Ml",
   price: 20000,
   category: "Picante",
   bestSeller: false,
@@ -173,7 +173,7 @@ window.KIMCHI_PRODUCTS = [
   },
   {
   id: "Pera picante",
-  name: "Kimchi de Pera",
+  name: "Pera • 660 Ml",
   price: 20000,
   category: "Picante",
   bestSeller: false,
@@ -202,7 +202,7 @@ window.KIMCHI_PRODUCTS = [
   },
   {
   id: "Pepino picante",
-  name: "Kimchi de Pepino",
+  name: "Pepino • 660 Ml",
   price: 20000,
   category: "Picante",
   bestSeller: false,
@@ -233,7 +233,7 @@ window.KIMCHI_PRODUCTS = [
   },
   {
   id: "Remolacha picante",
-  name: "Kimchi de Remolacha",
+  name: "Remolacha • 660 Ml",
   price: 20000,
   category: "Picante",
   bestSeller: true,
@@ -268,7 +268,7 @@ window.KIMCHI_PRODUCTS = [
 
   { 
     id:"Akusay No picante",
-    name:"Kimchi de Akusay Blanco", 
+    name:"Akusay Blanco • 660 Ml", 
     price:20000, 
     category:"Sin picante", 
     bestSeller: true,
@@ -293,7 +293,7 @@ window.KIMCHI_PRODUCTS = [
   },
   { 
     id:"Pera No picante",
-    name:"Kimchi de Pera", 
+    name:"Pera • 660 Ml", 
     price:20000, 
     category:"Sin picante", 
     bestSeller:false,
@@ -320,7 +320,7 @@ window.KIMCHI_PRODUCTS = [
   },
   { 
     id:"Remolacha No picante",
-    name:"Kimchi de Remolacha", 
+    name:"Remolacha • 660 Ml", 
     price:20000, 
     category:"Sin picante", 
     bestSeller:false,
@@ -352,7 +352,7 @@ window.KIMCHI_PRODUCTS = [
   },
   { 
     id:"Tofu",
-    name:"Kimchi de Tofu", 
+    name:"Tofu • 660 Ml", 
     price:25000, 
     category:"Especiales", 
     bestSeller:false,
@@ -383,7 +383,7 @@ window.KIMCHI_PRODUCTS = [
   },
   { 
     id:"Loto",
-    name:"Kimchi de Loto", 
+    name:"Loto • 660 Ml", 
     price:25000, 
     category:"Especiales", 
     bestSeller:false,
@@ -414,7 +414,7 @@ window.KIMCHI_PRODUCTS = [
   },
   { 
     id:"Loto blanco",
-    name:"Kimchi de Loto Blanco", 
+    name:"Loto Blanco • 660 Ml", 
     price:25000, 
     category:"Especiales", 
     bestSeller:false,
@@ -446,7 +446,7 @@ window.KIMCHI_PRODUCTS = [
 
   { 
     id:"Salsa Konchi",
-    name:"Salsa Konchi", 
+    name:"Salsa Konchi • 100 Ml", 
     price:15000, 
     category:"Salsas", 
     bestSeller:false,
@@ -468,7 +468,7 @@ window.KIMCHI_PRODUCTS = [
   },
   { 
     id:"Salsa Verde",
-    name:"Salsa Verde", 
+    name:"Salsa Verde • 100 Ml", 
     price:15000, 
     category:"Salsas", 
     bestSeller:true,
@@ -490,7 +490,7 @@ window.KIMCHI_PRODUCTS = [
   },
   { 
     id:"Salsa Kimchi Honey",
-    name:"Salsa Kimchi Honey", 
+    name:"Salsa Kimchi Honey • 100 Ml", 
     price:15000, 
     category:"Salsas", 
     bestSeller:false,
