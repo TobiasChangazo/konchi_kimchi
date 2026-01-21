@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Kimchi</title>
-  <link href="styles.css?v=8" rel="stylesheet"/>
+  <link href="styles.css?v=9" rel="stylesheet"/>
 </head>
 <body>
 
@@ -42,13 +42,14 @@
   <div class="drawer__header">
   <!-- Search dentro del drawer (solo mobile) -->
   <button class="drawerSearchBtn" id="drawerSearchBtn" type="button" aria-label="Buscar">
-    <span class="drawerSearchBtn__ico" aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path d="M10 4a6 6 0 1 1 3.6 10.8l4.3 4.3a1 1 0 0 1-1.4 1.4l-4.3-4.3A6 6 0 0 1 10 4zm0 2a4 4 0 1 0 .001 8.001A4 4 0 0 0 10 6z"></path>
-      </svg>
-    </span>
-    <span class="drawerSearchBtn__txt">Buscar productos...</span>
-  </button>
+  <span class="drawerSearchBtn__ico" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="7" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  </span>
+  <span class="drawerSearchBtn__txt">Buscar productos...</span>
+</button>
 
 </div>
 
@@ -117,13 +118,19 @@
         <path d="M6.6 10.8c1.6 3 4 5.4 7 7l2.3-2.3c.3-.3.8-.4 1.2-.2 1 .4 2.2.7 3.4.7.6 0 1 .4 1 1V21c0 .6-.4 1-1 1C10.3 22 2 13.7 2 3c0-.6.4-1 1-1h3.3c.6 0 1 .4 1 1 0 1.2.2 2.4.7 3.4.1.4 0 .9-.2 1.2L6.6 10.8z"></path>
       </svg>
     </span>
-    <span class="drawer__text">Contactos</span>
+    <span class="drawer__text">Contacto</span>
   </button>
 </div>
-
-
+<div class="drawer__footer">
+    <img src="img/logotransparente.png" alt="Konchi" class="drawer__logoFooter">
+    
+    <div class="drawer__copy">
+      © <span id="drawerYear">2026</span> Konchi Kimchi 
+    </div>
+  </div>
 </nav>
-    <div class="drawer-overlay" id="drawerOverlay" hidden></div>
+
+<div class="drawer-overlay" id="drawerOverlay" hidden></div>
   </div>
 </header>
 
@@ -154,28 +161,61 @@
   </div>
 </section>
 
-<div class="searchModal" id="searchModal" aria-hidden="true">
-  <div class="searchModal__overlay" data-search-close></div>
+<div class="search-sheet" id="searchSheet" aria-hidden="true">
+  <div class="search-sheet__overlay" data-close-search></div>
+  
+  <div class="search-sheet__content">
+    <div class="search-sheet__handle"></div>
 
-  <div class="searchModal__card" role="dialog" aria-modal="true" aria-label="Buscar productos">
-    <button class="searchModal__close" type="button" data-search-close aria-label="Cerrar">✕</button>
-
-    <div class="searchModal__content">
-      <div class="searchModal__field">
-        <span class="searchModal__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path d="M10 4a6 6 0 1 1 3.6 10.8l4.3 4.3a1 1 0 0 1-1.4 1.4l-4.3-4.3A6 6 0 0 1 10 4zm0 2a4 4 0 1 0 .001 8.001A4 4 0 0 0 10 6z"></path>
-          </svg>
-        </span>
-
-        <input
-          id="searchInput"
-          class="searchModal__input"
-          type="search"
-          placeholder="Que deseas buscar?"
-          autocomplete="off"
-        />
+    <div class="search-sheet__header">
+      <div class="search-sheet__input-box">
+        <svg class="search-sheet__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg> 
+        <input type="search" id="newSearchInput" placeholder="Buscar kimchis, Promos, Salsas..." autocomplete="off">
+        <button type="button" class="search-sheet__close-btn" data-close-search>✕</button>
       </div>
+    </div>
+
+    <div class="search-sheet__body">
+      
+      <div class="sheet-group">
+        <div class="sheet-group__title">🔥 Más vendidos</div>
+        <div class="sheet-list">
+          <button class="sheet-item">
+            <div class="sheet-item__img" style="background-image:url('img/kimchi-akusay.jpg')"></div> <div class="sheet-item__info">
+              <span class="sheet-item__name">Kimchi Akusay</span>
+              <span class="sheet-item__desc">El clásico coreano</span>
+            </div>
+            <div class="sheet-item__price">$6.500</div>
+          </button>
+          
+          <button class="sheet-item">
+            <div class="sheet-item__img" style="background-image:url('img/kimchi-nabo.jpg')"></div>
+            <div class="sheet-item__info">
+              <span class="sheet-item__name">Kimchi de Nabo</span>
+              <span class="sheet-item__desc">Crocante y suave</span>
+            </div>
+            <div class="sheet-item__price">$6.200</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="sheet-group">
+        <div class="sheet-group__title">✨ Nuevos Lanzamientos</div>
+        <div class="sheet-list">
+          <button class="sheet-item">
+            <div class="sheet-item__img" style="background-color:#ffe4c4"></div>
+            <div class="sheet-item__info">
+              <span class="sheet-item__name">Salsa Gochujang</span>
+              <span class="sheet-item__desc">Picante medio</span>
+            </div>
+            <div class="sheet-item__price">$4.500</div>
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -200,17 +240,14 @@
     <div class="best-empty__text">Acá van a aparecer los productos más vendidos.</div>
   </div>
 </div>
-<br>
 <section class="about" id="info">
   <h3 class="about__title">¿QUIÉNES SOMOS?</h3>
-  <br>
   <div class="about__card">
   <p class="about__text">
     Somos una familia que lleva 23 años explorando sabores en el mundo de la gastronomía.
     Nuestra cocina siempre fue un laboratorio de curiosidad, donde lo tradicional se mezcla
     con lo inesperado. Así conocimos el kimchi… y lo hicimos propio.
   </p>
-  <br>
   <p class="about__text">
     Hace 4 años nació <strong>KONCHI</strong>, un proyecto que fermenta ideas, ingredientes y
     principios. Desde el primer frasco, decidimos salirnos del molde y crear versiones únicas
@@ -247,70 +284,59 @@
 
   <button type="button" class="footer__link" data-panel="kimchis">Sobre nuestros Kimchis</button>
   <button type="button" class="footer__link" data-panel="faq">Preguntas frecuentes</button>
-  <button type="button" class="footer__link" data-panel="contact">Contactos</button>
+  <button type="button" class="footer__link" data-panel="contact">Contacto</button>
 </nav>
+</div>
+
+<div class="footer__box">
+
+  <div class="footer__contact new-layout">
+    
+    <div class="insta-hero">
+      <a href="https://www.instagram.com/konchi.kimchi/" target="_blank" rel="noopener" class="insta-link">
+        <svg viewBox="0 0 24 24" class="insta-icon">
+          <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3z"/>
+          <path d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
+          <path d="M17.5 6.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+        </svg>
+        <span class="insta-handle">@konchi.kimchi</span>
+      </a>
+      <p class="insta-cta">Consultanos cualquier duda que tengas.</p>
+    </div>
+
+    <hr class="separator">
+
+    <div class="details-list">
+      
+      <div class="detail-row">
+        <span class="detail-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        </span>
+        <div class="detail-text">
+          <strong>Horario de Atención:</strong><br>
+          Todos los días: 9 a 20hs
+        </div>
       </div>
 
-      <div class="footer__box">
-        <div class="footer__boxTitle">Contacto</div>
+      <div class="detail-row">
+        <span class="detail-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+        </span>
+        <div class="detail-text">
+          <strong>Días de Entrega:</strong><br>
+          Miércoles: 9 a 18hs
+        </div>
+      </div>
 
-  <div class="footer__contact">
-  <div class="footer__row">
-  <span class="ci" aria-hidden="true">
-    <svg viewBox="0 0 24 24">
-      <path d="M20.52 3.48A11.9 11.9 0 0 0 12.06 0C5.49 0 .16 5.33.16 11.9c0 2.1.55 4.16 1.6 5.98L0 24l6.27-1.65a11.86 11.86 0 0 0 5.79 1.48h.01c6.57 0 11.9-5.33 11.9-11.9 0-3.18-1.24-6.17-3.45-8.45ZM12.06 21.8h-.01a9.9 9.9 0 0 1-5.05-1.38l-.36-.21-3.72.98.99-3.63-.23-.37a9.88 9.88 0 0 1-1.52-5.29c0-5.47 4.44-9.9 9.9-9.9a9.85 9.85 0 0 1 7 2.9 9.85 9.85 0 0 1 2.9 7c0 5.46-4.43 9.9-9.9 9.9Zm5.76-7.86c-.31-.16-1.84-.9-2.12-1-.28-.1-.49-.16-.7.16-.2.31-.8 1-.98 1.2-.18.2-.36.23-.67.08-.31-.16-1.29-.48-2.46-1.53-.91-.8-1.52-1.8-1.7-2.11-.18-.31-.02-.48.14-.63.14-.14.31-.36.47-.54.16-.18.21-.31.31-.52.1-.2.05-.39-.03-.55-.08-.16-.7-1.7-.96-2.33-.25-.6-.5-.52-.7-.52h-.6c-.2 0-.54.08-.82.39-.28.31-1.07 1.05-1.07 2.55s1.1 2.96 1.25 3.17c.15.2 2.15 3.27 5.2 4.58.73.32 1.3.51 1.75.66.73.24 1.4.2 1.93.12.58-.09 1.84-.75 2.1-1.45.26-.7.26-1.32.18-1.45-.08-.13-.28-.2-.6-.36Z"/>
-    </svg>
-  </span>
-  <span id="contactPhone1">5491111111111</span>
-</div>
+      <div class="detail-row">
+        <span class="detail-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>
+        </span>
+        <div class="detail-text">
+          <span id="contactAddress">Saavedra, CABA</span>
+        </div>
+      </div>
 
-<div class="footer__row">
-  <span class="ci" aria-hidden="true">
-    <svg viewBox="0 0 24 24">
-      <path d="M6.6 10.8a15.3 15.3 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.1 21 3 13.9 3 5c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.3 1.1l-2.2 2.1Z"/>
-    </svg>
-  </span>
-  <span id="contactPhone2">11-1111-1111</span>
-</div>
-
-<div class="footer__row">
-  <span class="ci" aria-hidden="true">
-    <svg viewBox="0 0 24 24">
-      <path d="M20 6H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2Zm0 3-8 5L4 9V8l8 5 8-5v1Z"/>
-    </svg>
-  </span>
-  <span id="contactEmail">aaaa@gmail.com</span>
-</div>
-
-<div class="footer__row">
-  <span class="ci" aria-hidden="true">
-    <svg viewBox="0 0 24 24">
-      <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/>
-    </svg>
-  </span>
-  <span id="contactAddress">aaa, aaaa</span>
-</div>
-
-  <div class="contact-social">
-    <a class="social__btn" href="#" target="_blank" rel="noopener" aria-label="WhatsApp">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M20.52 3.48A11.9 11.9 0 0 0 12.06 0C5.49 0 .16 5.33.16 11.9c0 2.1.55 4.16 1.6 5.98L0 24l6.27-1.65a11.86 11.86 0 0 0 5.79 1.48h.01c6.57 0 11.9-5.33 11.9-11.9 0-3.18-1.24-6.17-3.45-8.45ZM12.06 21.8h-.01a9.9 9.9 0 0 1-5.05-1.38l-.36-.21-3.72.98.99-3.63-.23-.37a9.88 9.88 0 0 1-1.52-5.29c0-5.47 4.44-9.9 9.9-9.9a9.85 9.85 0 0 1 7 2.9 9.85 9.85 0 0 1 2.9 7c0 5.46-4.43 9.9-9.9 9.9Zm5.76-7.86c-.31-.16-1.84-.9-2.12-1-.28-.1-.49-.16-.7.16-.2.31-.8 1-.98 1.2-.18.2-.36.23-.67.08-.31-.16-1.29-.48-2.46-1.53-.91-.8-1.52-1.8-1.7-2.11-.18-.31-.02-.48.14-.63.14-.14.31-.36.47-.54.16-.18.21-.31.31-.52.1-.2.05-.39-.03-.55-.08-.16-.7-1.7-.96-2.33-.25-.6-.5-.52-.7-.52h-.6c-.2 0-.54.08-.82.39-.28.31-1.07 1.05-1.07 2.55s1.1 2.96 1.25 3.17c.15.2 2.15 3.27 5.2 4.58.73.32 1.3.51 1.75.66.73.24 1.4.2 1.93.12.58-.09 1.84-.75 2.1-1.45.26-.7.26-1.32.18-1.45-.08-.13-.28-.2-.6-.36Z"/>
-      </svg>
-    </a>
-
-    <a class="social__btn" href="https://www.instagram.com/konchi.kimchi/" target="_blank" rel="noopener" aria-label="Instagram">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3z"/>
-        <path d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
-        <path d="M17.5 6.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-      </svg>
-    </a>
-
-      <a class="social__btn" href="#" target="_blank" rel="noopener" aria-label="Facebook">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M13.5 22v-8h2.7l.4-3H13.5V9.1c0-.87.24-1.46 1.49-1.46H16.7V5.01c-.3-.04-1.33-.13-2.53-.13-2.5 0-4.2 1.52-4.2 4.32V11H7.4v3h2.57v8h3.53z"/>
-        </svg>
-      </a>
     </div>
   </div>
 </div>
@@ -449,21 +475,18 @@
 <template id="tpl-faq">
 
   <div class="faq">
-    <details open>
+    
+    <details>
       <summary>¿Cuáles son los beneficios del kimchi?</summary>
       <div class="faq__body">
-        El kimchi contiene probióticos que benefician los sistemas inmunológicos y
-        digestivos. Además es una gran fuente de vitaminas A, B y C, antioxidantes, ha
-        demostrado reducir niveles de colesterol y previene infecciones por hongos.
+        El kimchi contiene probióticos que benefician los sistemas inmunológicos y digestivos. Además es una gran fuente de vitaminas A, B y C, antioxidantes, ha demostrado reducir niveles de colesterol y previene infecciones por hongos.
       </div>
     </details>
 
     <details>
       <summary>¿Con qué se come el kimchi?</summary>
       <div class="faq__body">
-        ¡El kimchi es súper versátil! Se puede comer con cualquier cosa. Lo más común
-        es comerlo con arroz o fideos y queda buenísimo sobre tostadas o dentro de un
-        wrap. ¡Nosotros lo comemos a tenedorazos!
+        ¡El kimchi es súper versátil! Se puede comer con cualquier cosa. Lo más común es comerlo con arroz o fideos y queda buenísimo sobre tostadas o dentro de un wrap. ¡Nosotros lo comemos a tenedorazos!
       </div>
     </details>
 
@@ -477,100 +500,101 @@
     <details>
       <summary>¿Es apto para diabéticos?</summary>
       <div class="faq__body">
-        Existen estudios que indican que el kimchi no es solo apto para la diabetes
-        sino que mejora la sensibilidad al azúcar en sangre y a la insulina. De todas
-        maneras, sugerimos consultar con su médico ya que nuestro kimchi contiene
-        niveles bajos de glucosa.
+        Existen estudios que indican que el kimchi no es solo apto para la diabetes sino que mejora la sensibilidad al azúcar en sangre y a la insulina. De todas maneras, sugerimos consultar con su médico ya que nuestro kimchi contiene niveles bajos de glucosa.
       </div>
     </details>
+
   </div>
 </template>
 
 <template id="tpl-contact">
-  <h3>Contacto</h3>
+  <div class="new-layout" style="padding-top: 5px;">
 
-  <div class="panel-grid">
-    <div class="panel-card">
-      <p class="panel-card__title">WhatsApp</p>
-      <p class="panel-card__text">
-        <a class="contact-value" href="#" target="_blank" rel="noopener">
-          +54 11 XXXX-XXXX
-        </a>
-      </p>
+    <div class="insta-hero">
+      <a href="https://www.instagram.com/konchi.kimchi/" target="_blank" rel="noopener" class="insta-link">
+        <svg viewBox="0 0 24 24" class="insta-icon">
+          <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3z"/>
+          <path d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
+          <path d="M17.5 6.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+        </svg>
+        <span class="insta-handle">@konchi.kimchi</span>
+      </a>
+      <p class="insta-cta">Consultanos cualquier duda que tengas!</p>
     </div>
 
-    <div class="panel-card">
-      <p class="panel-card__title">Teléfono</p>
-      <p class="panel-card__text">
-        <a class="contact-value" href="tel:+5411XXXXXXXX">
-          +54 11 XXXX-XXXX
-        </a>
-      </p>
+    <hr class="separator">
+
+    <div class="details-list">
+      
+      <div class="detail-row">
+        <span class="detail-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        </span>
+        <div class="detail-text">
+          <strong>Horario de Atención:</strong><br>
+          Todos los días: 9 a 20hs
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+        </span>
+        <div class="detail-text">
+          <strong>Días de Entrega:</strong><br>
+          Miércoles y Viernes: 9 a 18hs
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>
+        </span>
+        <div class="detail-text">
+          <strong>Punto de Retiro:</strong><br>
+          Saavedra, CABA.
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+        </span>
+        <div class="detail-text">
+          <strong>Envíos:</strong><br>
+          Hacemos envíos en CABA.<br>
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-icon" style="color:#e27f3d;">
+          <svg viewBox="0 0 24 24"><path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4z"/></svg>
+        </span>
+        <div class="detail-text">
+          <strong style="color:#e27f3d;">Tiempo de Elaboración:</strong><br>
+          <span style="font-weight:700;">10 días corridos</span> (para retiros y envíos).
+        </div>
+      </div>
+
     </div>
 
-    <div class="panel-card">
-      <p class="panel-card__title">Email</p>
-      <p class="panel-card__text">
-        <a class="contact-value" href="mailto:tuemail@dominio.com">
-          tuemail@dominio.com
-        </a>
-      </p>
+    <div style="margin-top: 20px; background: #f4f6f5; padding: 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
+        <p style="margin:0 0 5px; font-weight:800; font-size:13px; color:var(--letras); display:flex; align-items:center; gap:6px;">
+           <svg style="width:16px; height:16px; fill:currentColor" viewBox="0 0 24 24"><path d="M4 10h3v7H4zM10.5 10h3v7h-3zM17 10h3v7h-3zM12 1L2 6v2h20V6zM2 22h20v-3H2z"/></svg>
+           Medio de Pago
+        </p>
+        <p style="margin:0; font-size:13px; color:var(--muted); line-height:1.4;">
+            Únicamente aceptamos <strong>Transferencia Bancaria</strong>.
+        </p>
     </div>
 
-    <div class="panel-card">
-      <p class="panel-card__title">Ubicación</p>
-      <p class="panel-card__text">Saavedra, CABA</p>
-    </div>
   </div>
-
-  <div class="panel-card" style="margin-top:12px">
-    <p class="panel-card__title">Horarios</p>
-
-    <ul class="hours">
-      <li><span class="hours__day">Lunes</span><span class="hours__time">9:00 – 20:00</span></li>
-      <li><span class="hours__day">Martes</span><span class="hours__time">9:00 – 20:00</span></li>
-      <li><span class="hours__day">Miércoles</span><span class="hours__time">9:00 – 20:00</span></li>
-      <li><span class="hours__day">Jueves</span><span class="hours__time">9:00 – 20:00</span></li>
-      <li><span class="hours__day">Viernes</span><span class="hours__time">9:00 – 20:00</span></li>
-      <li><span class="hours__day">Sábado</span><span class="hours__time">—</span></li>
-      <li><span class="hours__day">Domingo</span><span class="hours__time">—</span></li>
-    </ul>
-  </div>
-
-  <div class="panel-card" style="margin-top:12px">
-    <p class="panel-card__title">Días de entrega</p>
-    <p class="panel-card__text">Martes y Viernes</p>
-  </div>
-
-  <div class="panel-card" style="margin-top:12px">
-  <p class="panel-card__title">Redes</p>
-
-  <div class="contact-social" aria-label="Redes sociales">
-    <a class="social__btn" href="#" target="_blank" rel="noopener" aria-label="WhatsApp">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M20.52 3.48A11.9 11.9 0 0 0 12.06 0C5.5 0 .16 5.34.16 11.9c0 2.1.55 4.15 1.6 5.97L0 24l6.28-1.65a11.86 11.86 0 0 0 5.78 1.47h.01c6.56 0 11.9-5.34 11.9-11.9 0-3.18-1.24-6.17-3.45-8.44Zm-8.46 18.3h-.01a9.9 9.9 0 0 1-5.04-1.38l-.36-.21-3.72.98.99-3.63-.24-.37a9.9 9.9 0 1 1 8.38 4.61Zm5.76-7.86c-.31-.16-1.84-.9-2.12-1-.28-.1-.49-.16-.7.16-.2.31-.8 1-.98 1.21-.18.21-.36.23-.67.08-.31-.16-1.3-.48-2.48-1.54-.92-.82-1.54-1.84-1.72-2.15-.18-.31-.02-.48.14-.64.14-.14.31-.36.47-.54.16-.18.21-.31.31-.52.1-.21.05-.39-.03-.54-.08-.16-.7-1.68-.96-2.3-.25-.6-.5-.52-.7-.52h-.6c-.2 0-.52.08-.8.39-.28.31-1.05 1.03-1.05 2.52s1.08 2.93 1.23 3.13c.16.21 2.12 3.24 5.15 4.54.72.31 1.28.5 1.72.64.72.23 1.38.2 1.9.12.58-.09 1.84-.75 2.1-1.47.26-.72.26-1.34.18-1.47-.08-.13-.28-.21-.6-.36Z"/>
-      </svg>
-    </a>
-
-    <a class="social__btn" href="#" target="_blank" rel="noopener" aria-label="Instagram">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9A5.5 5.5 0 0 1 16.5 22h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm6.2-2.3a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2Z"/>
-      </svg>
-    </a>
-
-    <a class="social__btn" href="#" target="_blank" rel="noopener" aria-label="Facebook">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M13.5 22v-8h2.7l.4-3H13.5V9.1c0-.9.3-1.6 1.7-1.6h1.5V4.7c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V11H7.5v3H10v8h3.5Z"/>
-      </svg>
-    </a>
-  </div>
-</div>
 </template>
 
     <div class="side-panel__body" id="sidePanelBody"></div>
   </div>
 </aside>
-  <script src="productos.js?v=8"></script>
-  <script src="app.js?v=8"></script>
+  <script src="productos.js?v=9"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>

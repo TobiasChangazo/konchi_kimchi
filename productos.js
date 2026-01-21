@@ -3,7 +3,7 @@ window.KIMCHI_PRODUCTS = [
   
   { 
     id:"promo_akusay_tofu",
-    name:"1 Kimchi Akusay + 1 Kimchi Tofu", 
+    name:"1 Akusay + 1 Tofu", 
     price:35000, 
     category:"Promo", 
     bestSeller:true,

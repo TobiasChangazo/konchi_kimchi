@@ -1422,7 +1422,7 @@ if (menuBtn && drawer){
       const titles = {
         kimchis: "Sobre nuestros Kimchis",
         faq: "Preguntas frecuentes",
-        contact: "Contactos",
+        contact: "Contacto",
       };
 
       if (sidePanel) sidePanel.dataset.panel = key;
@@ -1529,7 +1529,7 @@ document.addEventListener("click", (e) => {
   const titles = {
     kimchis: "Sobre nuestros Kimchis",
     faq: "Preguntas frecuentes",
-    contact: "Contactos",
+    contact: "Contacto",
   };
 
   sidePanel.dataset.panel = key;
@@ -1550,5 +1550,170 @@ document.addEventListener("click", (e) => {
   openDrawer();
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const searchSheet = document.getElementById('searchSheet');
+    const openBtns = document.querySelectorAll('#searchBtn, #drawerSearchBtn');
+    const closeOverlay = document.querySelector('.search-sheet__overlay');
+    const input = document.getElementById('newSearchInput');
+    const sheetBody = document.querySelector('.search-sheet__body');
+    const drawer = document.getElementById('drawer');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+
+    const QUICK_CATS = ["Promo", "Picante", "Sin picante", "Especiales", "Salsas"];
+
+    function getTag(p) {
+        const cat = (p.category || "").trim().toLowerCase();
+        
+        if (cat === "promo") return { label: "Promo", className: "meta--promo" };
+        if (cat === "salsas") return { label: "Salsa", className: "meta--salsa" };
+        if (cat === "especiales") return { label: "Especial", className: "meta--especial" };
+        if (cat === "sin picante") return { label: "Sin picante", className: "meta--sin-picante" };
+        if (cat === "picante") return { label: "Picante", className: "meta--picante" };
+
+        // Fallback por texto
+        const nameLower = (p.name || "").toLowerCase();
+        if (nameLower.includes("sin picante")) return { label: "Sin picante", className: "meta--sin-picante" };
+        if (nameLower.includes("picante")) return { label: "Picante", className: "meta--picante" };
+        if (nameLower.includes("salsa")) return { label: "Salsa", className: "meta--salsa" };
+        
+        return null;
+    }
+
+    function renderSheetItem(p) {
+        const precio = typeof money === 'function' ? money(p.price) : `$${p.price}`;
+        const imgStyle = p.image ? `background-image:url('${p.image}')` : `background-color:#eee`;
+        const tag = getTag(p);
+        const tagHtml = tag ? `<span class="search-item__meta ${tag.className}" style="margin-top:6px; align-self:flex-start; font-size:11px;">${tag.label}</span>` : '';
+
+        let displayName = p.name;
+        
+        if (displayName.includes("•")) {
+            const parts = displayName.split("•");
+            displayName = `${parts[0]} • <span style="color:#e27f3d; font-weight:800;">${parts[1]}</span>`;
+        }
+
+        return `
+            <button class="sheet-item" data-id="${p.id}" style="align-items: flex-start;">
+                <div class="sheet-item__img" style="${imgStyle}"></div>
+                <div class="sheet-item__info">
+                    <span class="sheet-item__name">${displayName}</span>
+                    <span class="sheet-item__desc">${p.short || p.category}</span>
+                    ${tagHtml}
+                </div>
+                <div class="sheet-item__price">${precio}</div>
+            </button>
+        `;
+    }
+
+    function renderDefaultState() {
+        let pillsHtml = `<div class="sheet-pills">`;
+        
+        const catClasses = {
+            "Promo": "meta--promo", "Picante": "meta--picante",
+            "Sin picante": "meta--sin-picante", "Especiales": "meta--especial",
+            "Salsas": "meta--salsa"
+        };
+
+        QUICK_CATS.forEach(cat => {
+            const cssClass = catClasses[cat] || "";
+            pillsHtml += `<button class="sheet-pill ${cssClass}" onclick="fillSearch('${cat}')">${cat}</button>`;
+        });
+        pillsHtml += `</div>`;
+
+        const bestSellers = typeof products !== 'undefined' ? products.filter(p => p.bestSeller).slice(0, 3) : [];
+        
+        let bestHtml = '';
+        if (bestSellers.length > 0) {
+            bestHtml = `
+                <div class="sheet-group">
+                    <div class="sheet-group__title">🔥 Más vendidos</div>
+                    <div class="sheet-list">${bestSellers.map(p => renderSheetItem(p)).join('')}</div>
+                </div>
+            `;
+        }
+        sheetBody.innerHTML = pillsHtml + bestHtml;
+        setupItemClicks();
+    }
+
+    function renderResults(query) {
+        if (typeof products === 'undefined') return;
+        const q = query.toLowerCase().trim();
+
+        let found = [];
+
+        const isExactCategory = QUICK_CATS.map(c => c.toLowerCase()).includes(q);
+
+        if (isExactCategory) {
+            found = products.filter(p => (p.category || "").toLowerCase() === q);
+        } else {
+            found = products.filter(p => {
+                const text = (p.name + ' ' + p.category + ' ' + (p.short||'')).toLowerCase();
+                return text.includes(q);
+            });
+        }
+
+        if (found.length === 0) {
+            sheetBody.innerHTML = `<div class="sheet-group" style="text-align:center; opacity:0.6; margin-top:40px;"><p>No encontramos nada 🥺</p></div>`;
+            return;
+        }
+
+        sheetBody.innerHTML = `
+            <div class="sheet-group">
+                <div class="sheet-group__title">Resultados</div>
+                <div class="sheet-list">${found.map(p => renderSheetItem(p)).join('')}</div>
+            </div>
+        `;
+        setupItemClicks();
+    }
+
+    function setupItemClicks() {
+        const items = sheetBody.querySelectorAll('.sheet-item');
+        items.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const product = products.find(p => p.id == id);
+                if (product && typeof openProductModal === 'function') {
+                    openProductModal(product);
+                }
+            });
+        });
+    }
+
+    function openSearch() {
+        if (drawer && drawer.classList.contains('is-open')) {
+            drawer.classList.remove('is-open');
+            if (drawerOverlay) drawerOverlay.hidden = true;
+        }
+        searchSheet.classList.add('is-open');
+        searchSheet.setAttribute('aria-hidden', 'false');
+        input.value = '';
+        renderDefaultState();
+        setTimeout(() => input.focus(), 100);
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSearch() {
+        searchSheet.classList.remove('is-open');
+        searchSheet.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        input.blur();
+    }
+
+    window.fillSearch = (text) => {
+        input.value = text;
+        renderResults(text);
+        input.focus();
+    };
+
+    openBtns.forEach(btn => btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); openSearch(); }));
+    if(closeOverlay) closeOverlay.addEventListener('click', closeSearch);
+    input.addEventListener('input', (e) => { 
+        e.target.value.trim().length === 0 ? renderDefaultState() : renderResults(e.target.value); 
+    });
+    
+    document.addEventListener('keydown', (e) => { 
+        if (e.key === 'Escape' && searchSheet.classList.contains('is-open')) closeSearch(); 
+    });
+});
 
 renderAll();
