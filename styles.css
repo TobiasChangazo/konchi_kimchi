@@ -186,10 +186,8 @@
      color:#073b2a;
 }
  .btn--ghost{
-    background:transparent
-}
- .btn--ghost:hover{
-    background:rgba(143,211,182,.18)
+    background:var(--letras);
+    color: #fff;
 }
  .tips{
      margin-top:16px;
@@ -3071,4 +3069,160 @@ input[type="search"]::-webkit-search-cancel-button {
     font-weight: 700;
     opacity: 0.7;
     margin-bottom: 5px; 
+}
+
+.cart {
+    margin-top: 16px;
+    display: flex;       /* Cambiamos grid por flex column para mejor control */
+    flex-direction: column;
+    gap: 14px;           /* MÁS ESPACIO entre items (antes era 10px) */
+    padding-bottom: 20px;
+}
+
+.cart__item {
+    border: 1px solid var(--border) !important;
+    background: #f4f8f6 !important;
+    border-radius: 16px;
+    padding: 12px 14px; /* Un poco más de relleno interno */
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    justify-content: space-between;
+    
+    /* Sombra suave para que parezcan tarjetas separadas */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
+    transition: transform 0.2s ease;
+}
+
+/* Ajuste para que el texto naranja se vea bien en el carrito */
+.cart__name {
+    font-size: 15px;
+    line-height: 1.3;
+}
+.cart__name .name-size {
+    color: #e27f3d;     /* Tu naranja */
+    font-weight: 800;
+    font-size: 0.9em;   /* Un pelín más chico que el nombre */
+}
+.cart__name .name-sep {
+    color: var(--letras) !important; /* Verde corporativo */
+    font-weight: 900;                /* Más gordito para que se note */
+}
+
+#checkoutItems {
+    display: flex;
+    flex-direction: column;
+    gap: 14px; /* Esto separa las tarjetas */
+}
+.cart__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.cart__clear {
+    background: var(--letras);
+    color: #fff;
+    border: 1px solid rgba(192, 57, 43, 0.2);
+    border-radius: 12px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.cart__clear:hover {
+    background: #c0392b;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(192, 57, 43, 0.3);
+}
+
+.cart__clear:active {
+    transform: translateY(0);
+}
+
+.cart__clear svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2.5;
+}
+
+.confirm-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    place-items: center;
+    padding: 20px;
+}
+
+.confirm-modal.is-active {
+    display: grid;
+}
+
+.confirm-modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease;
+}
+
+.confirm-modal__card {
+    position: relative;
+    background: #fff;
+    width: 100%;
+    max-width: 320px;
+    border-radius: 24px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.confirm-modal__icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.confirm-modal__title {
+    font-weight: 900;
+    font-size: 18px;
+    color: #111;
+    margin: 0 0 8px;
+}
+
+.confirm-modal__text {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 20px;
+    line-height: 1.4;
+}
+
+.confirm-modal__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.btn--danger {
+    background: #c0392b;
+    color: #fff;
+    border: 0;
+}
+
+.btn--danger:hover {
+    background: #a93226;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes popIn { 
+    from { opacity: 0; transform: scale(0.8) translateY(20px); } 
+    to { opacity: 1; transform: scale(1) translateY(0); } 
 }

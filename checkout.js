@@ -25,6 +25,21 @@ function escapeHtml(str){
     .replaceAll('"',"&quot;")
     .replaceAll("'","&#039;");
 }
+
+function splitNameSize(name){
+  const raw = (name || "").toString();
+  const parts = raw.split("•");
+  if (parts.length < 2) return { main: raw.trim(), size: "" };
+  return { main: parts[0].trim(), size: parts.slice(1).join("•").trim() };
+}
+
+function renderNameWithSize(name){
+  const { main, size } = splitNameSize(name);
+  return size
+    ? `${escapeHtml(main)} <span class="name-sep">•</span> <span class="name-size">${escapeHtml(size).replace(" ml", "&nbsp;ml")}</span>`
+    : escapeHtml(main);
+}
+
 function getProductById(id){
   return products.find(p => p.id === id);
 }
@@ -188,6 +203,11 @@ function renderCheckout(){
 
   const entries = Object.entries(cart).filter(([_,q]) => q > 0);
 
+  if (clearCheckoutBtn) {
+    // Si hay productos (entries.length > 0), mostramos el botón. Si no, lo ocultamos.
+    clearCheckoutBtn.style.display = entries.length > 0 ? "flex" : "none";
+  }
+
  if (!entries.length){
   itemsEl.innerHTML = `
     <div class="emptyCart">
@@ -197,7 +217,7 @@ function renderCheckout(){
         Agregá productos para empezar tu pedido.
       </p>
       <button class="btn btn--primary emptyCart__cta"
-        onclick="window.location.href='index.html'">
+        onclick="window.location.href='index.html#catalogo'">
         Ver productos
       </button>
     </div>
@@ -221,7 +241,7 @@ itemsEl.innerHTML = entries.map(([id, qty]) => {
       <div class="cart__left">
         <div class="cart__thumb" style="${bg}"></div>
         <div>
-          <div class="cart__name">${escapeHtml(p.name)}</div>
+          <div class="cart__name">${renderNameWithSize(p.name)}</div>
           <div class="cart__mini">${money(p.price)}</div>
         </div>
       </div>
@@ -345,6 +365,47 @@ document.getElementById("sendWhatsAppBtn").addEventListener("click", () => {
   openWhatsApp();
 });
 
+const clearCheckoutBtn = document.getElementById("clearCheckoutBtn");
+const confirmModal = document.getElementById("confirmModal");
+const cancelClearBtn = document.getElementById("cancelClearBtn");
+const confirmClearBtn = document.getElementById("confirmClearBtn");
+
+// Función para abrir/cerrar modal
+function toggleConfirmModal(show) {
+  if (confirmModal) {
+    confirmModal.classList.toggle("is-active", show);
+  }
+}
+
+// 1. Al hacer click en "Vaciar" -> Abrir modal
+if (clearCheckoutBtn) {
+  clearCheckoutBtn.addEventListener("click", () => toggleConfirmModal(true));
+}
+
+// 2. Al cancelar -> Cerrar modal
+if (cancelClearBtn) {
+  cancelClearBtn.addEventListener("click", () => toggleConfirmModal(false));
+}
+
+// 3. Al confirmar -> Borrar y cerrar
+if (confirmClearBtn) {
+  confirmClearBtn.addEventListener("click", () => {
+    cart = {};          // Borramos
+    saveCart();         // Guardamos
+    renderCheckout();   // Refrescamos pantalla
+    toggleConfirmModal(false); // Cerramos modal
+  });
+}
+
+// Cerrar si clickean afuera (overlay)
+if (confirmModal) {
+  confirmModal.addEventListener("click", (e) => {
+    if (e.target.classList.contains("confirm-modal__overlay")) {
+      toggleConfirmModal(false);
+    }
+  });
+}
+
 const flowEl = document.getElementById("checkoutFlow");
 const goStep2Btn = document.getElementById("goStep2Btn");
 const backStep1Btn = document.getElementById("backStep1Btn");
@@ -370,7 +431,6 @@ if (backStep1Btn) backStep1Btn.addEventListener("click", (e) => {
 
   window.location.href = "index.html";
 });
-
 
 setStep(1);
 

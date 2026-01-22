@@ -11,7 +11,7 @@ const searchModal = $("#searchModal");
 const searchBtn = $("#searchBtn");
 const drawerSearchBtn = $("#drawerSearchBtn");
 const searchSuggestions = $("#searchSuggestions");
-
+const clearCartBtn = $("#clearCartBtn"); // Agrega esto junto a tus otras constantes
 const menuBtn = $("#menuBtn");
 const drawer = $("#drawer");
 const drawerOverlay = document.getElementById("drawerOverlay");
@@ -261,7 +261,7 @@ if (!entries.length){
     row.className = "cart__item";
     row.innerHTML = `
       <div>
-        <div class="cart__name">${escapeHtml(p.name)}</div>
+        <div class="cart__name">${renderNameWithSize(p.name)}</div>
         <div class="cart__mini">${money(p.price)}</div>
       </div>
       <div class="qty">
@@ -1048,8 +1048,6 @@ bestGrid.addEventListener("click", (e) => {
 
 }
 
-
-
 function renderProducts(){
   if (!productsGrid) return;
 
@@ -1714,6 +1712,32 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => { 
         if (e.key === 'Escape' && searchSheet.classList.contains('is-open')) closeSearch(); 
     });
+});
+
+/* =========================================
+   CORRECCIÓN DE SCROLL AL CARGAR (LANDING)
+   ========================================= */
+window.addEventListener("load", () => {
+  // Solo si la URL tiene un # (ej: #catalogo)
+  if (window.location.hash) {
+    const target = document.querySelector(window.location.hash);
+    
+    // Si el elemento existe (ej: la sección catalogo)
+    if (target) {
+      // Esperamos un poquito a que se acomode todo
+      setTimeout(() => {
+        const header = document.querySelector(".header");
+        // Calculamos altura del header + 20px de aire extra
+        const offset = (header?.offsetHeight || 0) + 20; 
+
+        // Calculamos la posición real restando el header
+        const y = target.getBoundingClientRect().top + window.pageYOffset - offset;
+
+        // Movemos la pantalla ahí suavemente
+        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+      }, 100); 
+    }
+  }
 });
 
 renderAll();

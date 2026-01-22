@@ -33,7 +33,16 @@
       <div class="checkoutFlow__track" id="checkoutTrack">
 
         <div class="checkoutStep">
-          <h2 class="checkout__title">Tu pedido</h2>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+  <h2 class="checkout__title" style="margin:0">Tu pedido</h2>
+  <button type="button" id="clearCheckoutBtn" class="cart__clear" style="display:none;">
+  <span>Vaciar</span>
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="3 6 5 6 21 6"></polyline>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+  </svg>
+</button>
+</div>
 
           <div class="checkout__card">
             <div id="checkoutItems"></div>
@@ -97,7 +106,25 @@
   </div>
 </section>
 
+<div class="confirm-modal" id="confirmModal" aria-hidden="true">
+  <div class="confirm-modal__overlay"></div>
+  <div class="confirm-modal__card">
+    <div class="confirm-modal__icon">
+  <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="3 6 5 6 21 6"></polyline>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+  </svg>
+</div>
+    <h3 class="confirm-modal__title">¿Vaciar carrito?</h3>
+    <p class="confirm-modal__text">¿Estás seguro que querés borrar todos los productos del carrito?</p>
+    <div class="confirm-modal__actions">
+      <button class="btn btn--ghost" id="cancelClearBtn">Cancelar</button>
+      <button class="btn btn--danger" id="confirmClearBtn">Sí, vaciar</button>
+    </div>
+  </div>
+</div>
+
 <script src="productos.js?v=9"></script>
-<script src="checkout.js?v=9"></script>
+<script src="checkout.js?v=10"></script>
 </body>
 </html>
