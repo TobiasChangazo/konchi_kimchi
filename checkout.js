@@ -3,70 +3,71 @@ const products = window.KIMCHI_PRODUCTS || [];
 const CART_KEY = "kimchi_cart_v1";
 let cart = loadCart();
 
-function loadCart(){
-  try{
+function loadCart() {
+  try {
     const raw = localStorage.getItem(CART_KEY);
     return raw ? JSON.parse(raw) : {};
-  }catch{
+  } catch {
     return {};
   }
 }
-function saveCart(){
+function saveCart() {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
-function money(n){
+function money(n) {
   return "$" + (n || 0).toLocaleString("es-AR");
 }
-function escapeHtml(str){
+function escapeHtml(str) {
   return String(str)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-function splitNameSize(name){
+function splitNameSize(name) {
   const raw = (name || "").toString();
   const parts = raw.split("•");
   if (parts.length < 2) return { main: raw.trim(), size: "" };
   return { main: parts[0].trim(), size: parts.slice(1).join("•").trim() };
 }
 
-function renderNameWithSize(name){
+function renderNameWithSize(name) {
   const { main, size } = splitNameSize(name);
   return size
     ? `${escapeHtml(main)} <span class="name-sep">•</span> <span class="name-size">${escapeHtml(size).replace(" ml", "&nbsp;ml")}</span>`
     : escapeHtml(main);
 }
 
-function getProductById(id){
+function getProductById(id) {
   return products.find(p => p.id === id);
 }
-function sumCartTotal(cartObj){
+function sumCartTotal(cartObj) {
   let total = 0;
-  for (const [id, qty] of Object.entries(cartObj)){
+  for (const [id, qty] of Object.entries(cartObj)) {
     const p = getProductById(id);
     if (!p) continue;
-    total += (p.price||0) * qty;
+    total += (p.price || 0) * qty;
   }
   return total;
 }
 
-function isPromoEligibleKimchiNoEspecial(p){
+function isPromoEligibleKimchiNoEspecial(p) {
   if (!p) return false;
   const blocked = ["Especiales", "Salsas", "Promo"];
   return !blocked.includes(p.category);
 }
-function isSalsa(p){ return p && p.category === "Salsas"; }
-function isAkusay(p){ return p && /akusay/i.test(p.name); }
-function isTofu(p){ return p && /tofu/i.test(p.name); }
+function isSalsa(p) { return p && p.category === "Salsas"; }
+function isAkusay(p) { return p && /akusay/i.test(p.name); }
+function isTofu(p) { return p && /tofu/i.test(p.name); }
 
-function computePromos(cartObj){
-  const remaining = { ...cartObj }; 
+function computePromos(cartObj) {
+  const remaining = { ...cartObj };
   const applied = [];
 
   const getQty = (id) => remaining[id] || 0;
+  
   const take = (id, n) => {
     remaining[id] = (remaining[id] || 0) - n;
     if (remaining[id] <= 0) delete remaining[id];
@@ -74,33 +75,63 @@ function computePromos(cartObj){
 
   const expandIds = (predicate) => {
     const arr = [];
-    for (const [id, qty] of Object.entries(remaining)){
+    for (const [id, qty] of Object.entries(remaining)) {
       const p = getProductById(id);
       if (!p) continue;
       if (!predicate(p)) continue;
-      for (let i=0;i<qty;i++) arr.push(id);
+      for (let i = 0; i < qty; i++) arr.push(id);
     }
-    arr.sort((a,b) => (getProductById(b)?.price||0) - (getProductById(a)?.price||0));
+    arr.sort((a, b) => (getProductById(b)?.price || 0) - (getProductById(a)?.price || 0));
     return arr;
   };
 
+  function isPromo4x3Eligible(p) {
+    if (!p) return false;
+    return p.category !== "Salsas" && p.category !== "Promo";
+  }
+
+  {
+    const mixIds = expandIds(isPromo4x3Eligible);
+    
+    while (mixIds.length >= 4) {
+      const groupIds = [
+        mixIds.shift(),
+        mixIds.shift(),
+        mixIds.shift(),
+        mixIds.shift()
+      ];
+      groupIds.forEach(id => take(id, 1));
+      const prices = groupIds.map(id => getProductById(id)?.price || 0);
+      const totalGroup = prices.reduce((a, b) => a + b, 0);
+      const cheapest = prices[3]; 
+      const promoPrice = totalGroup - cheapest;
+
+      applied.push({
+        title: "Promo 4x3 (1 sin cargo)",
+        price: promoPrice,
+        items: groupIds.map(id => ({ id, qty: 1 })),
+        savings: cheapest,
+      });
+    }
+  }
+
+  // --- PROMO: AKUSAY + TOFU ---
   {
     const akusayIds = expandIds(p =>
       isAkusay(p) && p.category !== "Promo" && p.category !== "Salsas"
     );
-
     const tofuIds = expandIds(p =>
       isTofu(p) && p.category === "Especiales"
     );
 
     let pairs = Math.min(akusayIds.length, tofuIds.length);
-    while (pairs-- > 0){
+    while (pairs-- > 0) {
       const aId = akusayIds.shift();
       const tId = tofuIds.shift();
       take(aId, 1);
       take(tId, 1);
 
-      const base = (getProductById(aId)?.price||0) + (getProductById(tId)?.price||0);
+      const base = (getProductById(aId)?.price || 0) + (getProductById(tId)?.price || 0);
       const promoPrice = 35000;
 
       applied.push({
@@ -112,15 +143,15 @@ function computePromos(cartObj){
     }
   }
 
+  // --- PROMO: 3 SALSAS ---
   {
     const salsaIds = expandIds(isSalsa);
-    while (salsaIds.length >= 3){
+    while (salsaIds.length >= 3) {
       const ids = [salsaIds.shift(), salsaIds.shift(), salsaIds.shift()];
       ids.forEach(id => take(id, 1));
 
-      const base = ids.reduce((acc,id)=> acc + (getProductById(id)?.price||0), 0);
+      const base = ids.reduce((acc, id) => acc + (getProductById(id)?.price || 0), 0);
       const promoPrice = 40000;
-
       applied.push({
         title: "Promo: 3 Salsas",
         price: promoPrice,
@@ -130,15 +161,15 @@ function computePromos(cartObj){
     }
   }
 
+  // --- PROMO: 3 KIMCHIS (Sin especiales) ---
   {
     const kimchiIds = expandIds(isPromoEligibleKimchiNoEspecial);
-    while (kimchiIds.length >= 3){
+    while (kimchiIds.length >= 3) {
       const ids = [kimchiIds.shift(), kimchiIds.shift(), kimchiIds.shift()];
       ids.forEach(id => take(id, 1));
 
-      const base = ids.reduce((acc,id)=> acc + (getProductById(id)?.price||0), 0);
+      const base = ids.reduce((acc, id) => acc + (getProductById(id)?.price || 0), 0);
       const promoPrice = 50000;
-
       applied.push({
         title: "Promo: 3 Kimchis (sin especiales)",
         price: promoPrice,
@@ -148,19 +179,19 @@ function computePromos(cartObj){
     }
   }
 
+  // --- PROMO: 2 IGUALES (Sin especiales) ---
   {
     const ids = Object.keys(remaining);
-    for (const id of ids){
+    for (const id of ids) {
       const p = getProductById(id);
       if (!isPromoEligibleKimchiNoEspecial(p)) continue;
 
       let pairs = Math.floor(getQty(id) / 2);
-      while (pairs-- > 0){
+      while (pairs-- > 0) {
         take(id, 2);
 
         const base = (p.price || 0) * 2;
         const promoPrice = 35000;
-
         applied.push({
           title: "Promo: 2 Kimchis Iguales (sin especiales)",
           price: promoPrice,
@@ -173,43 +204,43 @@ function computePromos(cartObj){
 
   const baseTotal = sumCartTotal(cartObj);
   const promoItemsBaseTotal = applied.reduce((acc, pr) => {
-    const sum = pr.items.reduce((a,it) => a + (getProductById(it.id)?.price||0) * it.qty, 0);
+    const sum = pr.items.reduce((a, it) => a + (getProductById(it.id)?.price || 0) * it.qty, 0);
     return acc + sum;
   }, 0);
   const promoTotal = applied.reduce((acc, pr) => acc + pr.price, 0);
 
   const discount = Math.max(0, promoItemsBaseTotal - promoTotal);
+
   return { applied, discount };
 }
 
 
-function cartSummary(){
+function cartSummary() {
   const baseTotal = sumCartTotal(cart);
   const { applied, discount } = computePromos(cart);
   const total = Math.max(0, baseTotal - discount);
   return { baseTotal, applied, discount, total };
 }
 
-function addToCart(id, qty=1){
+function addToCart(id, qty = 1) {
   cart[id] = (cart[id] || 0) + qty;
   if (cart[id] <= 0) delete cart[id];
   saveCart();
   renderCheckout();
 }
 
-function renderCheckout(){
+function renderCheckout() {
   const itemsEl = document.getElementById("checkoutItems");
   const totalsEl = document.getElementById("checkoutTotals");
 
-  const entries = Object.entries(cart).filter(([_,q]) => q > 0);
+  const entries = Object.entries(cart).filter(([_, q]) => q > 0);
 
   if (clearCheckoutBtn) {
-    // Si hay productos (entries.length > 0), mostramos el botón. Si no, lo ocultamos.
     clearCheckoutBtn.style.display = entries.length > 0 ? "flex" : "none";
   }
 
- if (!entries.length){
-  itemsEl.innerHTML = `
+  if (!entries.length) {
+    itemsEl.innerHTML = `
     <div class="emptyCart">
       <img src="img/carritovacio.webp" alt="Carrito vacío" class="emptyCart__img">
       <h3 class="emptyCart__title">Tu carrito está vacío</h3>
@@ -230,13 +261,13 @@ function renderCheckout(){
     return;
   }
 
-if (goStep2Btn) goStep2Btn.style.display = "";
+  if (goStep2Btn) goStep2Btn.style.display = "";
 
-itemsEl.innerHTML = entries.map(([id, qty]) => {
-  const p = getProductById(id);
-  if (!p) return "";
-  const bg = p.image ? `background-image:url('${p.image}')` : "";
-  return `
+  itemsEl.innerHTML = entries.map(([id, qty]) => {
+    const p = getProductById(id);
+    if (!p) return "";
+    const bg = p.image ? `background-image:url('${p.image}')` : "";
+    return `
     <div class="cart__item">
       <div class="cart__left">
         <div class="cart__thumb" style="${bg}"></div>
@@ -253,11 +284,11 @@ itemsEl.innerHTML = entries.map(([id, qty]) => {
       </div>
     </div>
   `;
-}).join("");
+  }).join("");
 
-const { baseTotal, discount, total } = cartSummary();
+  const { baseTotal, discount, total } = cartSummary();
 
-totalsEl.innerHTML = `
+  totalsEl.innerHTML = `
   <div class="checkout__row checkout__row--muted">
     <div>Subtotal</div>
     <strong>${money(baseTotal)}</strong>
@@ -284,50 +315,188 @@ document.addEventListener("click", (e) => {
   if (act === "dec") addToCart(id, -1);
 });
 
-function buildWhatsAppMessage(){
-  const name = (document.getElementById("custName").value || "").trim();
-  const pay  = (document.getElementById("payMethod").value || "").trim();
-  const notes = (document.getElementById("custNotes").value || "").trim();
+const deliveryBtns = document.querySelectorAll('.delivery-btn');
+const deliveryInfo = document.getElementById('deliveryInfo');
+const addressWrapper = document.getElementById('addressFieldWrapper');
+let currentMethod = 'retiro'; 
 
-  const entries = Object.entries(cart).filter(([_,q]) => q > 0);
+const INFO_RETIRO = `
+  <strong>📌 Punto de Retiro: Saavedra, CABA</strong>
+  <b>Crisólogo Larralde 3676 3E.</b><br>
+  Nos pondremos en contacto para informarte horarios y días de entrega.
+  <span class="delivery-warning">⏳ Hasta 10 días corridos para entregarlo.</span>
+`;
+
+const INFO_ENVIO = `
+  <strong>🚚 Envíos</strong>
+  <b>Enviamos los Miércoles de 9 a 18hs</b>.<br>
+  Nos pondremos en contacto para informarte horarios y días de entrega.
+  <span class="delivery-warning">⏳ Hasta 10 días corridos para entregarlo.</span>
+`;
+
+function setDeliveryMethod(method) {
+  currentMethod = method;
+
+  deliveryBtns.forEach(btn => {
+    if (btn.dataset.method === method) {
+      btn.classList.add('is-active');
+    } else {
+      btn.classList.remove('is-active');
+    }
+  });
+
+  if (method === 'envio') {
+    addressWrapper.style.display = 'block';
+    deliveryInfo.innerHTML = INFO_ENVIO;
+  } else {
+    addressWrapper.style.display = 'none';
+    deliveryInfo.innerHTML = INFO_RETIRO;
+  }
+}
+
+if (deliveryBtns.length) {
+  setDeliveryMethod('retiro');
+
+  deliveryBtns.forEach(btn => {
+    btn.addEventListener('click', () => setDeliveryMethod(btn.dataset.method));
+  });
+}
+
+function buildMessageNew() {
+  const name = (document.getElementById("custName").value || "").trim();
+  const phone = (document.getElementById("custPhone").value || "").trim();
+  const address = (document.getElementById("custAddress").value || "").trim();
+  const notes = (document.getElementById("custNotes").value || "").trim();
 
   let msg = `Hola! Quiero hacer un pedido 🥬\n\n`;
 
-  if (name) msg += `*Nombre:* ${name}\n`;
-  if (pay) msg += `*Pago:* ${pay}\n`;
-  if (notes) msg += `*Notas:* ${notes}\n`;
-  msg += `\n*Detalle:*\n`;
+  msg += `*Nombre:* ${name}\n`;
+  msg += `*Teléfono:* ${phone}\n`;
 
-  for (const [id, qty] of entries){
+  if (currentMethod === 'envio') {
+    msg += `*Entrega:* 🛵 Envío a domicilio\n`;
+    msg += `*Dirección:* ${address}\n`;
+  } else {
+    msg += `*Entrega:* 🏪 Retiro por Saavedra\n`;
+  }
+
+  msg += `*Pago:* Transferencia\n`; 
+
+  if (notes) msg += `*Notas:* ${notes}\n`;
+
+  msg += `\n----------------\n`;
+
+  const entries = Object.entries(cart).filter(([_, q]) => q > 0);
+  for (const [id, qty] of entries) {
     const p = getProductById(id);
     if (!p) continue;
     msg += `• x${qty} ${p.name} — ${money(p.price * qty)}\n`;
   }
 
   const { baseTotal, applied, discount, total } = cartSummary();
-
-  if (applied.length){
-    msg += `\n*Promos aplicadas:*\n`;
-    for (const pr of applied){
-      msg += `• ${pr.title} — ${money(pr.price)}\n`;
+  if (applied.length) {
+    msg += `\n*Promos:*\n`;
+    for (const pr of applied) {
+      msg += `• ${pr.title}\n`;
     }
     msg += `*Ahorro:* -${money(discount)}\n`;
   }
 
-  msg += `\n*Subtotal:* ${money(baseTotal)}\n`;
-  msg += `*Total:* ${money(total)}\n`;
-
+  msg += `\n*TOTAL: ${money(total)}*\n`;
   return msg;
 }
 
-function initPayPills(){
+function showToast(msg) {
+  let toast = document.querySelector(".toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.className = "toast";
+    document.body.appendChild(toast);
+  }
+  
+  toast.textContent = msg;
+  toast.classList.add("is-visible");
+
+  setTimeout(() => {
+    toast.classList.remove("is-visible");
+  }, 3000);
+}
+
+const inputName = document.getElementById("custName");
+const inputPhone = document.getElementById("custPhone");
+
+if (inputName) {
+  inputName.addEventListener("input", function() {
+    this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+  });
+}
+
+if (inputPhone) {
+  inputPhone.addEventListener("input", function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
+  });
+}
+
+const sendBtn = document.getElementById("sendWhatsAppBtn");
+
+if (sendBtn) {
+  const newSendBtn = sendBtn.cloneNode(true);
+  sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
+
+  newSendBtn.addEventListener("click", async () => {
+    const name = document.getElementById("custName").value.trim();
+    const phone = document.getElementById("custPhone").value.trim();
+    const address = document.getElementById("custAddress").value.trim();
+    
+    if (!name) {
+      showToast("⚠️ Por favor, completá tu Nombre.");
+      document.getElementById("custName").focus();
+      return;
+    }
+    
+    if (!phone) {
+      showToast("⚠️ Por favor, completá tu Teléfono.");
+      document.getElementById("custPhone").focus();
+      return;
+    }
+    if (phone.length < 8) {
+      showToast("⚠️ El teléfono parece incompleto.");
+      document.getElementById("custPhone").focus();
+      return;
+    }
+
+    if (currentMethod === 'envio' && !address) {
+      showToast("⚠️ Para envíos necesitamos tu dirección.");
+      document.getElementById("custAddress").focus();
+      return;
+    }
+
+    const text = buildMessageNew();
+
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast("¡Pedido copiado! 📋 Pegalo en el chat.");
+      setTimeout(() => {
+        window.location.href = "https://ig.me/m/konchi.kimchi";
+      }, 2000);
+
+    } catch (err) {
+      showToast("Error al copiar. Redirigiendo...");
+      setTimeout(() => {
+         window.location.href = "https://ig.me/m/konchi.kimchi";
+      }, 1000);
+    }
+  });
+}
+
+function initPayPills() {
   const select = document.getElementById("payMethod");
   const wrap = document.getElementById("payPills");
   if (!select || !wrap) return;
 
   const btns = Array.from(wrap.querySelectorAll(".payPill"));
 
-  function setActive(value){
+  function setActive(value) {
     select.value = value || "";
     btns.forEach(b => {
       const on = (b.dataset.pay === select.value);
@@ -342,62 +511,34 @@ function initPayPills(){
   setActive(select.value);
 }
 
-function openWhatsApp(){
-  const phone = "5490000000000";
-  const text = buildWhatsAppMessage();
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-  window.open(url, "_blank");
-}
-
-document.getElementById("sendWhatsAppBtn").addEventListener("click", () => {
-  const name = (document.getElementById("custName").value || "").trim();
-  const pay  = (document.getElementById("payMethod").value || "").trim();
-
-  if (!name){
-    alert("Poné tu nombre y apellido.");
-    return;
-  }
-  if (!pay){
-    alert("Elegí el medio de pago.");
-    return;
-  }
-
-  openWhatsApp();
-});
-
 const clearCheckoutBtn = document.getElementById("clearCheckoutBtn");
 const confirmModal = document.getElementById("confirmModal");
 const cancelClearBtn = document.getElementById("cancelClearBtn");
 const confirmClearBtn = document.getElementById("confirmClearBtn");
 
-// Función para abrir/cerrar modal
 function toggleConfirmModal(show) {
   if (confirmModal) {
     confirmModal.classList.toggle("is-active", show);
   }
 }
 
-// 1. Al hacer click en "Vaciar" -> Abrir modal
 if (clearCheckoutBtn) {
   clearCheckoutBtn.addEventListener("click", () => toggleConfirmModal(true));
 }
 
-// 2. Al cancelar -> Cerrar modal
 if (cancelClearBtn) {
   cancelClearBtn.addEventListener("click", () => toggleConfirmModal(false));
 }
 
-// 3. Al confirmar -> Borrar y cerrar
 if (confirmClearBtn) {
   confirmClearBtn.addEventListener("click", () => {
-    cart = {};          // Borramos
-    saveCart();         // Guardamos
-    renderCheckout();   // Refrescamos pantalla
-    toggleConfirmModal(false); // Cerramos modal
+    cart = {};         
+    saveCart();         
+    renderCheckout();  
+    toggleConfirmModal(false); 
   });
 }
 
-// Cerrar si clickean afuera (overlay)
 if (confirmModal) {
   confirmModal.addEventListener("click", (e) => {
     if (e.target.classList.contains("confirm-modal__overlay")) {
@@ -410,12 +551,30 @@ const flowEl = document.getElementById("checkoutFlow");
 const goStep2Btn = document.getElementById("goStep2Btn");
 const backStep1Btn = document.getElementById("backStep1Btn");
 
-function setStep(n){
-  if (!flowEl) return;
-  flowEl.classList.toggle("is-step2", n === 2);
+const steps = document.querySelectorAll('.checkoutStep');
 
+function setStep(n) {
+  if (!flowEl) return;
+
+  steps.forEach(s => s.classList.remove('is-hidden-step'));
+
+  flowEl.classList.toggle("is-step2", n === 2);
   document.body.classList.toggle("is-step2", n === 2);
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  setTimeout(() => {
+    if (n === 1) {
+      if(steps[1]) steps[1].classList.add('is-hidden-step');
+    } else {
+      if(steps[0]) steps[0].classList.add('is-hidden-step');
+    }
+  }, 350);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    if(steps[1]) steps[1].classList.add('is-hidden-step');
+});
 
 if (goStep2Btn) goStep2Btn.addEventListener("click", () => setStep(2));
 

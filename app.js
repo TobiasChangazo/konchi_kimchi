@@ -11,7 +11,7 @@ const searchModal = $("#searchModal");
 const searchBtn = $("#searchBtn");
 const drawerSearchBtn = $("#drawerSearchBtn");
 const searchSuggestions = $("#searchSuggestions");
-const clearCartBtn = $("#clearCartBtn"); // Agrega esto junto a tus otras constantes
+const clearCartBtn = $("#clearCartBtn");
 const menuBtn = $("#menuBtn");
 const drawer = $("#drawer");
 const drawerOverlay = document.getElementById("drawerOverlay");
@@ -39,57 +39,57 @@ let activeCategory = null;
 let modalProduct = null;
 
 const CATEGORY_META = [
-  { name: "Promo", special: true,  img: "url('img/cats/cat122222.jpg')" },
-  { name: "Picante",  special: false, img: "url('img/cats/cat222222.jpg')" },
+  { name: "Promo", special: true, img: "url('img/cats/cat122222.jpg')" },
+  { name: "Picante", special: false, img: "url('img/cats/cat222222.jpg')" },
   { name: "Sin picante", special: false, img: "url('img/cats/.png')" },
   { name: "Especiales", special: false, img: "url('img/cats/.png')" },
-  { name: "Salsas",   special: false, img: "url('img/cats/.png')" },
+  { name: "Salsas", special: false, img: "url('img/cats/.png')" },
 ];
 
 const CART_KEY = "kimchi_cart_v1";
-let cart = loadCart(); 
+let cart = loadCart();
 
-function loadCart(){
-  try{
+function loadCart() {
+  try {
     const raw = localStorage.getItem(CART_KEY);
     return raw ? JSON.parse(raw) : {};
-  }catch{
+  } catch {
     return {};
   }
 }
-function saveCart(){
+function saveCart() {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
-function money(n){
+function money(n) {
   return "$" + (n || 0).toLocaleString("es-AR");
 }
 
-function getProductById(id){
+function getProductById(id) {
   return products.find(p => p.id === id);
 }
 
-function isPromoEligibleKimchiNoEspecial(p){
+function isPromoEligibleKimchiNoEspecial(p) {
   if (!p) return false;
   const blocked = ["Especiales", "Salsas", "Promo"];
   return !blocked.includes(p.category);
 }
 
-function isSalsa(p){
+function isSalsa(p) {
   return p && p.category === "Salsas";
 }
 
-function isAkusay(p){
+function isAkusay(p) {
   return p && /akusay/i.test(p.name);
 }
 
-function isTofu(p){
+function isTofu(p) {
   return p && /tofu/i.test(p.name);
 }
 
-function sumCartTotal(cartObj){
+function sumCartTotal(cartObj) {
   let total = 0;
-  for (const [id, qty] of Object.entries(cartObj)){
+  for (const [id, qty] of Object.entries(cartObj)) {
     const p = getProductById(id);
     if (!p) continue;
     total += (p.price * qty);
@@ -97,11 +97,12 @@ function sumCartTotal(cartObj){
   return total;
 }
 
-function computePromos(cartObj){
-  const remaining = { ...cartObj }; 
+function computePromos(cartObj) {
+  const remaining = { ...cartObj };
   const applied = [];
 
   const getQty = (id) => remaining[id] || 0;
+  
   const take = (id, n) => {
     remaining[id] = (remaining[id] || 0) - n;
     if (remaining[id] <= 0) delete remaining[id];
@@ -109,51 +110,85 @@ function computePromos(cartObj){
 
   const expandIds = (predicate) => {
     const arr = [];
-    for (const [id, qty] of Object.entries(remaining)){
+    for (const [id, qty] of Object.entries(remaining)) {
       const p = getProductById(id);
       if (!p) continue;
       if (!predicate(p)) continue;
-      for (let i=0;i<qty;i++) arr.push(id);
+      for (let i = 0; i < qty; i++) arr.push(id);
     }
-    arr.sort((a,b) => (getProductById(b)?.price||0) - (getProductById(a)?.price||0));
+    arr.sort((a, b) => (getProductById(b)?.price || 0) - (getProductById(a)?.price || 0));
     return arr;
   };
 
+  function isPromo4x3Eligible(p) {
+    if (!p) return false;
+    return p.category !== "Salsas" && p.category !== "Promo";
+  }
+
   {
-  const akusayIds = expandIds(p =>
-    isAkusay(p) && p.category !== "Promo" && p.category !== "Salsas"
-  );
+    const mixIds = expandIds(isPromo4x3Eligible);
+    
+    while (mixIds.length >= 4) {
+      const groupIds = [
+        mixIds.shift(),
+        mixIds.shift(),
+        mixIds.shift(),
+        mixIds.shift()
+      ];
 
-  const tofuIds = expandIds(p =>
-    isTofu(p) && p.category === "Especiales" 
-  );
+      groupIds.forEach(id => take(id, 1));
 
-  let pairs = Math.min(akusayIds.length, tofuIds.length);
-  while (pairs-- > 0){
-    const aId = akusayIds.shift();
-    const tId = tofuIds.shift();
-    take(aId, 1);
-    take(tId, 1);
+      const prices = groupIds.map(id => getProductById(id)?.price || 0);
+      const totalGroup = prices.reduce((a, b) => a + b, 0);
+      
+      const cheapest = prices[3]; 
+      const promoPrice = totalGroup - cheapest;
 
-    const base = (getProductById(aId)?.price||0) + (getProductById(tId)?.price||0);
-    const promoPrice = 35000;
-
-    applied.push({
-      title: "Promo: 1 Akusay + 1 Tofu",
-      price: promoPrice,
-      items: [{ id: aId, qty: 1 }, { id: tId, qty: 1 }],
-      savings: Math.max(0, base - promoPrice),
+      applied.push({
+        title: "Promo 4x3 (1 sin cargo)",
+        price: promoPrice,
+        items: groupIds.map(id => ({ id, qty: 1 })),
+        savings: cheapest,
       });
     }
   }
 
+  // --- PROMO: AKUSAY + TOFU ---
+  {
+    const akusayIds = expandIds(p =>
+      isAkusay(p) && p.category !== "Promo" && p.category !== "Salsas"
+    );
+    const tofuIds = expandIds(p =>
+      isTofu(p) && p.category === "Especiales"
+    );
+
+    let pairs = Math.min(akusayIds.length, tofuIds.length);
+    while (pairs-- > 0) {
+      const aId = akusayIds.shift();
+      const tId = tofuIds.shift();
+      take(aId, 1);
+      take(tId, 1);
+
+      const base = (getProductById(aId)?.price || 0) + (getProductById(tId)?.price || 0);
+      const promoPrice = 35000;
+
+      applied.push({
+        title: "Promo: 1 Akusay + 1 Tofu",
+        price: promoPrice,
+        items: [{ id: aId, qty: 1 }, { id: tId, qty: 1 }],
+        savings: Math.max(0, base - promoPrice),
+      });
+    }
+  }
+
+  // --- PROMO: 3 SALSAS ---
   {
     const salsaIds = expandIds(isSalsa);
-    while (salsaIds.length >= 3){
+    while (salsaIds.length >= 3) {
       const ids = [salsaIds.shift(), salsaIds.shift(), salsaIds.shift()];
       ids.forEach(id => take(id, 1));
 
-      const base = ids.reduce((acc,id)=> acc + (getProductById(id)?.price||0), 0);
+      const base = ids.reduce((acc, id) => acc + (getProductById(id)?.price || 0), 0);
       const promoPrice = 40000;
       applied.push({
         title: "Promo: 3 Salsas",
@@ -164,13 +199,14 @@ function computePromos(cartObj){
     }
   }
 
+  // --- PROMO: 3 KIMCHIS (Sin especiales) ---
   {
     const kimchiIds = expandIds(isPromoEligibleKimchiNoEspecial);
-    while (kimchiIds.length >= 3){
+    while (kimchiIds.length >= 3) {
       const ids = [kimchiIds.shift(), kimchiIds.shift(), kimchiIds.shift()];
       ids.forEach(id => take(id, 1));
 
-      const base = ids.reduce((acc,id)=> acc + (getProductById(id)?.price||0), 0);
+      const base = ids.reduce((acc, id) => acc + (getProductById(id)?.price || 0), 0);
       const promoPrice = 50000;
       applied.push({
         title: "Promo: 3 Kimchis (sin especiales)",
@@ -181,14 +217,15 @@ function computePromos(cartObj){
     }
   }
 
+  // --- PROMO: 2 IGUALES (Sin especiales) ---
   {
     const ids = Object.keys(remaining);
-    for (const id of ids){
+    for (const id of ids) {
       const p = getProductById(id);
       if (!isPromoEligibleKimchiNoEspecial(p)) continue;
 
       let pairs = Math.floor(getQty(id) / 2);
-      while (pairs-- > 0){
+      while (pairs-- > 0) {
         take(id, 2);
 
         const base = (p.price || 0) * 2;
@@ -205,7 +242,7 @@ function computePromos(cartObj){
 
   const baseTotal = sumCartTotal(cartObj);
   const promoItemsBaseTotal = applied.reduce((acc, pr) => {
-    const sum = pr.items.reduce((a,it) => a + (getProductById(it.id)?.price||0) * it.qty, 0);
+    const sum = pr.items.reduce((a, it) => a + (getProductById(it.id)?.price || 0) * it.qty, 0);
     return acc + sum;
   }, 0);
   const promoTotal = applied.reduce((acc, pr) => acc + pr.price, 0);
@@ -215,11 +252,11 @@ function computePromos(cartObj){
   return { applied, discount };
 }
 
-function cartSummary(){
+function cartSummary() {
   let count = 0;
   let total = 0;
 
-  for (const [id, qty] of Object.entries(cart)){
+  for (const [id, qty] of Object.entries(cart)) {
     const p = getProductById(id);
     if (!p) continue;
     count += qty;
@@ -232,7 +269,7 @@ function cartSummary(){
   return { count, total };
 }
 
-function updateCartUI(){
+function updateCartUI() {
   const { count, total } = cartSummary();
 
   cartCountEls.forEach(el => {
@@ -241,19 +278,19 @@ function updateCartUI(){
   });
 
   if (cartTotal2) cartTotal2.textContent = money(total);
-  if (cartTotal)  cartTotal.textContent  = money(total);
+  if (cartTotal) cartTotal.textContent = money(total);
 
 
-if (cartItems) cartItems.innerHTML = "";
+  if (cartItems) cartItems.innerHTML = "";
 
-const entries = Object.entries(cart).filter(([_,q]) => q > 0);
+  const entries = Object.entries(cart).filter(([_, q]) => q > 0);
 
-if (!entries.length){
-  if (cartItems) cartItems.innerHTML = `<div class="tip">Tu carrito está vacío.</div>`;
-  return;
-}
+  if (!entries.length) {
+    if (cartItems) cartItems.innerHTML = `<div class="tip">Tu carrito está vacío.</div>`;
+    return;
+  }
 
-  for (const [id, qty] of entries){
+  for (const [id, qty] of entries) {
     const p = getProductById(id);
     if (!p) continue;
 
@@ -274,12 +311,12 @@ if (!entries.length){
   }
 
   const promoBox = document.createElement("div");
-promoBox.className = "cart__promos";
+  promoBox.className = "cart__promos";
 
-const { applied, discount } = computePromos(cart);
+  const { applied, discount } = computePromos(cart);
 
-  if (applied.length){
-  promoBox.innerHTML = `
+  if (applied.length) {
+    promoBox.innerHTML = `
     <div class="cart__promoTitle">Promos aplicadas</div>
     ${applied.map(pr => `
       <div class="cart__promoRow">
@@ -292,11 +329,11 @@ const { applied, discount } = computePromos(cart);
       <strong>−${money(discount)}</strong>
     </div>
   `;
-  cartItems.appendChild(promoBox);
+    cartItems.appendChild(promoBox);
   }
 }
 
-function addToCart(id, qty=1){
+function addToCart(id, qty = 1) {
   const p = getProductById(id);
   if (p && p.category === "Promo") {
     openProductModal(p);
@@ -310,23 +347,23 @@ function addToCart(id, qty=1){
 }
 
 
-function escapeHtml(str){
+function escapeHtml(str) {
   return String(str)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-function splitNameSize(name){
+function splitNameSize(name) {
   const raw = (name || "").toString();
   const parts = raw.split("•");
   if (parts.length < 2) return { main: raw.trim(), size: "" };
   return { main: parts[0].trim(), size: parts.slice(1).join("•").trim() };
 }
 
-function renderNameWithSize(name){
+function renderNameWithSize(name) {
   const { main, size } = splitNameSize(name);
   return size
     ? `${escapeHtml(main)} <span class="name-sep">•</span> <span class="name-size">${escapeHtml(size).replace(" ml", "&nbsp;ml")}</span>`
@@ -334,35 +371,35 @@ function renderNameWithSize(name){
 }
 
 
-function setHash(params){
+function setHash(params) {
   const qs = new URLSearchParams(params);
   location.hash = qs.toString();
 }
 
-function getRoute(){
-  const qs = new URLSearchParams((location.hash || "").replace("#",""));
+function getRoute() {
+  const qs = new URLSearchParams((location.hash || "").replace("#", ""));
   const cat = qs.get("cat");
   const pid = qs.get("p");
   return { cat, pid };
 }
 
-function renderCrumb(){
+function renderCrumb() {
   const crumb = document.getElementById("crumb");
   if (!crumb) return;
 
   const { cat, pid } = getRoute();
 
-  if (!cat && !pid){
+  if (!cat && !pid) {
     crumb.innerHTML = "";
     return;
   }
 
-  if (cat && !pid){
+  if (cat && !pid) {
     crumb.innerHTML = `<a href="#top" onclick="location.hash='';return false;">Inicio</a> / ${escapeHtml(cat)}`;
     return;
   }
 
-  if (cat && pid){
+  if (cat && pid) {
     const p = getProductById(pid);
     const pname = p ? p.name : "Producto";
     crumb.innerHTML =
@@ -373,40 +410,37 @@ function renderCrumb(){
 }
 
 // helpers
-function openModal(el){
+function openModal(el) {
   el.classList.add("is-open");
   el.setAttribute("aria-hidden", "false");
 }
-function closeModal(el){
+function closeModal(el) {
   el.classList.remove("is-open");
   el.setAttribute("aria-hidden", "true");
 }
 
-function setSearchSuggestionsVisible(){
+function setSearchSuggestionsVisible() {
   if (!searchSuggestions || !searchInput) return;
   const hasText = !!searchInput.value.trim();
   searchSuggestions.style.display = hasText ? "none" : "block";
 }
 
-function openSearchModal(){
+function openSearchModal() {
   if (!searchModal) return;
 
-  // si viene desde mobile drawer, cerralo para que no se superponga
   closeDrawer?.();
 
   openModal(searchModal);
 
-  // reset visual
-  if (searchInput){
+  if (searchInput) {
     searchInput.value = "";
     hideSearchDrop?.();
     setSearchSuggestionsVisible();
-    // focus con pequeño delay para mobile
     setTimeout(() => searchInput.focus(), 50);
   }
 }
 
-function closeSearchModal(){
+function closeSearchModal() {
   if (!searchModal) return;
   closeModal(searchModal);
 
@@ -414,40 +448,35 @@ function closeSearchModal(){
   if (searchInput) searchInput.blur();
 }
 
-function isSearchOpen(){
+function isSearchOpen() {
   return !!searchModal && searchModal.classList.contains("is-open");
 }
 
-// Abrir desde header (lupa)
-if (searchBtn){
+if (searchBtn) {
   searchBtn.addEventListener("click", (e) => {
     e.preventDefault();
     openSearchModal();
   });
 }
 
-// Abrir desde drawer (mobile)
-if (drawerSearchBtn){
+if (drawerSearchBtn) {
   drawerSearchBtn.addEventListener("click", (e) => {
     e.preventDefault();
     openSearchModal();
   });
 }
 
-// Cerrar por overlay / botón X (todo lo que tenga data-search-close)
-if (searchModal){
+if (searchModal) {
   searchModal.addEventListener("click", (e) => {
     const closeEl = e.target.closest("[data-search-close]");
     if (closeEl) closeSearchModal();
   });
 }
 
-// Chips de sugerencias
 document.addEventListener("click", (e) => {
   const chip = e.target.closest("[data-search-chip]");
   if (!chip || !searchInput) return;
 
-  // abre modal si el chip se tocara fuera (por si reusas chips en otro lado)
   if (searchModal && !isSearchOpen()) openModal(searchModal);
 
   searchInput.value = chip.dataset.searchChip || chip.textContent || "";
@@ -456,11 +485,10 @@ document.addEventListener("click", (e) => {
   searchInput.focus();
 });
 
-// Escape: si el modal está abierto, cierra modal; si no, solo oculta dropdown
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
 
-  if (isSearchOpen()){
+  if (isSearchOpen()) {
     e.preventDefault();
     closeSearchModal();
   } else {
@@ -468,15 +496,13 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// Cuando escribe: mostrar/ocultar sugerencias
-if (searchInput){
+if (searchInput) {
   searchInput.addEventListener("input", () => {
     setSearchSuggestionsVisible();
   });
 }
 
-
-function resetProductModalState(){
+function resetProductModalState() {
   modalBundle = null;
 
   modalProduct = null;
@@ -486,7 +512,7 @@ function resetProductModalState(){
   const qtyBox = document.querySelector(".modal__qty");
   if (qtyBox) qtyBox.style.display = "flex";
 
-  if (modalAddBtn){
+  if (modalAddBtn) {
     modalAddBtn.disabled = false;
     modalAddBtn.style.opacity = "1";
     modalAddBtn.style.pointerEvents = "auto";
@@ -495,7 +521,7 @@ function resetProductModalState(){
 
 document.addEventListener("click", (e) => {
   const overlay = e.target.closest("[data-close='1']");
-  if (overlay){
+  if (overlay) {
     closeProductModalAndResetRoute();
     closeModal(cartModal);
   }
@@ -503,16 +529,15 @@ document.addEventListener("click", (e) => {
 
 if (modalClose) modalClose.addEventListener("click", closeProductModalAndResetRoute);
 
-function closeProductModalAndResetRoute(){
+function closeProductModalAndResetRoute() {
   closeModal(productModal);
-  resetProductModalState(); 
+  resetProductModalState();
 
   const { pid } = getRoute();
   if (pid) location.hash = "";
 }
 
-
-function openProductModal(p){
+function openProductModal(p) {
   modalProduct = p;
   modalTitle.innerHTML = renderNameWithSize(p.name);
   modalPrice.textContent = money(p.price);
@@ -526,16 +551,14 @@ function openProductModal(p){
     const info = p.info || {};
     let html = "";
 
-    /* Tiempo de fermentación */
-    if (info.fermentacion){
+    if (info.fermentacion) {
       html += `
         <h4>Tiempo de fermentación</h4>
         <div style="margin-bottom:10px; color: #354F49;;">${escapeHtml(info.fermentacion)}</div>
       `;
     }
 
-    /* Nivel de picante (🔥) */
-    if (typeof info.nivelPicante === "number"){
+    if (typeof info.nivelPicante === "number") {
       const flames = `<span style="font-size:18px;">${"🔥".repeat(info.nivelPicante)}</span>`;
       html += `
         <h4>Nivel de picante</h4>
@@ -543,8 +566,7 @@ function openProductModal(p){
       `;
     }
 
-    /* Beneficios */
-    if (Array.isArray(info.beneficios) && info.beneficios.length){
+    if (Array.isArray(info.beneficios) && info.beneficios.length) {
       html += `
         <h4>Beneficios</h4>
         <ul>
@@ -555,23 +577,23 @@ function openProductModal(p){
 
     extra.innerHTML = html;
 
-  const kind = promoKindFromProduct(p);
+    const kind = promoKindFromProduct(p);
 
-  if (kind === "3salsas"){
-    modalBundle = { kind, targetPerPack: 3, poolFn: isSalsa, picks: {} };
+    if (kind === "3salsas") {
+      modalBundle = { kind, targetPerPack: 3, poolFn: isSalsa, picks: {} };
 
-  } else if (kind === "3kimchis"){
-    modalBundle = { kind, targetPerPack: 3, poolFn: eligibleKimchiNoEspecial, picks: {} };
+    } else if (kind === "3kimchis") {
+      modalBundle = { kind, targetPerPack: 3, poolFn: eligibleKimchiNoEspecial, picks: {} };
 
-  } else if (kind === "2iguales"){
-    modalBundle = { kind, targetPerPack: 2, poolFn: eligibleKimchiNoEspecial, picks: {}, lockId: null };
+    } else if (kind === "2iguales") {
+      modalBundle = { kind, targetPerPack: 2, poolFn: eligibleKimchiNoEspecial, picks: {}, lockId: null };
 
-  } else if (kind === "akusaytofu"){
-    modalBundle = { kind, targetPerPack: 1, poolFn: (x) => isAkusay(x) && eligibleKimchiNoEspecial(x), picks: {} };
+    } else if (kind === "akusaytofu") {
+      modalBundle = { kind, targetPerPack: 1, poolFn: (x) => isAkusay(x) && eligibleKimchiNoEspecial(x), picks: {} };
 
-  } else {
-    modalBundle = null;
-  }
+    } else {
+      modalBundle = null;
+    }
   }
 
   setModalQty(1);
@@ -581,8 +603,8 @@ function openProductModal(p){
     qtyBox.style.display = modalBundle ? "none" : "flex";
   }
 
-  if (modalBundle){
-  renderBundleUI();
+  if (modalBundle) {
+    renderBundleUI();
   }
 
 
@@ -594,18 +616,18 @@ const modalQtyInc = document.getElementById("modalQtyInc");
 const modalQtyVal = document.getElementById("modalQtyVal");
 let modalQty = 1;
 
-function setModalQty(n){
+function setModalQty(n) {
   modalQty = Math.max(1, Number(n) || 1);
   if (modalQtyVal) modalQtyVal.textContent = String(modalQty);
 }
 
-let modalBundle = null; 
+let modalBundle = null;
 
-function isPromoProduct(p){
+function isPromoProduct(p) {
   return p && p.category === "Promo";
 }
 
-function promoKindFromProduct(p){
+function promoKindFromProduct(p) {
   if (!isPromoProduct(p)) return null;
 
   const name = (p.name || "").toLowerCase();
@@ -618,44 +640,44 @@ function promoKindFromProduct(p){
   return null;
 }
 
-function eligibleKimchiNoEspecial(p){
+function eligibleKimchiNoEspecial(p) {
   return p && p.category !== "Especiales" && p.category !== "Salsas" && p.category !== "Promo";
 }
 
-function isSalsa(p){ return p && p.category === "Salsas"; }
-function isAkusay(p){ return p && /akusay/i.test(p.name); }
-function isTofu(p){ return p && /tofu/i.test(p.name); }
+function isSalsa(p) { return p && p.category === "Salsas"; }
+function isAkusay(p) { return p && /akusay/i.test(p.name); }
+function isTofu(p) { return p && /tofu/i.test(p.name); }
 
-function findTofuEspecialId(){
+function findTofuEspecialId() {
   const tofu = products.find(p => p.category === "Especiales" && isTofu(p));
   return tofu ? tofu.id : null;
 }
 
-function bundleTargetCount(){
+function bundleTargetCount() {
   if (!modalBundle) return 0;
   return modalBundle.targetPerPack * modalQty;
 }
 
-function bundleSelectedCount(){
+function bundleSelectedCount() {
   if (!modalBundle) return 0;
-  return Object.values(modalBundle.picks).reduce((a,b)=>a+b,0);
+  return Object.values(modalBundle.picks).reduce((a, b) => a + b, 0);
 }
 
-function buildPoolItems(){
+function buildPoolItems() {
   if (!modalBundle) return [];
   const pool = products.filter(modalBundle.poolFn);
-  pool.sort((a,b)=> (b.price||0) - (a.price||0));
+  pool.sort((a, b) => (b.price || 0) - (a.price || 0));
   return pool;
 }
 
-function setAddBtnState(ok){
+function setAddBtnState(ok) {
   if (!modalAddBtn) return;
   modalAddBtn.disabled = !ok;
   modalAddBtn.style.opacity = ok ? "1" : ".55";
   modalAddBtn.style.pointerEvents = ok ? "auto" : "none";
 }
 
-function renderBundleUI(){
+function renderBundleUI() {
   const extra = document.getElementById("modalExtra");
   if (!extra || !modalBundle) return;
 
@@ -665,9 +687,9 @@ function renderBundleUI(){
 
   const title =
     modalBundle.kind === "3salsas" ? "Elegí tus salsas" :
-    modalBundle.kind === "3kimchis" ? "Elegí tus kimchis" :
-    modalBundle.kind === "2iguales" ? "Elegí 2 kimchis iguales" :
-    "Elegí tu Akusay";
+      modalBundle.kind === "3kimchis" ? "Elegí tus kimchis" :
+        modalBundle.kind === "2iguales" ? "Elegí 2 kimchis iguales" :
+          "Elegí tu Akusay";
 
   extra.innerHTML = `
     <h4>${title}</h4>
@@ -692,9 +714,9 @@ function renderBundleUI(){
   `;
 
   const hint = extra.querySelector("#promoPickHint");
-  if (hint){
+  if (hint) {
     const left = target - selected;
-    if (modalBundle.kind === "2iguales" && modalBundle.lockId){
+    if (modalBundle.kind === "2iguales" && modalBundle.lockId) {
       const lockedName = escapeHtml(getProductById(modalBundle.lockId)?.name || "");
       hint.textContent = left > 0
         ? `Elegiste: ${lockedName}. Te faltan ${left}.`
@@ -718,10 +740,10 @@ document.addEventListener("click", (e) => {
   const target = bundleTargetCount();
   const selected = bundleSelectedCount();
 
-  if (act === "inc"){
+  if (act === "inc") {
     if (selected >= target) return;
 
-    if (modalBundle.kind === "2iguales"){
+    if (modalBundle.kind === "2iguales") {
       if (modalBundle.lockId && modalBundle.lockId !== id) return;
       if (!modalBundle.lockId) modalBundle.lockId = id;
     }
@@ -731,7 +753,7 @@ document.addEventListener("click", (e) => {
     modalBundle.picks[id] = Math.max(0, (modalBundle.picks[id] || 0) - 1);
     if (modalBundle.picks[id] === 0) delete modalBundle.picks[id];
 
-    if (modalBundle.kind === "2iguales" && modalBundle.lockId){
+    if (modalBundle.kind === "2iguales" && modalBundle.lockId) {
       const leftOfLocked = modalBundle.picks[modalBundle.lockId] || 0;
       if (leftOfLocked === 0) modalBundle.lockId = null;
     }
@@ -747,18 +769,18 @@ if (modalQtyDec) modalQtyDec.addEventListener("click", () => setModalQty(modalQt
 modalAddBtn.addEventListener("click", () => {
   if (!modalProduct) return;
 
-  if (modalBundle){
+  if (modalBundle) {
     const target = bundleTargetCount();
     const selected = bundleSelectedCount();
     if (selected !== target) return;
 
-    for (const [id, qty] of Object.entries(modalBundle.picks)){
+    for (const [id, qty] of Object.entries(modalBundle.picks)) {
       addToCart(id, qty);
     }
 
-    if (modalBundle.kind === "akusaytofu"){
+    if (modalBundle.kind === "akusaytofu") {
       const tofuId = findTofuEspecialId();
-      if (tofuId){
+      if (tofuId) {
         addToCart(tofuId, modalQty);
       }
     }
@@ -770,14 +792,14 @@ modalAddBtn.addEventListener("click", () => {
 
   addToCart(modalProduct.id, modalQty);
   closeModal(productModal);
-  resetProductModalState(); 
+  resetProductModalState();
 });
 
 cartBtn.addEventListener("click", () => {
   window.location.href = "checkout.html";
 })
 
-function renderCategories(){
+function renderCategories() {
   catsEl.innerHTML = "";
 
   CATEGORY_META.forEach((c) => {
@@ -800,7 +822,7 @@ function renderCategories(){
   });
 }
 
-function matchesFilters(p){
+function matchesFilters(p) {
   const q = ((searchInput && searchInput.value) ? searchInput.value : "").trim().toLowerCase();
   const byCat = !activeCategory || p.category === activeCategory;
   const bySearch = !q || p.name.toLowerCase().includes(q);
@@ -808,7 +830,7 @@ function matchesFilters(p){
   return byCat && bySearch;
 }
 
-function productCard(p){
+function productCard(p) {
   const el = document.createElement("div");
   el.className = "card";
 
@@ -820,8 +842,8 @@ function productCard(p){
 
   if (isCategoryPage) {
     const imgStyle = p.image
-    ? `background-image:url('${p.image}');`
-    : "";
+      ? `background-image:url('${p.image}');`
+      : "";
 
     const isPromo = (p.category === "Promo");
 
@@ -834,19 +856,19 @@ function productCard(p){
       <button class="btn" data-add="${p.id}">${isPromo ? "ARMAR PROMO 🧩" : "AGREGAR AL 🛒"}</button>
     </div>
     `;
-    
+
     el.addEventListener("click", (e) => {
       if (bestGrid?.classList.contains("is-dragging")) return;
       if (e.target.closest("button")) return;
-        openProductModal(p);
-      });
+      openProductModal(p);
+    });
 
     el.querySelector("[data-add]").addEventListener("click", () => {
-    if (isPromo) {
-      openProductModal(p);
-    } else {
-      addToCart(p.id, 1);
-    }
+      if (isPromo) {
+        openProductModal(p);
+      } else {
+        addToCart(p.id, 1);
+      }
     });
 
     return el;
@@ -862,7 +884,7 @@ function productCard(p){
   `;
 
   el.addEventListener("click", (e) => {
-  if (e.target.closest("button")) return;
+    if (e.target.closest("button")) return;
     openProductModal(p);
   });
 
@@ -876,7 +898,7 @@ function productCard(p){
 
 let bestInfiniteCleanup = null;
 
-function renderBest(){
+function renderBest() {
   if (!bestGrid) return;
 
   const bestEmpty = document.getElementById("bestEmpty");
@@ -886,7 +908,7 @@ function renderBest(){
     .filter(p => p.bestSeller)
     .slice(0, 10);
 
-  if (!best.length){
+  if (!best.length) {
     if (bestEmpty) bestEmpty.style.display = "block";
     return;
   }
@@ -896,10 +918,10 @@ function renderBest(){
   setupBestInfinite(best);
 }
 
-function setupBestInfinite(best){
+function setupBestInfinite(best) {
   if (typeof bestInfiniteCleanup === "function") bestInfiniteCleanup();
 
-  if (best.length < 2){
+  if (best.length < 2) {
     best.forEach(p => bestGrid.appendChild(productCard(p)));
     bestInfiniteCleanup = null;
     return;
@@ -935,71 +957,9 @@ function setupBestInfinite(best){
     });
   };
 
-const onScroll = () => {
-  if (jumping) return;
-  if (isPointerDown) return;
-
-  clearTimeout(snapTimer);
-  snapTimer = setTimeout(() => {
-    const seg = getSegment();
-    if (!seg) return;
-
-    const left = bestGrid.scrollLeft;
-
-    if (left < seg * 0.25) doJump(+seg);
-    else if (left > seg * 1.75) doJump(-seg);
-  }, 90);
-};
-
-
-const isDesktopPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-
-let dragMoved = false;
-let captured = false;
-let startX = 0;
-let startLeft = 0;
-
-const onPointerDown = (e) => {
-  if (!isDesktopPointer) return;
-  if (e.button !== 0) return; // click izquierdo
-
-  isPointerDown = true;
-  dragMoved = false;
-  captured = false;
-
-  startX = e.clientX;
-  startLeft = bestGrid.scrollLeft;
-};
-
-const onPointerMove = (e) => {
-  if (!isDesktopPointer) return;
-  if (!isPointerDown) return;
-
-  const dx = e.clientX - startX;
-
-  // recién si se movió “de verdad” lo tratamos como drag
-  if (!dragMoved && Math.abs(dx) > 6) {
-    dragMoved = true;
-    bestGrid.classList.add("is-dragging");
-
-    if (!captured) {
-      bestGrid.setPointerCapture?.(e.pointerId);
-      captured = true;
-    }
-  }
-
-  if (!dragMoved) return;
-  bestGrid.scrollLeft = startLeft - dx;
-};
-
-const onPointerUp = () => {
-  if (!isDesktopPointer) return;
-
-  isPointerDown = false;
-
-  if (dragMoved) {
-    bestGrid.classList.remove("is-dragging");
-    dragMoved = false;
+  const onScroll = () => {
+    if (jumping) return;
+    if (isPointerDown) return;
 
     clearTimeout(snapTimer);
     snapTimer = setTimeout(() => {
@@ -1007,54 +967,113 @@ const onPointerUp = () => {
       if (!seg) return;
 
       const left = bestGrid.scrollLeft;
+
       if (left < seg * 0.25) doJump(+seg);
       else if (left > seg * 1.75) doJump(-seg);
-    }, 120);
-  }
-};
-
-// listeners
-bestGrid.addEventListener("pointerdown", onPointerDown);
-bestGrid.addEventListener("pointermove", onPointerMove);
-bestGrid.addEventListener("pointerup", onPointerUp);
-bestGrid.addEventListener("pointercancel", onPointerUp);
-bestGrid.addEventListener("pointerleave", onPointerUp);
+    }, 90);
+  };
 
 
-bestGrid.addEventListener("click", (e) => {
-  // si hubo drag, cancelamos el click que aparece al soltar
-  if (bestGrid.classList.contains("is-dragging")) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-}, true);
+  const isDesktopPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  let dragMoved = false;
+  let captured = false;
+  let startX = 0;
+  let startLeft = 0;
+
+  const onPointerDown = (e) => {
+    if (!isDesktopPointer) return;
+    if (e.button !== 0) return; 
+
+    isPointerDown = true;
+    dragMoved = false;
+    captured = false;
+
+    startX = e.clientX;
+    startLeft = bestGrid.scrollLeft;
+  };
+
+  const onPointerMove = (e) => {
+    if (!isDesktopPointer) return;
+    if (!isPointerDown) return;
+
+    const dx = e.clientX - startX;
+
+    if (!dragMoved && Math.abs(dx) > 6) {
+      dragMoved = true;
+      bestGrid.classList.add("is-dragging");
+
+      if (!captured) {
+        bestGrid.setPointerCapture?.(e.pointerId);
+        captured = true;
+      }
+    }
+
+    if (!dragMoved) return;
+    bestGrid.scrollLeft = startLeft - dx;
+  };
+
+  const onPointerUp = () => {
+    if (!isDesktopPointer) return;
+
+    isPointerDown = false;
+
+    if (dragMoved) {
+      bestGrid.classList.remove("is-dragging");
+      dragMoved = false;
+
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(() => {
+        const seg = getSegment();
+        if (!seg) return;
+
+        const left = bestGrid.scrollLeft;
+        if (left < seg * 0.25) doJump(+seg);
+        else if (left > seg * 1.75) doJump(-seg);
+      }, 120);
+    }
+  };
+
+  // listeners
+  bestGrid.addEventListener("pointerdown", onPointerDown);
+  bestGrid.addEventListener("pointermove", onPointerMove);
+  bestGrid.addEventListener("pointerup", onPointerUp);
+  bestGrid.addEventListener("pointercancel", onPointerUp);
+  bestGrid.addEventListener("pointerleave", onPointerUp);
+
+
+  bestGrid.addEventListener("click", (e) => {
+    if (bestGrid.classList.contains("is-dragging")) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }, true);
 
 
   bestGrid.addEventListener("scroll", onScroll, { passive: true });
 
   bestInfiniteCleanup = () => {
-  clearTimeout(snapTimer);
-  bestGrid.removeEventListener("scroll", onScroll);
+    clearTimeout(snapTimer);
+    bestGrid.removeEventListener("scroll", onScroll);
 
-  bestGrid.removeEventListener("pointerdown", onPointerDown);
-  bestGrid.removeEventListener("pointermove", onPointerMove);
-  bestGrid.removeEventListener("pointerup", onPointerUp);
-  bestGrid.removeEventListener("pointercancel", onPointerUp);
-  bestGrid.removeEventListener("pointerleave", onPointerUp);
+    bestGrid.removeEventListener("pointerdown", onPointerDown);
+    bestGrid.removeEventListener("pointermove", onPointerMove);
+    bestGrid.removeEventListener("pointerup", onPointerUp);
+    bestGrid.removeEventListener("pointercancel", onPointerUp);
+    bestGrid.removeEventListener("pointerleave", onPointerUp);
 
-  bestInfiniteCleanup = null;
+    bestInfiniteCleanup = null;
   };
-
 
 }
 
-function renderProducts(){
+function renderProducts() {
   if (!productsGrid) return;
 
   productsGrid.innerHTML = "";
   const list = products.filter(matchesFilters);
 
-  if (!list.length){
+  if (!list.length) {
     productsGrid.innerHTML = `<div class="tip">No se encontraron productos.</div>`;
     return;
   }
@@ -1067,7 +1086,7 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
 
 window.addEventListener("hashchange", renderAll);
 
-function renderAll(){
+function renderAll() {
   const { cat, pid } = getRoute();
 
   activeCategory = cat || null;
@@ -1075,7 +1094,7 @@ function renderAll(){
   renderCategories();
   renderCrumb();
 
-  if (pid){
+  if (pid) {
     const p = getProductById(pid);
     if (p) openProductModal(p);
   }
@@ -1088,7 +1107,7 @@ function renderAll(){
 
 let searchDrop = null;
 
-function ensureSearchDropdown(){
+function ensureSearchDropdown() {
   if (!searchInput || searchDrop) return;
 
   searchDrop = document.createElement("div");
@@ -1111,14 +1130,14 @@ function ensureSearchDropdown(){
   });
 }
 
-function hideSearchDrop(){
+function hideSearchDrop() {
   if (!searchDrop) return;
   searchDrop.classList.add("is-hidden");
   const list = searchDrop.querySelector(".search-drop__list");
   if (list) list.innerHTML = "";
 }
 
-function normalize(s){
+function normalize(s) {
   return (s || "")
     .toString()
     .toLowerCase()
@@ -1126,7 +1145,7 @@ function normalize(s){
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-function searchProducts(q){
+function searchProducts(q) {
   const qq = normalize(q).trim();
   if (!qq) return [];
 
@@ -1145,31 +1164,31 @@ function searchProducts(q){
     .map(x => x.p);
 }
 
-function getHeatTag(p){
+function getHeatTag(p) {
   const cat = (p?.category || "").toString().toLowerCase();
   if (cat === "sin picante") return { text: "Sin picante", cls: "meta--sin-picante" };
-  if (cat === "picante")     return { text: "Picante", cls: "meta--picante" };
+  if (cat === "picante") return { text: "Picante", cls: "meta--picante" };
 
   const n = Number(p?.nivelPicante);
   if (Number.isFinite(n)) {
     if (n === 0) return { text: "Sin picante", cls: "meta--sin-picante" };
-    if (n > 0)   return { text: "Picante", cls: "meta--picante" };
+    if (n > 0) return { text: "Picante", cls: "meta--picante" };
   }
 
   const lvl = (p?.picante || p?.nivel || p?.heat || "").toString().toLowerCase();
   if (lvl.includes("sin picante") || lvl.includes("sin")) return { text: "Sin picante", cls: "meta--sin-picante" };
-  if (lvl.includes("picante") || lvl.includes("pic"))     return { text: "Picante", cls: "meta--picante" };
+  if (lvl.includes("picante") || lvl.includes("pic")) return { text: "Picante", cls: "meta--picante" };
 
   const hay = `${p?.name || ""} ${p?.short || ""} ${p?.long || ""} ${p?.category || ""}`.toLowerCase();
   if (hay.includes("sin picante")) return { text: "Sin picante", cls: "meta--sin-picante" };
-  if (hay.includes("picante"))     return { text: "Picante", cls: "meta--picante" };
+  if (hay.includes("picante")) return { text: "Picante", cls: "meta--picante" };
 
   return { text: "Clásico", cls: "meta--neutral" };
 }
 
 
 
-function renderSearchDrop(q){
+function renderSearchDrop(q) {
   ensureSearchDropdown();
   if (!searchDrop) return;
 
@@ -1177,39 +1196,39 @@ function renderSearchDrop(q){
   const list = searchDrop.querySelector(".search-drop__list");
   if (!list) return;
 
-  if (!q.trim() || !results.length){
+  if (!q.trim() || !results.length) {
     hideSearchDrop();
     return;
   }
 
   list.innerHTML = results.map(p => {
-  const img = p.image ? `style="background-image:url('${p.image}')"` : "";
+    const img = p.image ? `style="background-image:url('${p.image}')"` : "";
 
-let meta = "";
-let metaClass = "";
+    let meta = "";
+    let metaClass = "";
 
 
-if (p.category === "Promo"){
-  meta = "Promo";
-  metaClass = "meta--promo";
-}
-else if (p.category === "Especiales"){
-  meta = "Especiales";
-  metaClass = "meta--especial";
-}
+    if (p.category === "Promo") {
+      meta = "Promo";
+      metaClass = "meta--promo";
+    }
+    else if (p.category === "Especiales") {
+      meta = "Especiales";
+      metaClass = "meta--especial";
+    }
 
-else if (p.category === "Salsas"){
-  meta = "Salsa";
-  metaClass = "meta--salsa";
-}
+    else if (p.category === "Salsas") {
+      meta = "Salsa";
+      metaClass = "meta--salsa";
+    }
 
-else {
-  const heat = getHeatTag(p);
-  meta = heat.text;
-  metaClass = heat.cls;
-}
+    else {
+      const heat = getHeatTag(p);
+      meta = heat.text;
+      metaClass = heat.cls;
+    }
 
-  return `
+    return `
     <button class="search-item" type="button" data-id="${p.id}">
       <div class="search-item__img" ${img}></div>
       <div class="search-item__txt">
@@ -1227,28 +1246,26 @@ else {
   searchDrop.classList.remove("is-hidden");
 
   list.querySelectorAll("[data-id]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const id = btn.dataset.id;
-    const p = getProductById(id);
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.id;
+      const p = getProductById(id);
 
-    if (p) openProductModal(p);
+      if (p) openProductModal(p);
 
-    hideSearchDrop();
-    searchInput.blur();
+      hideSearchDrop();
+      searchInput.blur();
 
-    // ✅ si el search modal está abierto, lo cerramos también
-    if (typeof closeSearchModal === "function") {
-      closeSearchModal();
-    } else if (searchModal && searchModal.classList.contains("is-open")) {
-      // fallback por si no creaste closeSearchModal()
-      closeModal(searchModal);
+      if (typeof closeSearchModal === "function") {
+        closeSearchModal();
+      } else if (searchModal && searchModal.classList.contains("is-open")) {
+        closeModal(searchModal);
       }
     });
   });
 
 }
 
-if (searchInput){
+if (searchInput) {
   ensureSearchDropdown();
 
   searchInput.addEventListener("input", () => {
@@ -1270,12 +1287,12 @@ if (searchInput){
 
 let bannerIndex = 0;
 
-function bannerInit(){
+function bannerInit() {
   const slides = $$("#bannerTrack .banner__slide");
-  const dots   = $$(".banner__dots .dot");
+  const dots = $$(".banner__dots .dot");
   if (!slides.length) return;
 
-  function show(i){
+  function show(i) {
     slides.forEach(s => s.classList.remove("is-active"));
     dots.forEach(d => d.classList.remove("is-active"));
 
@@ -1288,11 +1305,11 @@ function bannerInit(){
   const isDesktopPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
   if (isDesktopPointer) {
-  dots.forEach((dot, i) => {
-    dot.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      show(i);
+    dots.forEach((dot, i) => {
+      dot.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        show(i);
       });
     });
   }
@@ -1300,7 +1317,7 @@ function bannerInit(){
   const timer = setInterval(() => show(bannerIndex + 1), 5000);
 
   const bannerEl = document.querySelector(".banner");
-  if (bannerEl){
+  if (bannerEl) {
     let startX = 0;
 
     bannerEl.addEventListener("touchstart", (e) => {
@@ -1311,9 +1328,9 @@ function bannerInit(){
       const endX = e.changedTouches[0].clientX;
       const diff = startX - endX;
 
-      if (Math.abs(diff) > 50){
-        if (diff > 0) show(bannerIndex + 1); 
-        else          show(bannerIndex - 1); 
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) show(bannerIndex + 1);
+        else show(bannerIndex - 1);
       }
     }, { passive: true });
   }
@@ -1323,23 +1340,23 @@ function bannerInit(){
 
 bannerInit();
 
-function buildWhatsAppMessage(){
-  const entries = Object.entries(cart).filter(([_,q]) => q > 0);
+function buildWhatsAppMessage() {
+  const entries = Object.entries(cart).filter(([_, q]) => q > 0);
   if (!entries.length) return "Hola! Quiero hacer un pedido.\n\n(El carrito está vacío)";
   let msg = "Hola! Quiero hacer un pedido:\n\n";
-  for (const [id, qty] of entries){
+  for (const [id, qty] of entries) {
     const p = getProductById(id);
     if (!p) continue;
     msg += `(x${qty}) ${p.name} — ${money(p.price * qty)}\n`;
   }
 
   const promos = computePromos(cart);
-  if (promos.applied.length){
-  msg += `\nPromos aplicadas:\n`;
-  promos.applied.forEach(pr => {
-    msg += `• ${pr.title} — ${money(pr.price)}\n`;
-  });
-  msg += `Ahorro: -${money(promos.discount)}\n`;
+  if (promos.applied.length) {
+    msg += `\nPromos aplicadas:\n`;
+    promos.applied.forEach(pr => {
+      msg += `• ${pr.title} — ${money(pr.price)}\n`;
+    });
+    msg += `Ahorro: -${money(promos.discount)}\n`;
   }
 
   const { total } = cartSummary();
@@ -1347,8 +1364,8 @@ function buildWhatsAppMessage(){
   return msg;
 }
 
-function openWhatsApp(){
-  const phone = "5490000000000"; 
+function openWhatsApp() {
+  const phone = "5490000000000";
   const text = buildWhatsAppMessage();
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
   window.open(url, "_blank");
@@ -1372,10 +1389,10 @@ function openSidePanel({ title, content }) {
   sidePanel.setAttribute("aria-hidden", "false");
 }
 
-function closeSidePanel(){
+function closeSidePanel() {
   sidePanel.classList.remove("is-open");
   sidePanel.setAttribute("aria-hidden", "true");
-  delete sidePanel.dataset.panel; 
+  delete sidePanel.dataset.panel;
 }
 
 document.addEventListener("click", (e) => {
@@ -1384,23 +1401,23 @@ document.addEventListener("click", (e) => {
   }
 });
 
-function closeDrawer(){
+function closeDrawer() {
   if (!drawer) return;
   drawer.classList.remove("is-open");
-  if (menuBtn) menuBtn.setAttribute("aria-expanded","false");
-  drawer.setAttribute("aria-hidden","true");
+  if (menuBtn) menuBtn.setAttribute("aria-expanded", "false");
+  drawer.setAttribute("aria-hidden", "true");
   if (drawerOverlay) drawerOverlay.hidden = true;
 }
 
-function openDrawer(){
+function openDrawer() {
   if (!drawer) return;
   drawer.classList.add("is-open");
-  if (menuBtn) menuBtn.setAttribute("aria-expanded","true");
-  drawer.setAttribute("aria-hidden","false");
+  if (menuBtn) menuBtn.setAttribute("aria-expanded", "true");
+  drawer.setAttribute("aria-hidden", "false");
   if (drawerOverlay) drawerOverlay.hidden = false;
 }
 
-if (menuBtn && drawer){
+if (menuBtn && drawer) {
   menuBtn.addEventListener("click", () => {
     const isOpen = drawer.classList.contains("is-open");
     isOpen ? closeDrawer() : openDrawer();
@@ -1411,7 +1428,7 @@ if (menuBtn && drawer){
 
   drawer.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-panel]");
-    if (btn){
+    if (btn) {
       const key = btn.dataset.panel;
 
       const tpl = document.getElementById(`tpl-${key}`);
@@ -1435,46 +1452,46 @@ if (menuBtn && drawer){
     }
 
     const a = e.target.closest("a.drawer__link");
-      if (a){
+    if (a) {
       const href = a.getAttribute("href") || "";
 
-      if (href.startsWith("#")){
+      if (href.startsWith("#")) {
         e.preventDefault();
 
-      const target = document.querySelector(href);
+        const target = document.querySelector(href);
         closeDrawer();
 
-      if (target){
-      setTimeout(() => {
-        const header = document.querySelector(".header");
-        const offset = (header?.offsetHeight || 0) + 8;
+        if (target) {
+          setTimeout(() => {
+            const header = document.querySelector(".header");
+            const offset = (header?.offsetHeight || 0) + 8;
 
-        const y =
-          target.getBoundingClientRect().top +
-          window.pageYOffset -
-          offset;
+            const y =
+              target.getBoundingClientRect().top +
+              window.pageYOffset -
+              offset;
 
-        window.scrollTo({
-          top: Math.max(0, y),
-          behavior: "smooth"
+            window.scrollTo({
+              top: Math.max(0, y),
+              behavior: "smooth"
             });
           }, 50);
         }
       } else {
-      closeDrawer();
-    }
+        closeDrawer();
+      }
     }
   });
 }
 
 const bannerSlides = document.querySelectorAll(".banner__slide");
-const bannerDots   = document.querySelectorAll(".banner__dots .dot");
-const bannerPrev   = document.querySelector(".banner__arrow--left");
-const bannerNext   = document.querySelector(".banner__arrow--right");
+const bannerDots = document.querySelectorAll(".banner__dots .dot");
+const bannerPrev = document.querySelector(".banner__arrow--left");
+const bannerNext = document.querySelector(".banner__arrow--right");
 
 let bannerCurrent = 0;
 
-function showBanner(i){
+function showBanner(i) {
   if (!bannerSlides.length) return;
 
   bannerSlides.forEach(s => s.classList.remove("is-active"));
@@ -1488,7 +1505,7 @@ function showBanner(i){
   }
 }
 
-if (bannerPrev && bannerNext){
+if (bannerPrev && bannerNext) {
   bannerPrev.addEventListener("click", () => showBanner(bannerCurrent - 1));
   bannerNext.addEventListener("click", () => showBanner(bannerCurrent + 1));
 }
@@ -1549,48 +1566,47 @@ document.addEventListener("click", (e) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    const searchSheet = document.getElementById('searchSheet');
-    const openBtns = document.querySelectorAll('#searchBtn, #drawerSearchBtn');
-    const closeOverlay = document.querySelector('.search-sheet__overlay');
-    const input = document.getElementById('newSearchInput');
-    const sheetBody = document.querySelector('.search-sheet__body');
-    const drawer = document.getElementById('drawer');
-    const drawerOverlay = document.getElementById('drawerOverlay');
+  const searchSheet = document.getElementById('searchSheet');
+  const openBtns = document.querySelectorAll('#searchBtn, #drawerSearchBtn');
+  const closeOverlay = document.querySelector('.search-sheet__overlay');
+  const input = document.getElementById('newSearchInput');
+  const sheetBody = document.querySelector('.search-sheet__body');
+  const drawer = document.getElementById('drawer');
+  const drawerOverlay = document.getElementById('drawerOverlay');
 
-    const QUICK_CATS = ["Promo", "Picante", "Sin picante", "Especiales", "Salsas"];
+  const QUICK_CATS = ["Promo", "Picante", "Sin picante", "Especiales", "Salsas"];
 
-    function getTag(p) {
-        const cat = (p.category || "").trim().toLowerCase();
-        
-        if (cat === "promo") return { label: "Promo", className: "meta--promo" };
-        if (cat === "salsas") return { label: "Salsa", className: "meta--salsa" };
-        if (cat === "especiales") return { label: "Especial", className: "meta--especial" };
-        if (cat === "sin picante") return { label: "Sin picante", className: "meta--sin-picante" };
-        if (cat === "picante") return { label: "Picante", className: "meta--picante" };
+  function getTag(p) {
+    const cat = (p.category || "").trim().toLowerCase();
 
-        // Fallback por texto
-        const nameLower = (p.name || "").toLowerCase();
-        if (nameLower.includes("sin picante")) return { label: "Sin picante", className: "meta--sin-picante" };
-        if (nameLower.includes("picante")) return { label: "Picante", className: "meta--picante" };
-        if (nameLower.includes("salsa")) return { label: "Salsa", className: "meta--salsa" };
-        
-        return null;
+    if (cat === "promo") return { label: "Promo", className: "meta--promo" };
+    if (cat === "salsas") return { label: "Salsa", className: "meta--salsa" };
+    if (cat === "especiales") return { label: "Especial", className: "meta--especial" };
+    if (cat === "sin picante") return { label: "Sin picante", className: "meta--sin-picante" };
+    if (cat === "picante") return { label: "Picante", className: "meta--picante" };
+
+    const nameLower = (p.name || "").toLowerCase();
+    if (nameLower.includes("sin picante")) return { label: "Sin picante", className: "meta--sin-picante" };
+    if (nameLower.includes("picante")) return { label: "Picante", className: "meta--picante" };
+    if (nameLower.includes("salsa")) return { label: "Salsa", className: "meta--salsa" };
+
+    return null;
+  }
+
+  function renderSheetItem(p) {
+    const precio = typeof money === 'function' ? money(p.price) : `$${p.price}`;
+    const imgStyle = p.image ? `background-image:url('${p.image}')` : `background-color:#eee`;
+    const tag = getTag(p);
+    const tagHtml = tag ? `<span class="search-item__meta ${tag.className}" style="margin-top:6px; align-self:flex-start; font-size:11px;">${tag.label}</span>` : '';
+
+    let displayName = p.name;
+
+    if (displayName.includes("•")) {
+      const parts = displayName.split("•");
+      displayName = `${parts[0]} • <span style="color:#e27f3d; font-weight:800;">${parts[1]}</span>`;
     }
 
-    function renderSheetItem(p) {
-        const precio = typeof money === 'function' ? money(p.price) : `$${p.price}`;
-        const imgStyle = p.image ? `background-image:url('${p.image}')` : `background-color:#eee`;
-        const tag = getTag(p);
-        const tagHtml = tag ? `<span class="search-item__meta ${tag.className}" style="margin-top:6px; align-self:flex-start; font-size:11px;">${tag.label}</span>` : '';
-
-        let displayName = p.name;
-        
-        if (displayName.includes("•")) {
-            const parts = displayName.split("•");
-            displayName = `${parts[0]} • <span style="color:#e27f3d; font-weight:800;">${parts[1]}</span>`;
-        }
-
-        return `
+    return `
             <button class="sheet-item" data-id="${p.id}" style="align-items: flex-start;">
                 <div class="sheet-item__img" style="${imgStyle}"></div>
                 <div class="sheet-item__info">
@@ -1601,141 +1617,132 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="sheet-item__price">${precio}</div>
             </button>
         `;
-    }
+  }
 
-    function renderDefaultState() {
-        let pillsHtml = `<div class="sheet-pills">`;
-        
-        const catClasses = {
-            "Promo": "meta--promo", "Picante": "meta--picante",
-            "Sin picante": "meta--sin-picante", "Especiales": "meta--especial",
-            "Salsas": "meta--salsa"
-        };
+  function renderDefaultState() {
+    let pillsHtml = `<div class="sheet-pills">`;
 
-        QUICK_CATS.forEach(cat => {
-            const cssClass = catClasses[cat] || "";
-            pillsHtml += `<button class="sheet-pill ${cssClass}" onclick="fillSearch('${cat}')">${cat}</button>`;
-        });
-        pillsHtml += `</div>`;
+    const catClasses = {
+      "Promo": "meta--promo", "Picante": "meta--picante",
+      "Sin picante": "meta--sin-picante", "Especiales": "meta--especial",
+      "Salsas": "meta--salsa"
+    };
 
-        const bestSellers = typeof products !== 'undefined' ? products.filter(p => p.bestSeller).slice(0, 3) : [];
-        
-        let bestHtml = '';
-        if (bestSellers.length > 0) {
-            bestHtml = `
+    QUICK_CATS.forEach(cat => {
+      const cssClass = catClasses[cat] || "";
+      pillsHtml += `<button class="sheet-pill ${cssClass}" onclick="fillSearch('${cat}')">${cat}</button>`;
+    });
+    pillsHtml += `</div>`;
+
+    const bestSellers = typeof products !== 'undefined' ? products.filter(p => p.bestSeller).slice(0, 3) : [];
+
+    let bestHtml = '';
+    if (bestSellers.length > 0) {
+      bestHtml = `
                 <div class="sheet-group">
                     <div class="sheet-group__title">🔥 Más vendidos</div>
                     <div class="sheet-list">${bestSellers.map(p => renderSheetItem(p)).join('')}</div>
                 </div>
             `;
-        }
-        sheetBody.innerHTML = pillsHtml + bestHtml;
-        setupItemClicks();
+    }
+    sheetBody.innerHTML = pillsHtml + bestHtml;
+    setupItemClicks();
+  }
+
+  function renderResults(query) {
+    if (typeof products === 'undefined') return;
+    const q = query.toLowerCase().trim();
+
+    let found = [];
+
+    const isExactCategory = QUICK_CATS.map(c => c.toLowerCase()).includes(q);
+
+    if (isExactCategory) {
+      found = products.filter(p => (p.category || "").toLowerCase() === q);
+    } else {
+      found = products.filter(p => {
+        const text = (p.name + ' ' + p.category + ' ' + (p.short || '')).toLowerCase();
+        return text.includes(q);
+      });
     }
 
-    function renderResults(query) {
-        if (typeof products === 'undefined') return;
-        const q = query.toLowerCase().trim();
+    if (found.length === 0) {
+      sheetBody.innerHTML = `<div class="sheet-group" style="text-align:center; opacity:0.6; margin-top:40px;"><p>No encontramos nada 🥺</p></div>`;
+      return;
+    }
 
-        let found = [];
-
-        const isExactCategory = QUICK_CATS.map(c => c.toLowerCase()).includes(q);
-
-        if (isExactCategory) {
-            found = products.filter(p => (p.category || "").toLowerCase() === q);
-        } else {
-            found = products.filter(p => {
-                const text = (p.name + ' ' + p.category + ' ' + (p.short||'')).toLowerCase();
-                return text.includes(q);
-            });
-        }
-
-        if (found.length === 0) {
-            sheetBody.innerHTML = `<div class="sheet-group" style="text-align:center; opacity:0.6; margin-top:40px;"><p>No encontramos nada 🥺</p></div>`;
-            return;
-        }
-
-        sheetBody.innerHTML = `
+    sheetBody.innerHTML = `
             <div class="sheet-group">
                 <div class="sheet-group__title">Resultados</div>
                 <div class="sheet-list">${found.map(p => renderSheetItem(p)).join('')}</div>
             </div>
         `;
-        setupItemClicks();
-    }
+    setupItemClicks();
+  }
 
-    function setupItemClicks() {
-        const items = sheetBody.querySelectorAll('.sheet-item');
-        items.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.dataset.id;
-                const product = products.find(p => p.id == id);
-                if (product && typeof openProductModal === 'function') {
-                    openProductModal(product);
-                }
-            });
-        });
-    }
-
-    function openSearch() {
-        if (drawer && drawer.classList.contains('is-open')) {
-            drawer.classList.remove('is-open');
-            if (drawerOverlay) drawerOverlay.hidden = true;
+  function setupItemClicks() {
+    const items = sheetBody.querySelectorAll('.sheet-item');
+    items.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        const product = products.find(p => p.id == id);
+        if (product && typeof openProductModal === 'function') {
+          openProductModal(product);
         }
-        searchSheet.classList.add('is-open');
-        searchSheet.setAttribute('aria-hidden', 'false');
-        input.value = '';
-        renderDefaultState();
-        setTimeout(() => input.focus(), 100);
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeSearch() {
-        searchSheet.classList.remove('is-open');
-        searchSheet.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
-        input.blur();
-    }
-
-    window.fillSearch = (text) => {
-        input.value = text;
-        renderResults(text);
-        input.focus();
-    };
-
-    openBtns.forEach(btn => btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); openSearch(); }));
-    if(closeOverlay) closeOverlay.addEventListener('click', closeSearch);
-    input.addEventListener('input', (e) => { 
-        e.target.value.trim().length === 0 ? renderDefaultState() : renderResults(e.target.value); 
+      });
     });
-    
-    document.addEventListener('keydown', (e) => { 
-        if (e.key === 'Escape' && searchSheet.classList.contains('is-open')) closeSearch(); 
-    });
+  }
+
+  function openSearch() {
+    if (drawer && drawer.classList.contains('is-open')) {
+      drawer.classList.remove('is-open');
+      if (drawerOverlay) drawerOverlay.hidden = true;
+    }
+    searchSheet.classList.add('is-open');
+    searchSheet.setAttribute('aria-hidden', 'false');
+    input.value = '';
+    renderDefaultState();
+    setTimeout(() => input.focus(), 100);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSearch() {
+    searchSheet.classList.remove('is-open');
+    searchSheet.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    input.blur();
+  }
+
+  window.fillSearch = (text) => {
+    input.value = text;
+    renderResults(text);
+    input.focus();
+  };
+
+  openBtns.forEach(btn => btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); openSearch(); }));
+  if (closeOverlay) closeOverlay.addEventListener('click', closeSearch);
+  input.addEventListener('input', (e) => {
+    e.target.value.trim().length === 0 ? renderDefaultState() : renderResults(e.target.value);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && searchSheet.classList.contains('is-open')) closeSearch();
+  });
 });
 
-/* =========================================
-   CORRECCIÓN DE SCROLL AL CARGAR (LANDING)
-   ========================================= */
+
 window.addEventListener("load", () => {
-  // Solo si la URL tiene un # (ej: #catalogo)
   if (window.location.hash) {
     const target = document.querySelector(window.location.hash);
-    
-    // Si el elemento existe (ej: la sección catalogo)
+
     if (target) {
-      // Esperamos un poquito a que se acomode todo
       setTimeout(() => {
         const header = document.querySelector(".header");
-        // Calculamos altura del header + 20px de aire extra
-        const offset = (header?.offsetHeight || 0) + 20; 
-
-        // Calculamos la posición real restando el header
+        const offset = (header?.offsetHeight || 0) + 20;
         const y = target.getBoundingClientRect().top + window.pageYOffset - offset;
 
-        // Movemos la pantalla ahí suavemente
         window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-      }, 100); 
+      }, 100);
     }
   }
 });
