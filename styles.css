@@ -3231,6 +3231,163 @@ input[type="search"]::-webkit-search-cancel-button {
     margin-bottom: 1px;
 }
 
+.apple-scroller {
+  width: 100%;
+  padding: 20px 0 40px;
+  overflow: hidden;
+  position: relative;
+}
+
+.apple-track {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding: 0 calc(50% - 32.5%); 
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.apple-track::-webkit-scrollbar {
+  display: none;
+}
+
+.apple-track.is-jumping {
+  scroll-behavior: auto !important;
+}
+
+.apple-card {
+  position: relative;
+  flex: 0 0 65%;
+  aspect-ratio: 16/9;
+  border-radius: 24px;
+  overflow: hidden;
+  scroll-snap-align: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+  transition: transform 0.3s ease;
+  background: #f0f0f0;
+}
+
+.apple-card__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.apple-card:hover .apple-card__bg {
+  transform: scale(1.03);
+}
+
+.apple-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+}
+
+.apple-card__content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 40px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.apple-tag {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.6);
+  margin-bottom: 5px;
+}
+
+.apple-title {
+  font-size: 3rem;
+  line-height: 0.95;
+  font-weight: 900;
+  margin: 0;
+  color: #1d1d1f;
+  letter-spacing: -1px;
+}
+
+.apple-desc {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #86868b;
+  margin: 0 0 15px 0;
+  max-width: 400px;
+}
+
+.apple-btn, 
+.apple-card__content button.apple-btn {
+  pointer-events: auto;
+  display: inline-block;
+  background: #3a5fd9;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 980px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.apple-btn:hover {
+  background: #0077ed;
+  transform: scale(1.02);
+}
+
+.apple-btn--white {
+  background: white;
+  color: #1d1d1f;
+}
+
+.apple-btn--white:hover {
+  background: #f5f5f7;
+}
+
+.apple-card__content.light-text .apple-title { color: white; }
+.apple-card__content.light-text .apple-desc { color: rgba(255,255,255,0.8); }
+
+.apple-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding-bottom: 10px;
+}
+
+.apple-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  padding: 0;
+}
+
+.apple-dot:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.apple-dot.is-active {
+  background: #1d1d1f;
+  transform: scale(1.2);
+}
+
 /* todos los responsives */
 
 @media (min-width: 901px) {
@@ -3458,6 +3615,41 @@ input[type="search"]::-webkit-search-cancel-button {
     }
 }
 
+@media (max-width: 768px) {
+  .apple-track {
+    gap: 10px; 
+    padding: 0 calc(50% - 37.5%); 
+  }
+
+  .apple-card {
+    flex: 0 0 100%;        
+    aspect-ratio: 4 / 5; 
+  }
+
+  .apple-card__content {
+    padding: 14px;
+    justify-content: flex-end;
+  }
+
+  .apple-title {
+    font-size: 1.8rem; 
+  }
+  
+  .apple-desc {
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+  
+  .apple-card__bg {
+    background-position: center center;
+  }
+  
+  .apple-dot {
+    width: 6px;
+    height: 6px;
+  }
+}
+
 @media (min-width:700px) {
     .best-scroll {
         gap: 14px;
@@ -3580,4 +3772,41 @@ input[type="search"]::-webkit-search-cancel-button {
     .best-scroll.is-dragging {
         cursor: grabbing;
     }
+}
+
+/* BANNERS PC/MOBILE */
+
+.bg-BANNER1 {
+  background-image: url('img/banner/banner1.png');
+}
+
+.bg-BANNER2 {
+  background-image: url('img/banner/banner2.png');
+}
+
+.bg-BANNER3 {
+  background-image: url('img/banner/banner3.png');
+}
+
+.bg-BANNER4 {
+  background-image: url('img/banner/banner4.png');
+}
+
+@media (max-width: 768px) {
+  
+  .bg-BANNER1 {
+    background-image: url('img/banner/banner1-mobile.png'); 
+  }
+
+  .bg-BANNER2 {
+    background-image: url('img/banner/banner2-mobile.png');
+  }
+
+  .bg-BANNER3 {
+    background-image: url('img/banner/banner3-mobile.png');
+  }
+
+  .bg-BANNER4 {
+    background-image: url('img/banner/banner4-mobile.png');
+  }
 }

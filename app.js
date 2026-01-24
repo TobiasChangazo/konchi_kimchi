@@ -1285,61 +1285,6 @@ if (searchInput) {
   });
 }
 
-let bannerIndex = 0;
-
-function bannerInit() {
-  const slides = $$("#bannerTrack .banner__slide");
-  const dots = $$(".banner__dots .dot");
-  if (!slides.length) return;
-
-  function show(i) {
-    slides.forEach(s => s.classList.remove("is-active"));
-    dots.forEach(d => d.classList.remove("is-active"));
-
-    bannerIndex = (i + slides.length) % slides.length;
-
-    slides[bannerIndex].classList.add("is-active");
-    if (dots[bannerIndex]) dots[bannerIndex].classList.add("is-active");
-  }
-
-  const isDesktopPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-
-  if (isDesktopPointer) {
-    dots.forEach((dot, i) => {
-      dot.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        show(i);
-      });
-    });
-  }
-
-  const timer = setInterval(() => show(bannerIndex + 1), 5000);
-
-  const bannerEl = document.querySelector(".banner");
-  if (bannerEl) {
-    let startX = 0;
-
-    bannerEl.addEventListener("touchstart", (e) => {
-      startX = e.touches[0].clientX;
-    }, { passive: true });
-
-    bannerEl.addEventListener("touchend", (e) => {
-      const endX = e.changedTouches[0].clientX;
-      const diff = startX - endX;
-
-      if (Math.abs(diff) > 50) {
-        if (diff > 0) show(bannerIndex + 1);
-        else show(bannerIndex - 1);
-      }
-    }, { passive: true });
-  }
-
-  show(0);
-}
-
-bannerInit();
-
 function buildWhatsAppMessage() {
   const entries = Object.entries(cart).filter(([_, q]) => q > 0);
   if (!entries.length) return "Hola! Quiero hacer un pedido.\n\n(El carrito está vacío)";
@@ -1745,6 +1690,143 @@ window.addEventListener("load", () => {
       }, 100);
     }
   }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const track = document.getElementById("track");
+  const dotsContainer = document.getElementById("appleDots");
+  
+  if (!track || !dotsContainer) return;
+
+  const originalCards = Array.from(track.children);
+  const cardCount = originalCards.length;
+
+  originalCards.forEach((_, index) => {
+    const dot = document.createElement("button");
+    dot.className = `apple-dot ${index === 0 ? "is-active" : ""}`;
+    dot.ariaLabel = `Ir al banner ${index + 1}`;
+    dot.addEventListener("click", () => scrollToRealIndex(index));
+    dotsContainer.appendChild(dot);
+  });
+  
+  const dots = Array.from(dotsContainer.children);
+
+  const cloneFirst = originalCards[0].cloneNode(true);
+  const cloneLast = originalCards[cardCount - 1].cloneNode(true);
+  const cloneSecond = originalCards[1].cloneNode(true);
+  const cloneSecondLast = originalCards[cardCount - 2].cloneNode(true);
+
+  cloneFirst.dataset.clone = "first";
+  cloneLast.dataset.clone = "last";
+  cloneSecond.dataset.clone = "second";
+  cloneSecondLast.dataset.clone = "secondLast";
+
+  track.appendChild(cloneFirst);
+  track.appendChild(cloneSecond);
+  track.insertBefore(cloneLast, track.firstChild);
+  track.insertBefore(cloneSecondLast, track.firstChild);
+
+  const allCards = Array.from(track.children);
+  
+  const startIndex = 2; 
+
+  const getCardWidth = () => allCards[0].offsetWidth;
+  const getGap = () => 20;
+
+  const jumpToSlide = (index, smooth = false) => {
+    const cardWidth = getCardWidth();
+    const gap = getGap();
+    const itemWidth = cardWidth + gap;
+    const targetScroll = (index * itemWidth); 
+
+    if (!smooth) track.classList.add("is-jumping");
+    
+    track.scrollTo({
+      left: targetScroll,
+      behavior: smooth ? "smooth" : "auto"
+    });
+
+    if (!smooth) {
+      requestAnimationFrame(() => track.classList.remove("is-jumping"));
+    }
+  };
+
+  setTimeout(() => jumpToSlide(startIndex, false), 50);
+
+  let activeIndex = 0;
+  let autoScrollTimer;
+  let isScrolling = false;
+
+  const updateActiveDot = () => {
+    const cardWidth = getCardWidth();
+    const gap = getGap();
+    const itemWidth = cardWidth + gap;
+    const scrollLeft = track.scrollLeft;
+    const rawIndex = Math.round(scrollLeft / itemWidth);
+    
+    let realIndex = rawIndex - 2; 
+
+    if (realIndex < 0) realIndex = cardCount + realIndex;
+    if (realIndex >= cardCount) realIndex = realIndex - cardCount;
+
+    if (activeIndex !== realIndex) {
+      dots[activeIndex]?.classList.remove("is-active");
+      dots[realIndex]?.classList.add("is-active");
+      activeIndex = realIndex;
+    }
+  };
+
+  const handleInfiniteLoop = () => {
+    const cardWidth = getCardWidth();
+    const gap = getGap();
+    const itemWidth = cardWidth + gap;
+    const scrollLeft = track.scrollLeft;
+    const maxScroll = track.scrollWidth - track.clientWidth;
+    
+    if (scrollLeft < itemWidth * 0.5) {
+      jumpToSlide(cardCount + 2 - 1, false); 
+    }
+    else if (scrollLeft > (itemWidth * (cardCount + 2)) - (itemWidth * 0.5)) {
+      jumpToSlide(2, false);
+    }
+    
+    updateActiveDot();
+    isScrolling = false;
+  };
+
+  const scrollToRealIndex = (realIndex) => {
+    jumpToSlide(realIndex + 2, true);
+    resetAutoScroll();
+  };
+
+  const nextSlide = () => {
+    const cardWidth = getCardWidth();
+    const gap = getGap();
+    track.scrollBy({ left: cardWidth + gap, behavior: "smooth" });
+  };
+
+  const startAutoScroll = () => {
+    autoScrollTimer = setInterval(nextSlide, 5000);
+  };
+
+  const resetAutoScroll = () => {
+    clearInterval(autoScrollTimer);
+    startAutoScroll();
+  };
+  track.addEventListener("scroll", () => {
+    if (!isScrolling) {
+      window.requestAnimationFrame(updateActiveDot);
+    }
+    clearTimeout(track.scrollTimeout);
+    track.scrollTimeout = setTimeout(handleInfiniteLoop, 150);
+  });
+
+  track.addEventListener("pointerdown", () => clearInterval(autoScrollTimer));
+  track.addEventListener("touchstart", () => clearInterval(autoScrollTimer));
+  track.addEventListener("pointerup", resetAutoScroll);
+  track.addEventListener("touchend", resetAutoScroll);
+
+  startAutoScroll();
 });
 
 renderAll();

@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Kimchi</title>
-  <link href="styles.css?v=11" rel="stylesheet" />
+  <link href="styles.css?v=12" rel="stylesheet" />
 </head>
 
 <body>
@@ -148,29 +148,54 @@
       </div>
   </header>
 
-  <section class="banner" id="inicio">
-    <div class="banner__track" id="bannerTrack">
+<section class="apple-scroller" id="inicio">
+  <div class="apple-track" id="track">
 
-      <div class="banner__slide is-active" style="--banner-img:url('img/banner/banner5.png')">
+    <div class="apple-card">
+      <div class="apple-card__bg bg-BANNER1"></div>
+      <div class="apple-card__content">
+        <span class="apple-tag" style="background: white; color: black;">BANNER1</span>
+        <h2 class="apple-title"></h2>
+        <p class="apple-desc"></p>
+        <a href="#catalogo" class="apple-btn">boton</a>
       </div>
-
-      <div class="banner__slide" style="--banner-img:url('img/banner/banner4.png')">
-      </div>
-
-      <div class="banner__slide" style="--banner-img:url('img/banner/banner6.png')">
-      </div>
-
     </div>
 
-    <button class="banner__arrow banner__arrow--left" aria-label="Anterior">‹</button>
-    <button class="banner__arrow banner__arrow--right" aria-label="Siguiente">›</button>
-
-    <div class="banner__dots">
-      <span class="dot is-active"></span>
-      <span class="dot"></span>
-      <span class="dot"></span>
+    <div class="apple-card">
+      <div class="apple-card__bg bg-BANNER2">
+        <div class="apple-overlay"></div>
+      </div>
+      <div class="apple-card__content light-text">
+        <span class="apple-tag" style="background: white; color: black;">BANNER2</span>
+        <h2 class="apple-title"></h2>
+        <p class="apple-desc"></p>
+        <button class="apple-btn apple-btn--white">boton</button>
+      </div>
     </div>
-  </section>
+
+    <div class="apple-card">
+      <div class="apple-card__bg bg-BANNER3"></div>
+      <div class="apple-card__content">
+        <span class="apple-tag" style="background: white; color: black;">BANNER3</span>
+        <h2 class="apple-title"></h2>
+        <p class="apple-desc"></p>
+        <a href="#mas-vendidos" class="apple-btn">boton</a>
+      </div>
+    </div>
+
+    <div class="apple-card">
+      <div class="apple-card__bg bg-BANNER4"></div>
+      <div class="apple-card__content">
+        <span class="apple-tag" style="background: white; color: black;">BANNER4</span>
+        <h2 class="apple-title"></h2>
+        <p class="apple-desc"></p>
+        <button class="apple-btn">boton</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="apple-dots" id="appleDots"></div>
+</section>
 
   <div class="search-sheet" id="searchSheet" aria-hidden="true">
     <div class="search-sheet__overlay" data-close-search></div>
@@ -644,8 +669,8 @@
       <div class="side-panel__body" id="sidePanelBody"></div>
     </div>
   </aside>
-  <script src="productos.js?v=11"></script>
-  <script src="app.js?v=11"></script>
+  <script src="productos.js?v=12"></script>
+  <script src="app.js?v=12"></script>
 </body>
 
 </html>
