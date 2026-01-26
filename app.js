@@ -39,11 +39,16 @@ let activeCategory = null;
 let modalProduct = null;
 
 const CATEGORY_META = [
-  { name: "Promo", special: true, img: "url('img/cats/cat122222.jpg')" },
-  { name: "Picante", special: false, img: "url('img/cats/cat222222.jpg')" },
-  { name: "Sin picante", special: false, img: "url('img/cats/.png')" },
-  { name: "Especiales", special: false, img: "url('img/cats/.png')" },
-  { name: "Salsas", special: false, img: "url('img/cats/.png')" },
+  {
+    name: "Promo",
+    special: true,
+    imgMobile: "url('img/cats/800x400.png')",
+    imgDesktop: "url('img/cats/800x1000.png')"
+  },
+  { name: "Picante", special: false, img: "url('img/cats/800x600.png')" },
+  { name: "Sin picante", special: false, img: "url('img/cats/800x600.png')" },
+  { name: "Especiales", special: false, img: "url('img/cats/800x600.png')" },
+  { name: "Salsas", special: false, img: "url('img/cats/800x600.png')" },
 ];
 
 const CART_KEY = "kimchi_cart_v1";
@@ -102,7 +107,7 @@ function computePromos(cartObj) {
   const applied = [];
 
   const getQty = (id) => remaining[id] || 0;
-  
+
   const take = (id, n) => {
     remaining[id] = (remaining[id] || 0) - n;
     if (remaining[id] <= 0) delete remaining[id];
@@ -127,7 +132,7 @@ function computePromos(cartObj) {
 
   {
     const mixIds = expandIds(isPromo4x3Eligible);
-    
+
     while (mixIds.length >= 4) {
       const groupIds = [
         mixIds.shift(),
@@ -140,8 +145,8 @@ function computePromos(cartObj) {
 
       const prices = groupIds.map(id => getProductById(id)?.price || 0);
       const totalGroup = prices.reduce((a, b) => a + b, 0);
-      
-      const cheapest = prices[3]; 
+
+      const cheapest = prices[3];
       const promoPrice = totalGroup - cheapest;
 
       applied.push({
@@ -540,10 +545,15 @@ function closeProductModalAndResetRoute() {
 function openProductModal(p) {
   modalProduct = p;
   modalTitle.innerHTML = renderNameWithSize(p.name);
-  modalPrice.textContent = money(p.price);
+  if (p.price === 0) {
+    modalPrice.innerHTML = `<span style="font-size: 16px; color: #0465b9; font-weight: 800;">¡El de menor valor se Descuenta!</span>`;
+  } else {
+    modalPrice.textContent = money(p.price);
+  }
   modalDesc.textContent = p.long || p.short || "";
   modalImg.style.backgroundImage = p.image ? `url('${p.image}')` : "";
   modalImg.style.backgroundSize = p.image ? "cover" : "";
+  modalImg.style.backgroundRepeat = "no-repeat";
   modalImg.style.backgroundPosition = "center";
 
   const extra = document.getElementById("modalExtra");
@@ -554,7 +564,7 @@ function openProductModal(p) {
     if (info.fermentacion) {
       html += `
         <h4>Tiempo de fermentación</h4>
-        <div style="margin-bottom:10px; color: #354F49;;">${escapeHtml(info.fermentacion)}</div>
+        <div style="margin-bottom:10px; color: #184B44;;">${escapeHtml(info.fermentacion)}</div>
       `;
     }
 
@@ -590,6 +600,9 @@ function openProductModal(p) {
 
     } else if (kind === "akusaytofu") {
       modalBundle = { kind, targetPerPack: 1, poolFn: (x) => isAkusay(x) && eligibleKimchiNoEspecial(x), picks: {} };
+
+    } else if (kind === "4x3") {
+      modalBundle = { kind, targetPerPack: 4, poolFn: eligibleKimchiAll, picks: {} };
 
     } else {
       modalBundle = null;
@@ -632,6 +645,8 @@ function promoKindFromProduct(p) {
 
   const name = (p.name || "").toLowerCase();
 
+  if (name.includes("4x3")) return "4x3";
+
   if (name.includes("3 salsas")) return "3salsas";
   if (name.includes("3 kimchis")) return "3kimchis";
   if (name.includes("2 kimchis iguales")) return "2iguales";
@@ -642,6 +657,10 @@ function promoKindFromProduct(p) {
 
 function eligibleKimchiNoEspecial(p) {
   return p && p.category !== "Especiales" && p.category !== "Salsas" && p.category !== "Promo";
+}
+
+function eligibleKimchiAll(p) {
+  return p && p.category !== "Salsas" && p.category !== "Promo";
 }
 
 function isSalsa(p) { return p && p.category === "Salsas"; }
@@ -702,7 +721,7 @@ function renderBundleUI() {
     <div class="promoPick__list">
       ${pool.map(item => `
         <div class="promoPick__row">
-          <div class="promoPick__name">${escapeHtml(item.name)}</div>
+          <div class="promoPick__name">${renderNameWithSize(item.name)}</div>
           <div class="promoPick__ctrl">
             <button class="promoPick__btn" data-pick-act="dec" data-pick-id="${item.id}">−</button>
             <strong class="promoPick__val" id="pickVal_${item.id}">${modalBundle.picks[item.id] || 0}</strong>
@@ -720,9 +739,9 @@ function renderBundleUI() {
       const lockedName = escapeHtml(getProductById(modalBundle.lockId)?.name || "");
       hint.textContent = left > 0
         ? `Elegiste: ${lockedName}. Te faltan ${left}.`
-        : `Promo completa ✅ (${lockedName})`;
+        : `Promo completa ! (${lockedName})`;
     } else {
-      hint.textContent = left > 0 ? `Te faltan ${left} para completar la promo.` : `Promo completa ✅`;
+      hint.textContent = left > 0 ? `Te faltan ${left} para completar la promo.` : `Promo completa !`;
     }
   }
 
@@ -800,6 +819,7 @@ cartBtn.addEventListener("click", () => {
 })
 
 function renderCategories() {
+  if (!catsEl) return;
   catsEl.innerHTML = "";
 
   CATEGORY_META.forEach((c) => {
@@ -810,7 +830,11 @@ function renderCategories() {
       (c.special ? " cat--special" : "") +
       (activeCategory === c.name ? " is-active" : "");
 
-    div.style.setProperty("--cat-img", c.img);
+    const mobileUrl = c.imgMobile || c.img;
+    const desktopUrl = c.imgDesktop || mobileUrl;
+
+    div.style.setProperty("--cat-img-mobile", mobileUrl);
+    div.style.setProperty("--cat-img-desktop", desktopUrl);
 
     div.innerHTML = `<div class="cat__name">${escapeHtml(c.name)}</div>`;
 
@@ -847,13 +871,17 @@ function productCard(p) {
 
     const isPromo = (p.category === "Promo");
 
+    const priceDisplay = p.price === 0 ? "" : money(p.price);
+
     el.innerHTML = `
     <div class="card__img" style="${imgStyle}"></div>
     <div class="card__body">
       <div class="card__title">${renderNameWithSize(p.name)}</div>
       <div class="card__desc">${escapeHtml(p.short || "")}</div>
-      <div class="card__price">${money(p.price)}</div>
-      <button class="btn" data-add="${p.id}">${isPromo ? "ARMAR PROMO 🧩" : "AGREGAR AL 🛒"}</button>
+      
+      <div class="card__price">${priceDisplay}</div>
+
+      <button class="btn" data-add="${p.id}">${isPromo ? "ARMAR PROMO 🧩" : "AGREGAR AL CARRITO"}</button>
     </div>
     `;
 
@@ -975,7 +1003,7 @@ function setupBestInfinite(best) {
 
 
   const isDesktopPointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-
+  let isPointerDown = false;
   let dragMoved = false;
   let captured = false;
   let startX = 0;
@@ -983,7 +1011,7 @@ function setupBestInfinite(best) {
 
   const onPointerDown = (e) => {
     if (!isDesktopPointer) return;
-    if (e.button !== 0) return; 
+    if (e.button !== 0) return;
 
     isPointerDown = true;
     dragMoved = false;
@@ -1548,7 +1576,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (displayName.includes("•")) {
       const parts = displayName.split("•");
-      displayName = `${parts[0]} • <span style="color:#e27f3d; font-weight:800;">${parts[1]}</span>`;
+      displayName = `${parts[0]} • <span style="color:#e23d3d; font-weight:800;">${parts[1]}</span>`;
     }
 
     return `
@@ -1695,7 +1723,7 @@ window.addEventListener("load", () => {
 document.addEventListener("DOMContentLoaded", () => {
   const track = document.getElementById("track");
   const dotsContainer = document.getElementById("appleDots");
-  
+
   if (!track || !dotsContainer) return;
 
   const originalCards = Array.from(track.children);
@@ -1708,7 +1736,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dot.addEventListener("click", () => scrollToRealIndex(index));
     dotsContainer.appendChild(dot);
   });
-  
+
   const dots = Array.from(dotsContainer.children);
 
   const cloneFirst = originalCards[0].cloneNode(true);
@@ -1727,8 +1755,8 @@ document.addEventListener("DOMContentLoaded", () => {
   track.insertBefore(cloneSecondLast, track.firstChild);
 
   const allCards = Array.from(track.children);
-  
-  const startIndex = 2; 
+
+  const startIndex = 2;
 
   const getCardWidth = () => allCards[0].offsetWidth;
   const getGap = () => 20;
@@ -1737,10 +1765,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const cardWidth = getCardWidth();
     const gap = getGap();
     const itemWidth = cardWidth + gap;
-    const targetScroll = (index * itemWidth); 
+    const targetScroll = (index * itemWidth);
 
     if (!smooth) track.classList.add("is-jumping");
-    
+
     track.scrollTo({
       left: targetScroll,
       behavior: smooth ? "smooth" : "auto"
@@ -1763,8 +1791,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const itemWidth = cardWidth + gap;
     const scrollLeft = track.scrollLeft;
     const rawIndex = Math.round(scrollLeft / itemWidth);
-    
-    let realIndex = rawIndex - 2; 
+
+    let realIndex = rawIndex - 2;
 
     if (realIndex < 0) realIndex = cardCount + realIndex;
     if (realIndex >= cardCount) realIndex = realIndex - cardCount;
@@ -1782,14 +1810,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const itemWidth = cardWidth + gap;
     const scrollLeft = track.scrollLeft;
     const maxScroll = track.scrollWidth - track.clientWidth;
-    
+
     if (scrollLeft < itemWidth * 0.5) {
-      jumpToSlide(cardCount + 2 - 1, false); 
+      jumpToSlide(cardCount + 2 - 1, false);
     }
     else if (scrollLeft > (itemWidth * (cardCount + 2)) - (itemWidth * 0.5)) {
       jumpToSlide(2, false);
     }
-    
+
     updateActiveDot();
     isScrolling = false;
   };
@@ -1802,7 +1830,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextSlide = () => {
     const cardWidth = getCardWidth();
     const gap = getGap();
-    track.scrollBy({ left: cardWidth + gap, behavior: "smooth" });
+    const itemWidth = cardWidth + gap;
+    const currentScroll = track.scrollLeft;
+    const currentIndex = Math.round(currentScroll / itemWidth);
+    track.scrollTo({
+      left: (currentIndex + 1) * itemWidth,
+      behavior: "smooth"
+    });
   };
 
   const startAutoScroll = () => {
@@ -1818,7 +1852,7 @@ document.addEventListener("DOMContentLoaded", () => {
       window.requestAnimationFrame(updateActiveDot);
     }
     clearTimeout(track.scrollTimeout);
-    track.scrollTimeout = setTimeout(handleInfiniteLoop, 150);
+    track.scrollTimeout = setTimeout(handleInfiniteLoop, 50);
   });
 
   track.addEventListener("pointerdown", () => clearInterval(autoScrollTimer));

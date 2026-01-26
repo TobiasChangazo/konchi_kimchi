@@ -5,7 +5,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Kimchi</title>
-  <link href="styles.css?v=12" rel="stylesheet" />
+  <link href="styles.css?v=13" rel="stylesheet" />
+  <link href="img/favicon/logo.ico" rel="icon" type="image/x-icon">
 </head>
 
 <body>
@@ -18,7 +19,7 @@
         </button>
 
         <a class="brand brand--center" href="#top" aria-label="Inicio">
-          <img class="brand__img" src="img/logotransparente.png" alt="Konchi" />
+          <img class="brand__img" src="img/logo/logotransparente.png" alt="Konchi" />
         </a>
 
         <div class="header__actions">
@@ -136,7 +137,7 @@
             </button>
           </div>
           <div class="drawer__footer">
-            <img src="img/logotransparente.png" alt="Konchi" class="drawer__logoFooter">
+            <img src="img/logo/logotransparente.png" alt="Konchi" class="drawer__logoFooter">
 
             <div class="drawer__copy">
               © <span id="drawerYear">2026</span> Konchi Kimchi
@@ -148,54 +149,85 @@
       </div>
   </header>
 
-<section class="apple-scroller" id="inicio">
-  <div class="apple-track" id="track">
+  <section class="apple-scroller" id="inicio">
+    <div class="apple-track" id="track">
 
-    <div class="apple-card">
-      <div class="apple-card__bg bg-BANNER1"></div>
-      <div class="apple-card__content">
-        <span class="apple-tag" style="background: white; color: black;">BANNER1</span>
-        <h2 class="apple-title"></h2>
-        <p class="apple-desc"></p>
-        <a href="#catalogo" class="apple-btn">boton</a>
+      <div class="apple-card apple-card_banner1">
+        <div class="apple-card__bg_banner1" style="background-image: url('img/banner/banner1.png');"></div>
+
+        <div class="apple-card__content_banner1">
+
+          <h2 class="apple-title_banner1">
+            El Kimchi no es solo <span class="highlight_food">comida...</span>
+            <br>
+            es una forma de
+            <span class="highlight_life">VIDA</span>
+          </h2>
+
+          <button type="button" class="apple-btn_banner1" data-panel="faq">
+            Descubrí por qué
+          </button>
+        </div>
+      </div>
+
+      <div class="apple-card apple-card_banner2">
+        <div class="apple-card__bg_banner2" style="background-image: url('img/banner/banner2.png');"></div>
+
+        <div class="apple-card__content_banner2">
+
+          <div class="banner2-top-text">
+            Cuanto más <span class="highlight_spicy">PICANTE</span><br>
+            sea el Kimchi...
+          </div>
+
+          <div class="banner2-bottom-group">
+            <div class="banner2-bottom-text">
+              mejor será la <span class="highlight_story">Historia</span>
+            </div>
+
+            <a href="categoria.html?cat=Picante" class="apple-btn_banner2">
+              Kimchis Picantes 🔥
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="apple-card apple-card_banner3">
+
+        <div class="apple-card__bg_banner3" style="background-image: url('img/banner/banner3.png');"></div>
+
+        <div class="apple-card__content_banner3">
+          <span class="apple-tag_banner3"></span>
+
+          <h2 class="apple-title_banner3">
+            Kimchi sabe a<br>
+            <span class="highlight_banner3">Diversidad Cultural</span>
+          </h2>
+
+          <p class="apple-desc_banner3">
+            <span class="text-argentina">Hecho en Argentina</span>
+            <br>
+            <span class="text-corea">Inspirado en Corea</span>
+          </p>
+
+          <a href="#catalogo" class="apple-btn_banner3">VER KIMCHIS</a>
+        </div>
+      </div>
+
+      <div class="apple-card">
+        <div class="apple-card__bg bg-BANNER4"></div>
+        <div class="apple-card__content">
+          <span class="apple-tag" style="background: white; color: black;">BANNER4</span>
+          <h2 class="apple-title"></h2>
+          <p class="apple-desc"></p>
+          <button class="apple-btn">boton</button>
+        </div>
       </div>
     </div>
 
-    <div class="apple-card">
-      <div class="apple-card__bg bg-BANNER2">
-        <div class="apple-overlay"></div>
-      </div>
-      <div class="apple-card__content light-text">
-        <span class="apple-tag" style="background: white; color: black;">BANNER2</span>
-        <h2 class="apple-title"></h2>
-        <p class="apple-desc"></p>
-        <button class="apple-btn apple-btn--white">boton</button>
-      </div>
-    </div>
-
-    <div class="apple-card">
-      <div class="apple-card__bg bg-BANNER3"></div>
-      <div class="apple-card__content">
-        <span class="apple-tag" style="background: white; color: black;">BANNER3</span>
-        <h2 class="apple-title"></h2>
-        <p class="apple-desc"></p>
-        <a href="#mas-vendidos" class="apple-btn">boton</a>
-      </div>
-    </div>
-
-    <div class="apple-card">
-      <div class="apple-card__bg bg-BANNER4"></div>
-      <div class="apple-card__content">
-        <span class="apple-tag" style="background: white; color: black;">BANNER4</span>
-        <h2 class="apple-title"></h2>
-        <p class="apple-desc"></p>
-        <button class="apple-btn">boton</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="apple-dots" id="appleDots"></div>
-</section>
+    <div class="apple-dots" id="appleDots"></div>
+  </section>
 
   <div class="search-sheet" id="searchSheet" aria-hidden="true">
     <div class="search-sheet__overlay" data-close-search></div>
@@ -219,25 +251,6 @@
 
         <div class="sheet-group">
           <div class="sheet-group__title">🔥 Más vendidos</div>
-          <div class="sheet-list">
-            <button class="sheet-item">
-              <div class="sheet-item__img" style="background-image:url('img/kimchi-akusay.jpg')"></div>
-              <div class="sheet-item__info">
-                <span class="sheet-item__name">Kimchi Akusay</span>
-                <span class="sheet-item__desc">El clásico coreano</span>
-              </div>
-              <div class="sheet-item__price">$6.500</div>
-            </button>
-
-            <button class="sheet-item">
-              <div class="sheet-item__img" style="background-image:url('img/kimchi-nabo.jpg')"></div>
-              <div class="sheet-item__info">
-                <span class="sheet-item__name">Kimchi de Nabo</span>
-                <span class="sheet-item__desc">Crocante y suave</span>
-              </div>
-              <div class="sheet-item__price">$6.200</div>
-            </button>
-          </div>
         </div>
 
         <div class="sheet-group">
@@ -397,20 +410,35 @@
       </div>
   </footer>
 
-  <div class="modal" id="productModal" aria-hidden="true">
-    <div class="modal__overlay" data-close="1"></div>
-    <div class="modal__card" role="dialog" aria-modal="true" aria-label="Detalle de producto">
-      <button class="modal__close" id="modalClose" aria-label="Cerrar">✕</button>
+<div class="modal" id="productModal" aria-hidden="true">
+  <div class="modal__overlay" data-close="1"></div>
+  <div class="modal__card" role="dialog" aria-modal="true" aria-label="Detalle de producto">
+    
+    <button class="modal__close" id="modalClose" aria-label="Cerrar">✕</button>
+
+    <div class="modal__body">
+      
       <div class="modal__img" id="modalImg"></div>
-      <div class="modal__body">
+
+      <div class="modal__content-wrapper">
         <div class="modal__title" id="modalTitle">Producto</div>
         <div class="modal__price" id="modalPrice">$0</div>
         <div class="modal__desc" id="modalDesc">Descripción...</div>
-        <button id="modalAddBtn" class="btn btn--primary btnModalAdd">AGREGAR AL 🛒</button>
+
+        <div class="modal__qty">
+          <button class="qtybtn" id="modalQtyDec" type="button" aria-label="Restar">−</button>
+          <strong id="modalQtyVal">1</strong>
+          <button class="qtybtn" id="modalQtyInc" type="button" aria-label="Sumar">+</button>
+        </div>
+
+        <button class="btnModalAdd" id="modalAddBtn">AGREGAR AL CARRITO</button>
+
         <div class="modal__extra" id="modalExtra"></div>
       </div>
+      
     </div>
   </div>
+</div>
 
   <div class="modal" id="cartModal" aria-hidden="true">
     <div class="modal__overlay" data-close="1"></div>
@@ -642,7 +670,7 @@
                 </svg>
               </span>
               <div class="detail-text">
-                <strong style="color:#e27f3d;">Tiempo de Elaboración:</strong><br>
+                <strong style="color:#0465b9;">Tiempo de Elaboración:</strong><br>
                 <span style="font-weight:700;">10 días corridos</span> (para retiros y envíos).
               </div>
             </div>
@@ -658,7 +686,7 @@
               </svg>
               Medio de Pago
             </p>
-            <p style="margin:0; font-size:13px; color:var(--muted); line-height:1.4;">
+            <p style="margin:0; font-size:13px; color:var(--texto); line-height:1.4;">
               Únicamente aceptamos <strong>Transferencia Bancaria</strong>.
             </p>
           </div>
@@ -669,8 +697,8 @@
       <div class="side-panel__body" id="sidePanelBody"></div>
     </div>
   </aside>
-  <script src="productos.js?v=12"></script>
-  <script src="app.js?v=12"></script>
+  <script src="productos.js?v=13"></script>
+  <script src="app.js?v=13"></script>
 </body>
 
 </html>

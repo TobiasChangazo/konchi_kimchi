@@ -229,9 +229,13 @@ function addToCart(id, qty = 1) {
   renderCheckout();
 }
 
+
 function renderCheckout() {
   const itemsEl = document.getElementById("checkoutItems");
   const totalsEl = document.getElementById("checkoutTotals");
+  
+  const steps = document.querySelectorAll('.checkoutStep');
+  const track = document.getElementById("checkoutTrack"); 
 
   const entries = Object.entries(cart).filter(([_, q]) => q > 0);
 
@@ -249,19 +253,27 @@ function renderCheckout() {
       </p>
       <button class="btn btn--primary emptyCart__cta"
         onclick="window.location.href='index.html#catalogo'">
-        Ver productos
+        VER PRODUCTOS
       </button>
     </div>
     `;
 
     totalsEl.innerHTML = "";
-
     if (goStep2Btn) goStep2Btn.style.display = "none";
+    
+    if (steps[1]) steps[1].style.display = 'none'; 
+    
+    if (track) track.style.display = 'block'; 
+
+    showToast("⚠️ Tu carrito está vacío.");
 
     return;
   }
 
   if (goStep2Btn) goStep2Btn.style.display = "";
+  
+  if (steps[1]) steps[1].style.display = ''; 
+  if (track) track.style.display = '';
 
   itemsEl.innerHTML = entries.map(([id, qty]) => {
     const p = getProductById(id);
@@ -476,6 +488,10 @@ if (sendBtn) {
     try {
       await navigator.clipboard.writeText(text);
       showToast("¡Pedido copiado! 📋 Pegalo en el chat.");
+
+      cart = {}; 
+      saveCart(); 
+
       setTimeout(() => {
         window.location.href = "https://ig.me/m/konchi.kimchi";
       }, 2000);

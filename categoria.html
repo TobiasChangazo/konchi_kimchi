@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Konchi - Categoría</title>
-  <link href="styles.css?v=11" rel="stylesheet" />
+  <link href="styles.css?v=13" rel="stylesheet" />
 </head>
 
 <body class="page-category">
@@ -17,7 +17,7 @@
           aria-label="Volver">←</button>
 
         <a class="brand brand--center" href="index.html" aria-label="Inicio">
-          <img class="brand__img" src="img/logotransparente.png" alt="Konchi" />
+          <img class="brand__img" src="img/logo/logotransparente.png" alt="Konchi" />
         </a>
 
         <button class="icon-btn icon-btn--square cart-btn" id="cartBtn" aria-label="Abrir carrito">
@@ -62,29 +62,35 @@
   <div class="modal" id="productModal" aria-hidden="true">
     <div class="modal__overlay" data-close="1"></div>
     <div class="modal__card" role="dialog" aria-modal="true" aria-label="Detalle de producto">
+
       <button class="modal__close" id="modalClose" aria-label="Cerrar">✕</button>
-      <div class="modal__img" id="modalImg"></div>
+
       <div class="modal__body">
-        <div class="modal__title" id="modalTitle">Producto</div>
-        <div class="modal__price" id="modalPrice">$0</div>
-        <div class="modal__desc" id="modalDesc">Descripción...</div>
 
-        <div class="modal__qty">
-          <button class="qtybtn" id="modalQtyDec" type="button" aria-label="Restar">−</button>
-          <strong id="modalQtyVal">1</strong>
-          <button class="qtybtn" id="modalQtyInc" type="button" aria-label="Sumar">+</button>
+        <div class="modal__img" id="modalImg"></div>
+
+        <div class="modal__content-wrapper">
+          <div class="modal__title" id="modalTitle">Producto</div>
+          <div class="modal__price" id="modalPrice">$0</div>
+          <div class="modal__desc" id="modalDesc">Descripción...</div>
+
+          <div class="modal__qty">
+            <button class="qtybtn" id="modalQtyDec" type="button" aria-label="Restar">−</button>
+            <strong id="modalQtyVal">1</strong>
+            <button class="qtybtn" id="modalQtyInc" type="button" aria-label="Sumar">+</button>
+          </div>
+
+          <button class="btn btn--primary" id="modalAddBtn">Agregar al carrito</button>
+
+          <div class="modal__extra" id="modalExtra"></div>
         </div>
-
-        <button class="btn btn--primary" id="modalAddBtn">Agregar al carrito</button>
-
-        <div class="modal__extra" id="modalExtra"></div>
       </div>
     </div>
   </div>
 
-  <script src="productos.js?v=11"></script>
-  <script src="app.js?v=11"></script>
-  <script src="categoria.js?v=11"></script>
+  <script src="productos.js?v=13"></script>
+  <script src="app.js?v=13"></script>
+  <script src="categoria.js?v=13"></script>
 </body>
 
 </html>

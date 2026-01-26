@@ -7,10 +7,7 @@ window.KIMCHI_PRODUCTS = [
     category: "Promo",
     bestSeller: true,
 
-    short: "............",
-    long: "............",
-
-    image: "img/productos/.png",
+    image: "img/productos/1080x1080.png",
   },
   {
     id: "promo_2_iguales",
@@ -19,10 +16,10 @@ window.KIMCHI_PRODUCTS = [
     category: "Promo",
     bestSeller: false,
 
-    short: "Excluye ediciones especiales.",
-    long: "Excluye ediciones especiales.",
+    short: "Excluye ediciones Especiales.",
+    long: "Excluye ediciones Especiales.",
 
-    image: "img/productos/.png",
+    image: "img/productos/1080x1080.png",
   },
   {
     id: "promo_3_kimchis",
@@ -31,10 +28,10 @@ window.KIMCHI_PRODUCTS = [
     category: "Promo",
     bestSeller: false,
 
-    short: "Combinarlos como quieras! Excluye ediciones especiales.",
-    long: "Combinarlos como quieras! Excluye ediciones especiales.",
+    short: "Combinalos como quieras! Excluye ediciones Especiales.",
+    long: "Combinalos como quieras! Excluye ediciones Especiales.",
 
-    image: "img/productos/.png",
+    image: "img/productos/1080x1080.png",
   },
   {
     id: "promo_3_salsas",
@@ -43,22 +40,22 @@ window.KIMCHI_PRODUCTS = [
     category: "Promo",
     bestSeller: false,
 
-    short: "Combinarlas como quieras!",
-    long: "Combinarlas como quieras!",
+    short: "Combinalas como quieras!",
+    long: "Combinalas como quieras!",
 
-    image: "img/productos/.png",
+    image: "img/productos/1080x1080.png",
   },
     {
     id: "promo_4x3",
     name: "4x3 Kimchis",
     price: 0,
     category: "Promo",
-    bestSeller: true,
+    bestSeller: false,
 
-    short: "............",
-    long: "............",
+    short: "Combinalos como quieras! Incluye todos nuestros Kimchis!",
+    long: "Combinalos como quieras! Incluye todos nuestros Kimchis!",
 
-    image: "img/productos/.png",
+    image: "img/productos/1080x1080.png",
   },
 
   {
@@ -371,19 +368,12 @@ window.KIMCHI_PRODUCTS = [
     short: "Tofu Orgánico, Cebolla de Verdeo, Gochujang Vegano",
     long: "Tofu Orgánico, Cebolla de Verdeo, Gochujang Vegano",
 
-    image: "img/productos/.png",
+    image: "img/productos/1080x1080.png",
 
     info: {
       fermentacion: "....... días",
 
       beneficios: [
-        ".......",
-        ".......",
-        ".......",
-        ".......",
-        ".......",
-        ".......",
-        ".......",
         ".......",
         ".......",
         ".......",
@@ -402,19 +392,12 @@ window.KIMCHI_PRODUCTS = [
     short: "Raíz de Loto, Zanahoria, Cebolla, Cebolla de Verdeo, Gochujang Vegano",
     long: "Raíz de Loto, Zanahoria, Cebolla, Cebolla de Verdeo, Gochujang Vegano",
 
-    image: "img/productos/.png",
+    image: "img/productos/1080x1080.png",
 
     info: {
       fermentacion: "....... días",
 
       beneficios: [
-        ".......",
-        ".......",
-        ".......",
-        ".......",
-        ".......",
-        ".......",
-        ".......",
         ".......",
         ".......",
         ".......",
@@ -433,19 +416,12 @@ window.KIMCHI_PRODUCTS = [
     short: "Raíz de Loto, Zanahoria, Cebolla, Cebolla de Verdeo, Gochujang Vegano Blanco",
     long: "Raíz de Loto, Zanahoria, Cebolla, Cebolla de Verdeo, Gochujang Vegano Blanco",
 
-    image: "img/productos/.png",
+    image: "img/productos/1080x1080.png",
 
     info: {
       fermentacion: "....... días",
 
       beneficios: [
-        ".......",
-        ".......",
-        ".......",
-        ".......",
-        ".......",
-        ".......",
-        ".......",
         ".......",
         ".......",
         ".......",
@@ -465,7 +441,7 @@ window.KIMCHI_PRODUCTS = [
     short: "Ají Putí Parió, Vinagre de Alcohol",
     long: "Ají Putí Parió, Vinagre de Alcohol",
 
-    image: "img/productos/.png",
+    image: "img/productos/1080x1080.png",
 
     info: {
       fermentacion: "Tiene 3 semanas de Fermentación.",
@@ -487,7 +463,7 @@ window.KIMCHI_PRODUCTS = [
     short: "Jalapeño Verde, Tomatillo, Ajo, Vinagre de Alcohol",
     long: "Jalapeño Verde, Tomatillo, Ajo, Vinagre de Alcohol",
 
-    image: "img/productos/.png",
+    image: "img/productos/1080x1080.png",
 
     info: {
       fermentacion: "Tiene 3 semanas de Fermentación.",
@@ -509,7 +485,7 @@ window.KIMCHI_PRODUCTS = [
     short: "Jalapeño Amarillo, Jugo de Kimchi, Miel, Vinagre de Alcohol",
     long: "Jalapeño Amarillo, Jugo de Kimchi, Miel, Vinagre de Alcohol",
 
-    image: "img/productos/.png",
+    image: "img/productos/1080x1080.png",
 
     info: {
       fermentacion: "Tiene 3 semanas de Fermentación.",
