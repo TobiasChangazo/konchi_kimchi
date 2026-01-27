@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Konchi - Checkout</title>
-  <link href="styles.css?v=13" rel="stylesheet" />
+  <link href="styles.css?v=14" rel="stylesheet" />
 </head>
 
 <body class="page-checkout">
@@ -113,9 +113,19 @@
                 </div>
 
                 <div id="addressFieldWrapper" style="display: none">
+                  <div class="form-row">
+                    <label class="field">
+                      <span>Calle</span>
+                      <input id="custStreet" type="text" placeholder="Ej: Av. Cabildo" />
+                    </label>
+                    <label class="field">
+                      <span>Numero</span>
+                      <input id="custNumber" type="tel" placeholder="1234" />
+                    </label>
+                  </div>
                   <label class="field">
-                    <span>Dirección de envío</span>
-                    <input id="custAddress" type="text" placeholder="Calle, altura, piso, depto..." />
+                    <span>Piso / Depto / Referencia</span>
+                    <input id="custRef" type="text" placeholder="Ej: 4B, casa con rejas..." />
                   </label>
                 </div>
 
@@ -180,8 +190,8 @@
     </div>
   </div>
 
-  <script src="productos.js?v=13"></script>
-  <script src="checkout.js?v=13"></script>
+  <script src="productos.js?v=14"></script>
+  <script src="checkout.js?v=14"></script>
 </body>
 
 </html>

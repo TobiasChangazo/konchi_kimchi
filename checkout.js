@@ -107,7 +107,7 @@ function computePromos(cartObj) {
       const promoPrice = totalGroup - cheapest;
 
       applied.push({
-        title: "Promo 4x3 (1 sin cargo)",
+        title: "Promo 4x3 (¡El de menor valor se Descuenta!)",
         price: promoPrice,
         items: groupIds.map(id => ({ id, qty: 1 })),
         savings: cheapest,
@@ -171,7 +171,7 @@ function computePromos(cartObj) {
       const base = ids.reduce((acc, id) => acc + (getProductById(id)?.price || 0), 0);
       const promoPrice = 50000;
       applied.push({
-        title: "Promo: 3 Kimchis (sin especiales)",
+        title: "Promo: 3 Kimchis",
         price: promoPrice,
         items: ids.map(id => ({ id, qty: 1 })),
         savings: Math.max(0, base - promoPrice),
@@ -193,7 +193,7 @@ function computePromos(cartObj) {
         const base = (p.price || 0) * 2;
         const promoPrice = 35000;
         applied.push({
-          title: "Promo: 2 Kimchis Iguales (sin especiales)",
+          title: "Promo: 2 Kimchis Iguales",
           price: promoPrice,
           items: [{ id, qty: 2 }],
           savings: Math.max(0, base - promoPrice),
@@ -278,13 +278,20 @@ function renderCheckout() {
   itemsEl.innerHTML = entries.map(([id, qty]) => {
     const p = getProductById(id);
     if (!p) return "";
-    const bg = p.image ? `background-image:url('${p.image}')` : "";
+    
+    let displayName = p.name;
+    if (p.name.includes("Pera") || p.name.includes("Remolacha")) {
+        const tag = (p.category === "Picante") ? " (Picante)" : " (Sin Picante)";
+        displayName = displayName.replace("•", `${tag} •`);
+    }
+
+    const bg = p.image ? `style="background-image:url('${p.image}')"` : ""; 
     return `
     <div class="cart__item">
       <div class="cart__left">
-        <div class="cart__thumb" style="${bg}"></div>
+        <div class="cart__thumb" ${p.image ? `style="background-image:url('${p.image}')"` : ""}></div>
         <div>
-          <div class="cart__name">${renderNameWithSize(p.name)}</div>
+          <div class="cart__name">${renderNameWithSize(displayName)}</div>
           <div class="cart__mini">${money(p.price)}</div>
         </div>
       </div>
@@ -377,45 +384,123 @@ if (deliveryBtns.length) {
 function buildMessageNew() {
   const name = (document.getElementById("custName").value || "").trim();
   const phone = (document.getElementById("custPhone").value || "").trim();
-  const address = (document.getElementById("custAddress").value || "").trim();
   const notes = (document.getElementById("custNotes").value || "").trim();
+  const street = (document.getElementById("custStreet")?.value || "").trim();
+  const number = (document.getElementById("custNumber")?.value || "").trim();
+  const ref = (document.getElementById("custRef")?.value || "").trim();
 
-  let msg = `Hola! Quiero hacer un pedido 🥬\n\n`;
-
-  msg += `*Nombre:* ${name}\n`;
-  msg += `*Teléfono:* ${phone}\n`;
+  let msg = "";
 
   if (currentMethod === 'envio') {
-    msg += `*Entrega:* 🛵 Envío a domicilio\n`;
-    msg += `*Dirección:* ${address}\n`;
+    msg += `Método de entrega: Envio\n`;
+    msg += `Dirección: ${street} ${number}\n`;
+    if (ref) { 
+      msg += `Referencia: ${ref}\n`;
+    }
   } else {
-    msg += `*Entrega:* 🏪 Retiro por Saavedra\n`;
+    msg += `Método de entrega: Retiro\n`;
   }
 
-  msg += `*Pago:* Transferencia\n`; 
+  msg += `Nombre: ${name}\n`;
+  msg += `Teléfono: ${phone}\n`;
 
-  if (notes) msg += `*Notas:* ${notes}\n`;
+  if (notes) {
+    msg += `Notas: ${notes}\n`;
+  }
 
-  msg += `\n----------------\n`;
+  msg += `\n---------------------------------\n\n`;
+
+  msg += `🛒 Pedido:\n\n`;
 
   const entries = Object.entries(cart).filter(([_, q]) => q > 0);
   for (const [id, qty] of entries) {
     const p = getProductById(id);
     if (!p) continue;
-    msg += `• x${qty} ${p.name} — ${money(p.price * qty)}\n`;
-  }
-
-  const { baseTotal, applied, discount, total } = cartSummary();
-  if (applied.length) {
-    msg += `\n*Promos:*\n`;
-    for (const pr of applied) {
-      msg += `• ${pr.title}\n`;
+    
+    let finalName = p.name;
+    if (p.name.includes("Pera") || p.name.includes("Remolacha")) {
+        const tag = (p.category === "Picante") ? " (Picante)" : " (Sin Picante)";
+        finalName = finalName.replace("•", `${tag} •`);
     }
-    msg += `*Ahorro:* -${money(discount)}\n`;
+
+    msg += `- ${qty} x ${finalName}\n`;
   }
 
-  msg += `\n*TOTAL: ${money(total)}*\n`;
+  msg += `\n---------------------------------\n\n`;
+
+  const { total, applied } = cartSummary(); 
+
+  msg += `Total: ${money(total)}\n`;
+
+  if (applied.length) {
+    msg += `\nPromos Aplicadas:\n`;
+    for (const pr of applied) {
+      msg += `• ${pr.title}\n`; 
+    }
+  }
+
   return msg;
+}
+
+const sendBtn = document.getElementById("sendWhatsAppBtn");
+
+if (sendBtn) {
+  const newSendBtn = sendBtn.cloneNode(true);
+  sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
+
+  newSendBtn.addEventListener("click", async () => {
+    const name = document.getElementById("custName").value.trim();
+    const phone = document.getElementById("custPhone").value.trim();
+
+    if (!name) {
+      showToast("⚠️ Por favor, completá tu Nombre.");
+      document.getElementById("custName").focus();
+      return;
+    }
+    
+    if (!phone || phone.length < 8) {
+      showToast("⚠️ Por favor, completá tu Teléfono.");
+      document.getElementById("custPhone").focus();
+      return;
+    }
+
+    if (currentMethod === 'envio') {
+      const street = document.getElementById("custStreet")?.value.trim();
+      const number = document.getElementById("custNumber")?.value.trim();
+      
+      if (!street) {
+        showToast("⚠️ Falta la Calle de envío.");
+        document.getElementById("custStreet").focus();
+        return;
+      }
+      if (!number) {
+        showToast("⚠️ Falta la Altura de envío.");
+        document.getElementById("custNumber").focus();
+        return;
+      }
+    }
+
+    const text = buildMessageNew();
+
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast("¡Pedido copiado! 📋 Pegalo en el chat.");
+
+      // Limpiar carrito
+      cart = {}; 
+      saveCart(); 
+
+      setTimeout(() => {
+        window.location.href = "https://ig.me/m/konchi.kimchi";
+      }, 2000);
+
+    } catch (err) {
+      showToast("Error al copiar. Redirigiendo...");
+      setTimeout(() => {
+         window.location.href = "https://ig.me/m/konchi.kimchi";
+      }, 1000);
+    }
+  });
 }
 
 function showToast(msg) {
@@ -446,62 +531,6 @@ if (inputName) {
 if (inputPhone) {
   inputPhone.addEventListener("input", function() {
     this.value = this.value.replace(/[^0-9]/g, '');
-  });
-}
-
-const sendBtn = document.getElementById("sendWhatsAppBtn");
-
-if (sendBtn) {
-  const newSendBtn = sendBtn.cloneNode(true);
-  sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
-
-  newSendBtn.addEventListener("click", async () => {
-    const name = document.getElementById("custName").value.trim();
-    const phone = document.getElementById("custPhone").value.trim();
-    const address = document.getElementById("custAddress").value.trim();
-    
-    if (!name) {
-      showToast("⚠️ Por favor, completá tu Nombre.");
-      document.getElementById("custName").focus();
-      return;
-    }
-    
-    if (!phone) {
-      showToast("⚠️ Por favor, completá tu Teléfono.");
-      document.getElementById("custPhone").focus();
-      return;
-    }
-    if (phone.length < 8) {
-      showToast("⚠️ El teléfono parece incompleto.");
-      document.getElementById("custPhone").focus();
-      return;
-    }
-
-    if (currentMethod === 'envio' && !address) {
-      showToast("⚠️ Para envíos necesitamos tu dirección.");
-      document.getElementById("custAddress").focus();
-      return;
-    }
-
-    const text = buildMessageNew();
-
-    try {
-      await navigator.clipboard.writeText(text);
-      showToast("¡Pedido copiado! 📋 Pegalo en el chat.");
-
-      cart = {}; 
-      saveCart(); 
-
-      setTimeout(() => {
-        window.location.href = "https://ig.me/m/konchi.kimchi";
-      }, 2000);
-
-    } catch (err) {
-      showToast("Error al copiar. Redirigiendo...");
-      setTimeout(() => {
-         window.location.href = "https://ig.me/m/konchi.kimchi";
-      }, 1000);
-    }
   });
 }
 

@@ -150,7 +150,7 @@ function computePromos(cartObj) {
       const promoPrice = totalGroup - cheapest;
 
       applied.push({
-        title: "Promo 4x3 (1 sin cargo)",
+        title: "Promo 4x3 (¡El de menor valor se Descuenta!)",
         price: promoPrice,
         items: groupIds.map(id => ({ id, qty: 1 })),
         savings: cheapest,
@@ -214,7 +214,7 @@ function computePromos(cartObj) {
       const base = ids.reduce((acc, id) => acc + (getProductById(id)?.price || 0), 0);
       const promoPrice = 50000;
       applied.push({
-        title: "Promo: 3 Kimchis (sin especiales)",
+        title: "Promo: 3 Kimchis",
         price: promoPrice,
         items: ids.map(id => ({ id, qty: 1 })),
         savings: Math.max(0, base - promoPrice),
@@ -236,7 +236,7 @@ function computePromos(cartObj) {
         const base = (p.price || 0) * 2;
         const promoPrice = 35000;
         applied.push({
-          title: "Promo: 2 Kimchis Iguales (sin especiales)",
+          title: "Promo: 2 Kimchis Iguales",
           price: promoPrice,
           items: [{ id, qty: 2 }],
           savings: Math.max(0, base - promoPrice),
@@ -299,11 +299,17 @@ function updateCartUI() {
     const p = getProductById(id);
     if (!p) continue;
 
+    let displayName = p.name;
+    if (p.name.includes("Pera") || p.name.includes("Remolacha")) {
+      const tag = (p.category === "Picante") ? " (Picante)" : " (Sin Picante)";
+      displayName = displayName.replace("•", `${tag} •`);
+    }
+
     const row = document.createElement("div");
     row.className = "cart__item";
     row.innerHTML = `
       <div>
-        <div class="cart__name">${renderNameWithSize(p.name)}</div>
+        <div class="cart__name">${renderNameWithSize(displayName)}</div>
         <div class="cart__mini">${money(p.price)}</div>
       </div>
       <div class="qty">
