@@ -196,8 +196,42 @@ body {
 }
 
 .sec-white {
-    background: #fff;
-    padding: 26px 16px 30px;
+    background-color: #ffffff !important;
+    padding: 80px 0; /* Aumentamos el padding para "encerrar" los márgenes de los hijos */
+    margin: 0;
+    width: 100%;
+    display: flow-root; /* Técnica moderna para evitar que los márgenes de los hijos se escapen */
+    position: relative;
+    border: none; /* Nos aseguramos que no haya bordes extraños */
+}
+
+.sec-white .container {
+    max-width: 1080px;
+    margin: 0 auto;
+    background: transparent;
+}
+
+.sec-white .sec-title {
+    margin-top: 0; /* Eliminamos el margen que podría estar empujando hacia arriba */
+    margin-bottom: 40px;
+    text-align: center;
+    color: var(--dark);
+}
+
+@media (min-width: 901px) {
+    .sec-white .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* Pone los 3 pasos en fila en lugar de lista larga */
+        gap: 40px;
+        width: 100%;
+        margin-top: 40px;
+    }
+    
+    .sec-white .step {
+        flex-direction: column; /* Número arriba, texto abajo */
+        text-align: center;
+        align-items: center;
+    }
 }
 
 .sec-alt .sec-title {
@@ -4477,5 +4511,42 @@ body.page-checkout {
 
     .bg-BANNER4 {
         background-image: url('img/banner/1080x1350.png');
+    }
+}
+
+.sec-white {
+    background-color: #ffffff !important;
+    padding-bottom: 0; /* Elimina espacio extra al final de la sección */
+}
+
+.footer {
+    margin-top: 0; /* Asegura que el footer se pegue a la sección blanca */
+}
+
+.sec-white {
+    margin-bottom: 0 !important;
+    padding-bottom: 40px; /* Ajusta según el aire que quieras darle */
+}
+
+#contacto {
+    margin-top: 0 !important;
+}
+
+.footer {
+    margin-bottom: -1px; /* Empuja el footer un pixel hacia abajo para tapar cualquier borde */
+    padding-bottom: 40px; /* Asegura un buen margen interno abajo */
+}
+
+body {
+    /* Esto garantiza que si el contenido es corto, el fondo no "sobresalga" */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Si usás iOS, esto ayuda con la barra de navegación del sistema */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .footer {
+        padding-bottom: calc(40px + env(safe-area-inset-bottom));
     }
 }
