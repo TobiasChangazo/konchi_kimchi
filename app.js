@@ -374,6 +374,21 @@ function splitNameSize(name) {
   return { main: parts[0].trim(), size: parts.slice(1).join("•").trim() };
 }
 
+function formatMlBadge(size) {
+  if (!size) return "";
+  return String(size).trim().replace(/\bml\b/i, "Ml");
+}
+
+function buildCategorySpiceRow(p) {
+  const info = p.info || {};
+  if (typeof info.nivelPicante !== "number") return "";
+  const n = Math.min(5, Math.max(0, Math.round(info.nivelPicante)));
+  const dots = Array.from({ length: 5 }, (_, i) =>
+    `<span class="spice-dot${i < n ? " on" : ""}"></span>`
+  ).join("");
+  return `<div class="spice">${dots}<span class="spice-label">Nivel ${n}</span></div>`;
+}
+
 function renderNameWithSize(name) {
   const { main, size } = splitNameSize(name);
   return size
@@ -879,15 +894,23 @@ function productCard(p) {
 
     const priceDisplay = p.price === 0 ? "" : money(p.price);
 
+    const { main, size } = splitNameSize(p.name);
+    const mlBadge = size
+      ? `<span class="card__ml">${escapeHtml(formatMlBadge(size))}</span>`
+      : "";
+    const spiceRow = buildCategorySpiceRow(p);
+
     el.innerHTML = `
     <div class="card__img" style="${imgStyle}"></div>
     <div class="card__body">
-      <div class="card__title">${renderNameWithSize(p.name)}</div>
+      <div class="card__title-row">
+        <span class="card__name">${escapeHtml(main)}</span>
+        ${mlBadge}
+      </div>
       <div class="card__desc">${escapeHtml(p.short || "")}</div>
-      
       <div class="card__price">${priceDisplay}</div>
-
-      <button class="btn" data-add="${p.id}">${isPromo ? "ARMAR PROMO 🧩" : "AGREGAR AL CARRITO"}</button>
+      ${spiceRow}
+      <button type="button" class="card__btn" data-add="${p.id}">${isPromo ? "ARMAR PROMO 🧩" : "AGREGAR AL CARRITO"}</button>
     </div>
     `;
 

@@ -5,7 +5,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Konchi - Categoría</title>
-  <link href="styles.css?v=14" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="styles.css?v=16" rel="stylesheet" />
 </head>
 
 <body class="page-category">
@@ -13,8 +14,13 @@
   <header class="header" id="top">
     <div class="container">
       <div class="header__inner header__inner--centerLogo">
-        <button class="icon-btn icon-btn--square" onclick="window.location.href='index.html'"
-          aria-label="Volver">←</button>
+        <button class="icon-btn icon-btn--square" type="button" onclick="window.location.href='index.html'"
+          aria-label="Volver">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
 
         <a class="brand brand--center" href="index.html" aria-label="Inicio">
           <img class="brand__img" src="img/logo/logotransparente.png" alt="Konchi" />
@@ -40,7 +46,7 @@
   <section class="section" id="catalogo">
     <div class="container">
       <div class="crumb" id="crumb"></div>
-      <div class="grid" id="productsGrid"></div>
+      <div class="grid prod-list" id="productsGrid"></div>
     </div>
   </section>
 
@@ -88,9 +94,9 @@
     </div>
   </div>
 
-  <script src="productos.js?v=14"></script>
-  <script src="app.js?v=14"></script>
-  <script src="categoria.js?v=14"></script>
+  <script src="productos.js?v=16"></script>
+  <script src="app.js?v=16"></script>
+  <script src="categoria.js?v=16"></script>
 </body>
 
 </html>

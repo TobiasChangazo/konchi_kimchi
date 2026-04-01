@@ -40,6 +40,12 @@ function renderNameWithSize(name) {
     : escapeHtml(main);
 }
 
+function renderCheckoutItemName(name) {
+  const { main, size } = splitNameSize(name);
+  if (!size) return `<div class="cart-item__name">${escapeHtml(main)}</div>`;
+  return `<div class="cart-item__name">${escapeHtml(main)} <em>• ${escapeHtml(size)}</em></div>`;
+}
+
 function getProductById(id) {
   return products.find(p => p.id === id);
 }
@@ -233,7 +239,8 @@ function addToCart(id, qty = 1) {
 function renderCheckout() {
   const itemsEl = document.getElementById("checkoutItems");
   const totalsEl = document.getElementById("checkoutTotals");
-  
+  const cartFooter = document.querySelector(".cart-footer");
+
   const steps = document.querySelectorAll('.checkoutStep');
   const track = document.getElementById("checkoutTrack"); 
 
@@ -244,22 +251,12 @@ function renderCheckout() {
   }
 
   if (!entries.length) {
-    itemsEl.innerHTML = `
-    <div class="emptyCart">
-      <img src="img/carritovacio.webp" alt="Carrito vacío" class="emptyCart__img">
-      <h3 class="emptyCart__title">Tu carrito está vacío</h3>
-      <p class="emptyCart__text">
-        Agregá productos para empezar tu pedido.
-      </p>
-      <button class="btn btn--primary emptyCart__cta"
-        onclick="window.location.href='index.html#catalogo'">
-        VER PRODUCTOS
-      </button>
-    </div>
-    `;
+    const emptyTpl = document.getElementById("tplCheckoutEmpty");
+    itemsEl.innerHTML = emptyTpl ? emptyTpl.innerHTML : "";
 
     totalsEl.innerHTML = "";
     if (goStep2Btn) goStep2Btn.style.display = "none";
+    if (cartFooter) cartFooter.style.display = "none";
     
     if (steps[1]) steps[1].style.display = 'none'; 
     
@@ -271,35 +268,34 @@ function renderCheckout() {
   }
 
   if (goStep2Btn) goStep2Btn.style.display = "";
-  
+  if (cartFooter) cartFooter.style.display = "";
+
   if (steps[1]) steps[1].style.display = ''; 
   if (track) track.style.display = '';
 
   itemsEl.innerHTML = entries.map(([id, qty]) => {
     const p = getProductById(id);
     if (!p) return "";
-    
+
     let displayName = p.name;
     if (p.name.includes("Pera") || p.name.includes("Remolacha")) {
-        const tag = (p.category === "Picante") ? " (Picante)" : " (Sin Picante)";
-        displayName = displayName.replace("•", `${tag} •`);
+      const tag = (p.category === "Picante") ? " (Picante)" : " (Sin Picante)";
+      displayName = displayName.replace("•", `${tag} •`);
     }
 
-    const bg = p.image ? `style="background-image:url('${p.image}')"` : ""; 
-    return `
-    <div class="cart__item">
-      <div class="cart__left">
-        <div class="cart__thumb" ${p.image ? `style="background-image:url('${p.image}')"` : ""}></div>
-        <div>
-          <div class="cart__name">${renderNameWithSize(displayName)}</div>
-          <div class="cart__mini">${money(p.price)}</div>
-        </div>
-      </div>
+    const imgStyle = p.image ? `background-image:url('${p.image}')` : "";
 
+    return `
+    <div class="cart-item">
+      <div class="cart-item__img" style="${imgStyle}"></div>
+      <div class="cart-item__info">
+        ${renderCheckoutItemName(displayName)}
+        <div class="cart-item__price">${money(p.price)}</div>
+      </div>
       <div class="qty">
-        <button data-act="dec" data-id="${p.id}">−</button>
-        <strong>${qty}</strong>
-        <button data-act="inc" data-id="${p.id}">+</button>
+        <button type="button" class="qty__btn" data-act="dec" data-id="${p.id}">−</button>
+        <span class="qty__val">${qty}</span>
+        <button type="button" class="qty__btn" data-act="inc" data-id="${p.id}">+</button>
       </div>
     </div>
   `;
@@ -308,19 +304,17 @@ function renderCheckout() {
   const { baseTotal, discount, total } = cartSummary();
 
   totalsEl.innerHTML = `
-  <div class="checkout__row checkout__row--muted">
-    <div>Subtotal</div>
-    <strong>${money(baseTotal)}</strong>
+  <div class="totals-row">
+    <span class="totals-row__label">Subtotal</span>
+    <span class="totals-row__val">${money(baseTotal)}</span>
   </div>
-
-  <div class="checkout__row checkout__row--muted">
-    <div>Descuento</div>
-    <strong>−${money(discount)}</strong>
+  <div class="totals-row totals-row--discount">
+    <span class="totals-row__label">Descuento</span>
+    <span class="totals-row__val">−${money(discount)}</span>
   </div>
-
-  <div class="checkout__row checkout__row--total">
-    <div>Total</div>
-    <strong>${money(total)}</strong>
+  <div class="totals-row totals-row--total">
+    <span class="totals-row__label">Total</span>
+    <span class="totals-row__val">${money(total)}</span>
   </div>
 `;
 }

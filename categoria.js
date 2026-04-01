@@ -3,12 +3,19 @@ function getCat() {
   return url.searchParams.get("cat") || "";
 }
 
+function escCrumb(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 (function init() {
   const cat = getCat();
   activeCategory = cat;
 
   const crumb = document.getElementById("crumb");
-  crumb.innerHTML = `<a href="index.html">Inicio</a> / ${cat || "Categoría"}`;
+  crumb.innerHTML = `<a href="index.html">Inicio</a><span>/</span>${escCrumb(cat || "Categoría")}`;
 
   renderProducts();
   updateCartUI();
