@@ -187,22 +187,24 @@ body {
 }
 
 .sec {
+    margin: 0;
     padding: 26px 16px 8px;
 }
 
 .sec-alt {
+    margin: 0;
     background: var(--dark);
     padding: 26px 16px 30px;
 }
 
 .sec-white {
-    background-color: #ffffff !important;
-    padding: 80px 0; /* Aumentamos el padding para "encerrar" los márgenes de los hijos */
     margin: 0;
+    background-color: #ffffff !important;
+    padding: 40px 0 20px;
     width: 100%;
-    display: flow-root; /* Técnica moderna para evitar que los márgenes de los hijos se escapen */
+    display: flow-root;
     position: relative;
-    border: none; /* Nos aseguramos que no haya bordes extraños */
+    border: none;
 }
 
 .sec-white .container {
@@ -212,7 +214,7 @@ body {
 }
 
 .sec-white .sec-title {
-    margin-top: 0; /* Eliminamos el margen que podría estar empujando hacia arriba */
+    margin-top: 0;
     margin-bottom: 40px;
     text-align: center;
     color: var(--dark);
@@ -719,12 +721,13 @@ button.btn-outline {
 }
 
 .best-sec {
-    background: var(--dark);
+    margin: 0;
+    background: var(--cream);
     padding: 26px 0 30px;
 }
 
 .best-sec .sec-title {
-    color: var(--cream);
+    color: var(--dark);
     padding: 0 16px;
     margin-bottom: 16px;
 }
@@ -738,20 +741,21 @@ button.btn-outline {
     margin-top: 10px;
     padding: 16px;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(200, 220, 160, 0.15);
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(45, 74, 45, 0.14);
     text-align: left;
 }
 
 .best-empty__title {
     font-weight: 700;
     margin-bottom: 6px;
-    color: var(--cream);
+    color: var(--dark);
 }
 
 .best-empty__text {
-    color: #a8c27a;
+    color: var(--gray);
     font-size: 14px;
+    line-height: 1.45;
 }
 
 .about__dots {
@@ -764,97 +768,149 @@ button.btn-outline {
 
 .footer {
     margin-top: 0;
-    padding: 28px 20px 36px;
+    margin-bottom: -1px;
+    padding: 36px 24px 0;
     background: var(--black);
-}
-
-.footer__layout {
+    color: #fff;
     display: flex;
     flex-direction: column;
-    gap: 0;
+    align-items: stretch;
 }
 
-.footer__logo {
-    height: 30px;
-    width: auto;
-    margin-bottom: 20px;
-    filter: brightness(10);
-    opacity: 0.85;
-    display: block;
+.footer__content {
+    box-sizing: border-box;
+    max-width: 340px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    text-align: left;
 }
 
-.footer__links {
+.footer__brand {
+    margin: 0;
+}
+
+.footer__logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+}
+
+.footer__logo-kon {
+    color: #fff;
+}
+
+.footer__logo-chi {
+    color: #0bc050;
+}
+
+.footer__nav-wrap {
+    width: 100%;
+}
+
+.footer__nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-bottom: 20px;
+    width: 100%;
+    align-items: flex-start;
 }
 
-.footer__links .footer__link {
-    font-size: 13px;
-    color: #888780;
+.footer__nav li {
+    margin: 0;
+    width: 100%;
+}
+
+.footer .footer__link {
+    font-size: 14px;
+    color: #b8b8b0;
     text-decoration: none;
     font-weight: 500;
-}
-
-.footer__link--btn {
+    letter-spacing: 0.02em;
     background: none;
     border: 0;
     padding: 0;
     text-align: left;
     font: inherit;
     cursor: pointer;
-    color: #888780;
+    width: 100%;
+    transition: color 0.2s ease;
 }
 
-.footer__contact {
-    display: grid;
-    gap: 10px;
-    color: #c8c8c0;
+.footer .footer__link:hover {
+    color: #e4e4e0;
+}
+
+.footer__rule {
+    border: 0;
+    height: 1px;
+    width: 100%;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.footer__info {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: #b0b0a8;
+    font-size: 13px;
+    line-height: 1.5;
     font-weight: 500;
-    margin-bottom: 20px;
 }
 
-.footer .detail-text,
-.footer .detail-text strong {
-    color: #b8b8b0;
+.footer__info li {
+    position: relative;
+    margin: 0 0 8px 0;
+    padding-left: 1.1em;
 }
 
-.footer .insta-link,
-.footer .footer__insta-inline {
-    color: var(--cream);
+.footer__info li:last-child {
+    margin-bottom: 0;
 }
 
-.footer .insta-icon {
-    fill: var(--cream);
+.footer__info li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--fire);
+    font-weight: 700;
 }
 
-.footer .insta-cta {
-    color: #a0a098;
-}
-
-.footer .separator {
-    background: rgba(255, 255, 255, 0.12);
-}
-
-.footer__row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+.footer__ig {
+    display: inline-block;
+    margin-top: 2px;
+    padding: 10px 22px;
+    border-radius: 9999px;
+    border: 1px solid #0bc050;
+    background: #121210;
+    background: color-mix(in srgb, var(--black) 92%, #000);
+    color: #4ad881c5;
     font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
 }
-
-/* copyright footer */
 
 .footer__copy {
-    margin-top: 8px;
+    margin: 28px 0 0;
+    padding: 0 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    width: 100%;
+    box-sizing: border-box;
     text-align: center;
-    font-size: 11px;
-    color: #444441;
+    font-size: 10px;
+    color: #5a5854;
     font-weight: 500;
-    background: transparent;
-    border: 0;
-    padding: 0;
+    letter-spacing: 0.03em;
 }
 
 .best-scroll {
@@ -1833,20 +1889,6 @@ p {
     text-align: center;
     font-size: 14px;
     color: var(--text);
-}
-
-/* color secciones Sobre nuestros Kimchis, FAQ y contacto categoria */
-
-.footer__link {
-    background: none;
-    border: 0;
-    padding: 0;
-    text-align: left;
-    font: inherit;
-    color: var(--texto);
-    opacity: 1;
-    font-weight: 600;
-    cursor: pointer;
 }
 
 .panel-hero {
@@ -3851,20 +3893,11 @@ button.drawer__search {
 
     .footer {
         margin-top: 34px;
-        padding: 32px 24px 40px;
+        padding: 40px 32px 0;
     }
 
-    .footer__layout {
-        max-width: 1040px;
-        margin: 0 auto;
-    }
-
-    .footer__contact {
-        gap: 12px;
-    }
-
-    .footer__row {
-        font-size: 15px;
+    .footer__content {
+        max-width: 350px;
     }
 
     .cats.cats-grid {
@@ -3884,10 +3917,6 @@ button.drawer__search {
         min-height: unset !important;
     }
 
-    .footer__copy {
-        max-width: 720px;
-        margin: 18px auto 0;
-    }
 }
 
 @media (min-width: 900px) {
@@ -4514,27 +4543,8 @@ body.page-checkout {
     }
 }
 
-.sec-white {
-    background-color: #ffffff !important;
-    padding-bottom: 0; /* Elimina espacio extra al final de la sección */
-}
-
-.footer {
-    margin-top: 0; /* Asegura que el footer se pegue a la sección blanca */
-}
-
-.sec-white {
-    margin-bottom: 0 !important;
-    padding-bottom: 40px; /* Ajusta según el aire que quieras darle */
-}
-
 #contacto {
     margin-top: 0 !important;
-}
-
-.footer {
-    margin-bottom: -1px; /* Empuja el footer un pixel hacia abajo para tapar cualquier borde */
-    padding-bottom: 40px; /* Asegura un buen margen interno abajo */
 }
 
 body {
@@ -4542,11 +4552,4 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-}
-
-/* Si usás iOS, esto ayuda con la barra de navegación del sistema */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-    .footer {
-        padding-bottom: calc(40px + env(safe-area-inset-bottom));
-    }
 }
