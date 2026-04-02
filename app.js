@@ -937,7 +937,7 @@ function productCard(p) {
     <div class="card__body">
       <div class="card__title">${renderNameWithSize(p.name)}</div>
       <div class="card__price">${money(p.price)}</div>
-      <button class="btn btn--primary btnBest" data-view="${p.id}">VER PRODUCTO</button>
+      <button class="btn btn--primary btnBest" data-view="${p.id}">Ver producto</button>
     </div>
   `;
 
@@ -968,7 +968,7 @@ function syncBestArrowsA11y() {
     btn.setAttribute("aria-hidden", show ? "false" : "true");
     btn.tabIndex = show ? 0 : -1;
   });
-  document.querySelectorAll(".best-arrow--rail").forEach((btn) => {
+  document.querySelectorAll(".best-arrow--side").forEach((btn) => {
     const show = hasNav && !mobile;
     btn.setAttribute("aria-hidden", show ? "false" : "true");
     btn.tabIndex = show ? 0 : -1;
@@ -1187,20 +1187,17 @@ function setupBestInfinite(best) {
   const onBestWrapEnter = () => pauseAutoScroll();
   const onBestWrapLeave = () => resumeAutoScroll();
 
-  const mqDesktop = window.matchMedia("(min-width: 900px)");
+  const mqDesktop = window.matchMedia("(min-width: 901px)");
+  const autoScrollEveryMs = 4800;
 
-  const tickAutoScroll = () => {
+  const tickAutoAdvance = () => {
     if (autoScrollPaused || !mqDesktop.matches) return;
     if (typeof document.hidden === "boolean" && document.hidden) return;
-    bestGrid.scrollLeft += 0.35;
+    runBestCarouselNav(1);
   };
 
-  const nudgeTimer = setTimeout(() => {
-    bestGrid.scrollBy({ left: 40, behavior: "smooth" });
-  }, 650);
-
   if (mqDesktop.matches) {
-    autoScrollId = window.setInterval(tickAutoScroll, 90);
+    autoScrollId = window.setInterval(tickAutoAdvance, autoScrollEveryMs);
     bestWrap?.addEventListener("mouseenter", onBestWrapEnter);
     bestWrap?.addEventListener("mouseleave", onBestWrapLeave);
   }
@@ -1214,7 +1211,7 @@ function setupBestInfinite(best) {
       bestWrap?.removeEventListener("mouseenter", onBestWrapEnter);
       bestWrap?.removeEventListener("mouseleave", onBestWrapLeave);
     } else if (!autoScrollId) {
-      autoScrollId = window.setInterval(tickAutoScroll, 90);
+      autoScrollId = window.setInterval(tickAutoAdvance, autoScrollEveryMs);
       bestWrap?.addEventListener("mouseenter", onBestWrapEnter);
       bestWrap?.addEventListener("mouseleave", onBestWrapLeave);
     }
@@ -1224,7 +1221,6 @@ function setupBestInfinite(best) {
 
   bestInfiniteCleanup = () => {
     clearTimeout(snapTimer);
-    clearTimeout(nudgeTimer);
     if (autoScrollId) clearInterval(autoScrollId);
     mqDesktop.removeEventListener("change", onMqChange);
     bestWrap?.removeEventListener("mouseenter", onBestWrapEnter);
