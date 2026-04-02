@@ -5,6 +5,7 @@ const $$ = (sel) => document.querySelectorAll(sel);
 
 const catsEl = $("#cats");
 const bestGrid = $("#bestGrid");
+const bestWrap = document.querySelector(".best-wrap");
 const productsGrid = $("#productsGrid");
 const searchInput = $("#searchInput");
 const searchModal = $("#searchModal");
@@ -954,6 +955,58 @@ function productCard(p) {
 
 
 let bestInfiniteCleanup = null;
+let lastBestNavAtMs = 0;
+let bestCarouselNavBound = false;
+
+function syncBestArrowsA11y() {
+  const wrap = document.querySelector(".best-wrap");
+  if (!wrap) return;
+  const hasNav = !wrap.classList.contains("best-wrap--empty") && !wrap.classList.contains("best-wrap--single");
+  const mobile = window.matchMedia("(max-width: 900px)").matches;
+  document.querySelectorAll(".best-arrows--toolbar .best-arrow").forEach((btn) => {
+    const show = hasNav && mobile;
+    btn.setAttribute("aria-hidden", show ? "false" : "true");
+    btn.tabIndex = show ? 0 : -1;
+  });
+  document.querySelectorAll(".best-arrow--rail").forEach((btn) => {
+    const show = hasNav && !mobile;
+    btn.setAttribute("aria-hidden", show ? "false" : "true");
+    btn.tabIndex = show ? 0 : -1;
+  });
+}
+
+function runBestCarouselNav(dir) {
+  if (!bestGrid) return;
+  const now = Date.now();
+  if (now - lastBestNavAtMs < 350) return;
+  lastBestNavAtMs = now;
+  const card = bestGrid.querySelector(".card");
+  const cs = getComputedStyle(bestGrid);
+  let gapPx = 12;
+  const gapVal = cs.gap || cs.columnGap;
+  if (gapVal && gapVal !== "normal") {
+    const parsed = parseFloat(gapVal);
+    if (!Number.isNaN(parsed)) gapPx = parsed;
+  }
+  const cardW = card
+    ? Math.round(card.offsetWidth || card.getBoundingClientRect().width)
+    : 0;
+  const step = cardW > 0 ? cardW + gapPx : 300;
+  bestGrid.scrollBy({ left: dir * step, behavior: "smooth" });
+}
+
+function bindBestCarouselNavOnce() {
+  if (bestCarouselNavBound) return;
+  const sec = document.getElementById("mas-vendidos");
+  if (!sec) return;
+  bestCarouselNavBound = true;
+  sec.addEventListener("click", (e) => {
+    const t = e.target;
+    if (!t.closest) return;
+    if (t.closest(".btn-prev")) runBestCarouselNav(-1);
+    else if (t.closest(".btn-next")) runBestCarouselNav(1);
+  });
+}
 
 function renderBest() {
   if (!bestGrid) return;
@@ -966,13 +1019,19 @@ function renderBest() {
     .slice(0, 10);
 
   if (!best.length) {
+    if (typeof bestInfiniteCleanup === "function") bestInfiniteCleanup();
     if (bestEmpty) bestEmpty.style.display = "block";
+    bestWrap?.classList.add("best-wrap--empty");
+    bestWrap?.classList.remove("best-wrap--single");
+    syncBestArrowsA11y();
     return;
   }
 
   if (bestEmpty) bestEmpty.style.display = "none";
+  bestWrap?.classList.remove("best-wrap--empty");
 
   setupBestInfinite(best);
+  syncBestArrowsA11y();
 }
 
 function setupBestInfinite(best) {
@@ -980,9 +1039,12 @@ function setupBestInfinite(best) {
 
   if (best.length < 2) {
     best.forEach(p => bestGrid.appendChild(productCard(p)));
+    bestWrap?.classList.add("best-wrap--single");
     bestInfiniteCleanup = null;
     return;
   }
+
+  bestWrap?.classList.remove("best-wrap--single");
 
   const tripled = [...best, ...best, ...best];
 
@@ -1109,8 +1171,65 @@ function setupBestInfinite(best) {
 
   bestGrid.addEventListener("scroll", onScroll, { passive: true });
 
+  bindBestCarouselNavOnce();
+
+  let autoScrollPaused = false;
+  let autoScrollId = null;
+
+  const pauseAutoScroll = () => {
+    autoScrollPaused = true;
+  };
+
+  const resumeAutoScroll = () => {
+    autoScrollPaused = false;
+  };
+
+  const onBestWrapEnter = () => pauseAutoScroll();
+  const onBestWrapLeave = () => resumeAutoScroll();
+
+  const mqDesktop = window.matchMedia("(min-width: 900px)");
+
+  const tickAutoScroll = () => {
+    if (autoScrollPaused || !mqDesktop.matches) return;
+    if (typeof document.hidden === "boolean" && document.hidden) return;
+    bestGrid.scrollLeft += 0.35;
+  };
+
+  const nudgeTimer = setTimeout(() => {
+    bestGrid.scrollBy({ left: 40, behavior: "smooth" });
+  }, 650);
+
+  if (mqDesktop.matches) {
+    autoScrollId = window.setInterval(tickAutoScroll, 90);
+    bestWrap?.addEventListener("mouseenter", onBestWrapEnter);
+    bestWrap?.addEventListener("mouseleave", onBestWrapLeave);
+  }
+
+  const onMqChange = () => {
+    if (!mqDesktop.matches) {
+      if (autoScrollId) {
+        clearInterval(autoScrollId);
+        autoScrollId = null;
+      }
+      bestWrap?.removeEventListener("mouseenter", onBestWrapEnter);
+      bestWrap?.removeEventListener("mouseleave", onBestWrapLeave);
+    } else if (!autoScrollId) {
+      autoScrollId = window.setInterval(tickAutoScroll, 90);
+      bestWrap?.addEventListener("mouseenter", onBestWrapEnter);
+      bestWrap?.addEventListener("mouseleave", onBestWrapLeave);
+    }
+  };
+
+  mqDesktop.addEventListener("change", onMqChange);
+
   bestInfiniteCleanup = () => {
     clearTimeout(snapTimer);
+    clearTimeout(nudgeTimer);
+    if (autoScrollId) clearInterval(autoScrollId);
+    mqDesktop.removeEventListener("change", onMqChange);
+    bestWrap?.removeEventListener("mouseenter", onBestWrapEnter);
+    bestWrap?.removeEventListener("mouseleave", onBestWrapLeave);
+
     bestGrid.removeEventListener("scroll", onScroll);
 
     bestGrid.removeEventListener("pointerdown", onPointerDown);
@@ -1891,5 +2010,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   startAutoScroll();
 });
+
+window.matchMedia("(max-width: 900px)").addEventListener("change", syncBestArrowsA11y);
+bindBestCarouselNavOnce();
 
 renderAll();

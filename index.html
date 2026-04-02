@@ -4,9 +4,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kimchi</title>
+  <title>Konchi Kimchi</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link href="styles.css?v=17" rel="stylesheet" />
+  <link href="styles.css?v=19" rel="stylesheet" />
   <link href="img/favicon/logo.ico" rel="icon" type="image/x-icon">
 </head>
 
@@ -20,7 +20,7 @@
         </button>
 
         <a class="brand brand--center header__logo" href="#top" aria-label="Inicio">
-          <img class="brand__img" src="img/logo/logotransparente.png" alt="Konchi" />
+          <img class="brand__img" src="img/logo/logotransparente-convertido-de-png.svg" alt="Konchi" />
         </a>
 
         <div class="header__actions">
@@ -138,7 +138,7 @@
             </button>
           </div>
           <div class="drawer__footer">
-            <img src="img/logo/logotransparente.png" alt="Konchi" class="drawer__logoFooter">
+            <img src="img/logo/logotransparente-convertido-de-png.svg" alt="Konchi" class="drawer__logoFooter" />
 
             <div class="drawer__copy">
               © <span id="drawerYear">2026</span> Konchi Kimchi
@@ -148,17 +148,8 @@
 
         <div class="drawer-overlay" id="drawerOverlay" hidden></div>
       </div>
-  </header>
-
-  <section class="hero" id="inicio">
-    <div class="hero__badge">Kimchi artesanal vegano</div>
-    <h1 class="hero__title">El kimchi que <em>fermenta</em> tu cocina</h1>
-    <p class="hero__sub">Elaborado con ingredientes frescos y locales.<br>Fermentación natural, sabores únicos.</p>
-    <div class="hero__btns">
-      <a class="btn-cream" href="#catalogo">Ver Categorias</a>
-      <a class="btn-outline" href="#info">Quiénes somos</a>
     </div>
-  </section>
+  </header>
 
   <div class="search-sheet" id="searchSheet" aria-hidden="true">
     <div class="search-sheet__overlay" data-close-search></div>
@@ -202,6 +193,17 @@
     </div>
   </div>
 
+  <main class="page-main" id="main-content">
+  <section class="hero" id="inicio">
+    <div class="hero__badge">Kimchi artesanal vegano</div>
+    <h1 class="hero__title">El kimchi que <em>fermenta</em> tu cocina</h1>
+    <p class="hero__sub">Elaborado con ingredientes frescos y locales.<br>Fermentación natural, sabores únicos.</p>
+    <div class="hero__btns">
+      <a class="btn-cream" href="#catalogo">Ver Categorias</a>
+      <a class="btn-outline" href="#info">Quiénes somos</a>
+    </div>
+  </section>
+
   <section class="sec" id="catalogo">
     <div class="container">
       <h2 class="sec-title">Categorias</h2>
@@ -210,17 +212,32 @@
   </section>
 
   <section class="best-sec" id="mas-vendidos">
-    <h2 class="sec-title">Más vendidos</h2>
-    <div class="best-wrap">
-      <div class="best-scroll" id="bestGrid"></div>
-      <div class="best-empty" id="bestEmpty">
-        <div class="best-empty__title">Próximamente</div>
-        <div class="best-empty__text">Acá van a aparecer los productos más vendidos.</div>
+    <div class="container"> <div class="best-sec__head">
+        <h2 class="sec-title">Más vendidos</h2>
+      </div>
+      
+      <div class="best-wrap">
+        <div class="best-arrows-mobile">
+          <button type="button" class="best-arrow btn-prev">‹</button>
+          <button type="button" class="best-arrow btn-next">›</button>
+        </div>
+        <div class="best-container">
+          <button type="button" class="best-arrow best-arrow--side btn-prev">‹</button>
+          
+          <div class="best-scroll" id="bestGrid"></div>
+          
+          <button type="button" class="best-arrow best-arrow--side btn-next">›</button>
+        </div>
+  
+        <div class="best-empty" id="bestEmpty" style="display:none;">
+          <div class="best-empty__title">Próximamente</div>
+          <div class="best-empty__text">Acá van a aparecer los productos más vendidos.</div>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="sec-alt">
+  <section class="sec-alt" id="info">
     <div class="container">
       <h2 class="sec-title">Por qué fermentado</h2>
       <p class="ben-intro">Cada frasco es un proceso vivo. La fermentación potencia los nutrientes y crea probióticos naturales.</p>
@@ -305,6 +322,7 @@
 
     <p class="footer__copy">© 2026 Konchi Kimchi · Todos los derechos reservados</p>
   </footer>
+  </main>
 
 <div class="modal" id="productModal" aria-hidden="true">
   <div class="modal__overlay" data-close="1"></div>
@@ -362,50 +380,6 @@
       </header>
 
       <div class="side-panel__body" id="sidePanelBody"></div>
-
-      <template id="tpl-about">
-        <div class="panel-hero">
-          <p class="panel-card__title">Origen</p>
-          <p class="panel-hero__subtitle" style="margin-top:0">
-            Siempre nos encantó conocer sabores de todo el mundo y experimentar recrearlos.
-          </p>
-
-          <p class="panel-hero__subtitle">
-            Conocimos el kimchi y lo hicimos propio, lo transformamos en KONCHI. Empezamos a
-            salirnos del kimchi tradicional e innovar en los ingredientes. Hasta el momento
-            creamos 5 variedades de kimchi únicas.
-          </p>
-        </div>
-
-        <div class="panel-grid">
-          <div class="panel-card">
-            <p class="panel-card__title">Principios</p>
-            <p class="panel-card__text">
-              Queremos que la marca sea un reflejo de nuestros principios. Por eso, en KONCHI
-              vas a encontrar un producto vegano, sustentable, saludable y feminista.
-            </p>
-          </div>
-
-          <div class="panel-card">
-            <p class="panel-card__title">Tradición</p>
-            <p class="panel-card__text">
-              En Corea cada familia tiene su propia receta de kimchi que es pasada de generación
-              en generación. Son las abuelas y las madres coreanas las que se encargan de
-              preparar el kimchi para toda la familia. Usan el kimchi para nutrir, curar y
-              mimar a su familia.
-            </p>
-          </div>
-
-          <div class="panel-card">
-            <p class="panel-card__title">Homenaje</p>
-            <p class="panel-card__text">
-              Es esa energía de creatividad y alquimia femenina que quisimos honrar y
-              transmitir con cada bocado de KONCHI.
-            </p>
-          </div>
-        </div>
-      </template>
-
 
       <template id="tpl-kimchis">
         <div class="panel-hero">
@@ -592,7 +566,7 @@
     </div>
   </aside>
   <script src="productos.js?v=14"></script>
-  <script src="app.js?v=14"></script>
+  <script src="app.js?v=15"></script>
 </body>
 
 </html>
