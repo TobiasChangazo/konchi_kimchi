@@ -315,64 +315,203 @@ body {
     color: var(--cream);
 }
 
-.ben-intro {
-    font-size: 13px;
-    color: #a8c27a;
-    line-height: 1.65;
-    margin-bottom: 18px;
+/* #info — Mucho más que un Fermento (layout integrado, glass cards) */
+#info.sec-alt {
+    background: #2d4127;
+    padding: clamp(60px, 8vw, 100px) 0;
 }
 
-.ben-grid {
+#info .container.info-dual {
+    max-width: min(var(--container-wide), 100%);
+    margin: 0 auto;
+    padding-left: var(--section-pad-inline);
+    padding-right: var(--section-pad-inline);
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(8px, 2vw, 12px);
+    gap: clamp(28px, 5vw, 56px);
+    align-items: center;
 }
 
-.ben {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    padding: clamp(12px, 2.5vw, 14px) clamp(10px, 2vw, 12px);
-    border: 1px solid rgba(200, 220, 160, 0.1);
+#info .info-dual__text {
+    text-align: left;
     min-width: 0;
 }
 
-.ben__title,
-.ben__text {
-    overflow-wrap: anywhere;
+#info .info-dual__aside {
+    min-width: 0;
 }
 
-.ben__ico {
-    width: 34px;
-    height: 34px;
-    background: var(--dark);
-    border-radius: 10px;
+#info .info-dual__title {
+    font-family: var(--ui);
+    font-weight: 700;
+    font-size: clamp(1.4rem, 4vw, 1.8rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0 0 24px;
+    color: #ffffff;
+    white-space: normal;
+}
+
+#info .ben-intro {
+    margin: 0;
+    max-width: 100%;
+    font-family: var(--ui);
+    font-size: clamp(1rem, 0.5vw + 0.9rem, 1.125rem);
+    font-weight: 400;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.85);
+    text-align: left;
+    text-wrap: balance;
+}
+
+#info .ben-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(12px, 2.5vw, 24px);
+    margin: 0;
+    min-width: 0;
+}
+
+#info .ben {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: clamp(18px, 3vw, 26px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    min-width: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+}
+
+#info .ben__title,
+#info .ben__text {
+    overflow-wrap: anywhere;
+    margin: 0;
+}
+
+#info .ben__ico {
+    width: auto;
+    height: auto;
+    margin: 0 0 14px;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
-    margin-bottom: 8px;
+    justify-content: flex-start;
+    color: #fff;
 }
 
-.ben__ico svg {
-    width: 17px;
-    height: 17px;
-    stroke: #a8c27a;
+#info .ben__ico svg {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    stroke: currentColor;
     fill: none;
     stroke-width: 1.5;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
-.ben__title {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--cream);
-    margin-bottom: 3px;
+#info .ben__title {
+    font-family: var(--ui);
+    font-size: clamp(0.875rem, 0.35vw + 0.8rem, 1rem);
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+    line-height: 1.3;
 }
 
-.ben__text {
-    font-size: 11px;
-    color: #a8c27a;
+#info .ben__text {
+    font-family: var(--ui);
+    font-size: 0.875rem;
+    font-weight: 400;
     line-height: 1.5;
+    color: #a8c27a;
+}
+
+@media (max-width: 900px) {
+    #info.sec-alt {
+        padding: clamp(60px, 8vw, 100px) 0;
+    }
+
+    #info .container.info-dual {
+        padding-inline: 20px;
+    }
+
+    #info .info-dual__text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+
+    #info .info-dual__title,
+    #info .ben-intro {
+        text-align: center;
+    }
+
+    #info .info-dual__title {
+        font-size: clamp(1.4rem, 4vw, 1.8rem);
+        width: 100%;
+    }
+
+    #info .ben-intro {
+        max-width: 32ch;
+        text-wrap: balance;
+    }
+
+    #info .ben-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+        gap: 16px;
+    }
+
+    #info .ben {
+        align-items: flex-start;
+        text-align: left;
+        height: auto;
+        padding: 24px 20px;
+        justify-content: flex-start;
+    }
+
+    #info .ben__ico {
+        justify-content: flex-start;
+        margin-bottom: 8px;
+    }
+}
+
+@media (min-width: 901px) {
+    #info .container.info-dual {
+        grid-template-columns: 1.2fr 1fr;
+        gap: clamp(40px, 5.5vw, 80px);
+        align-items: center;
+    }
+
+    /* Centrado + columna de intro acotada (solo desktop) */
+    #info .info-dual__text {
+        text-align: center;
+    }
+
+    #info .info-dual__title {
+        font-size: clamp(1.8rem, 3vw, 2.5rem);
+        text-align: center;
+    }
+
+    #info .ben-intro {
+        max-width: 38ch;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+
+    /* Pirámide invertida: grilla 2×2 en el aside */
+    #info .ben-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 .steps {
@@ -4760,11 +4899,91 @@ button.drawer__search {
 
     .footer {
         margin-top: 0;
-        padding: clamp(36px, 4vw, 48px) clamp(28px, 4vw, 40px) 0;
+        padding: clamp(44px, 5vw, 72px) clamp(24px, 5vw, 48px) 0;
     }
 
     .footer__content {
-        max-width: 350px;
+        box-sizing: border-box;
+        max-width: min(1180px, 100%);
+        width: 100%;
+        margin: 0 auto;
+        padding: 0;
+        display: grid;
+        grid-template-columns: minmax(140px, 1.05fr) minmax(160px, 1fr) minmax(200px, 1.2fr);
+        column-gap: clamp(32px, 4vw, 64px);
+        row-gap: 0;
+        align-items: start;
+        text-align: left;
+    }
+
+    .footer__brand {
+        grid-column: 1;
+        grid-row: 1;
+        padding-top: 2px;
+    }
+
+    .footer__logo-text {
+        font-size: clamp(1.5rem, 2vw, 1.85rem);
+        letter-spacing: 0.1em;
+    }
+
+    .footer__nav-wrap {
+        grid-column: 2;
+        grid-row: 1;
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .footer__nav {
+        flex-direction: column;
+        gap: 2px;
+        align-items: flex-start;
+    }
+
+    .footer__nav li {
+        width: auto;
+    }
+
+    .footer .footer__link {
+        width: auto;
+        min-height: 34px;
+        padding: 5px 0;
+        font-size: 15px;
+        color: rgba(228, 228, 224, 0.92);
+    }
+
+    .footer__info {
+        grid-column: 3;
+        grid-row: 1;
+        font-size: 13px;
+        line-height: 1.55;
+        color: rgba(180, 180, 172, 0.95);
+        max-width: 320px;
+        justify-self: end;
+        text-align: left;
+    }
+
+    .footer__info li {
+        margin-bottom: 10px;
+    }
+
+    .footer__rule {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        margin-top: clamp(36px, 4vw, 52px);
+        margin-bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0.1) 80%, transparent);
+        height: 1px;
+    }
+
+    .footer__copy {
+        margin-top: clamp(22px, 2.5vw, 32px);
+        padding: 0 clamp(24px, 5vw, 48px) calc(18px + env(safe-area-inset-bottom, 0px));
+        max-width: min(1180px, 100%);
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 11px;
+        letter-spacing: 0.04em;
     }
 
 }
@@ -5657,99 +5876,4 @@ body {
         vertical-align: top;
     }
 
-    #info.sec-alt {
-        padding: 100px 0 !important;
-    }
-
-    #info .container {
-        max-width: var(--container-wide);
-        margin: 0 auto;
-        display: grid;
-        /* Definimos 2 columnas y 2 filas para el texto */
-        grid-template-columns: 1.1fr 0.9fr; 
-        grid-template-rows: min-content min-content; 
-        column-gap: 60px;
-        row-gap: 0 !important; /* MATAMOS el espacio entre filas de texto */
-        align-items: start;
-    }
-
-    /* 1) Título: le quitamos todo margen que pueda heredar */
-    #info .sec-title {
-        grid-column: 1;
-        grid-row: 1;
-        font-family: var(--ui);
-        font-weight: 700;
-        font-size: 58px;
-        line-height: 1; /* Altura de línea mínima para que no empuje */
-        margin: 0 !important;
-        padding: 0 !important;
-        white-space: nowrap;
-        color: #fff;
-        text-align: left;
-    }
-
-    /* 2) Descripción: la pegamos al título con un margen controlado */
-    #info .ben-intro {
-        grid-column: 1;
-        grid-row: 2;
-        font-size: 19px;
-        line-height: 1.3;
-        margin-top: 15px !important; /* Único espacio real entre H1 y P */
-        margin-bottom: 0 !important;
-        max-width: 35ch;
-        color: rgba(255, 255, 255, 0.8);
-        text-align: left;
-        align-self: start;
-    }
-
-    /* 3) Grid de beneficios: lo movemos a la derecha y que ocupe el alto de ambas filas */
-    #info .ben-grid {
-        grid-column: 2;
-        grid-row: 1 / span 2; 
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-        margin: 0;
-    }
-
-    #info .ben {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 24px;
-        padding: 24px;
-        width: 100%;
-        min-width: 0;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        box-shadow: none;
-    }
-
-    #info .ben__title {
-        font-size: 18px;
-        font-weight: 700;
-        color: var(--cream);
-        margin-bottom: 8px;
-        line-height: 1.3;
-    }
-
-    #info .ben__text {
-        font-size: 13px;
-        font-weight: 400;
-        color: #a8c27a;
-        line-height: 1.5;
-    }
-
-    /* Agregá esto para asegurar que el texto no tenga márgenes base */
-    #info .ben-intro {
-        margin-bottom: 0 !important;
-        /* Si querés que esté MÁS PEQUEÑO el espacio, bajá este 15px a 5px */
-        margin-top: 5px !important; 
-    }
-
-    /* Esto quita el espacio que la fuente reserva para tildes o letras altas */
-    #info .sec-title {
-        line-height: 0.9 !important; 
-    }
 }
