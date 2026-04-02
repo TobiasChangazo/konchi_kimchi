@@ -95,7 +95,7 @@ window.KIMCHI_PRODUCTS = [
     short: "Nabo, Cebolla, Zanahoria, Verdeo, Ajo, Jengibre, Pasta de Kimchi.",
     long: "Nabo, Cebolla, Zanahoria, Verdeo, Ajo, Jengibre, Pasta de Kimchi.",
 
-    image: "img/productos/fotopicantenabo.png",
+    image: "img/productos/1080x1080.png",
 
     info: {
       fermentacion: "10 – 15 días",
@@ -124,6 +124,7 @@ window.KIMCHI_PRODUCTS = [
     long: "Anana, Cebolla Morada, Verdeo, Ajo, Jengibre, Pasta de Kimchi.",
 
     image: "img/productos/fotopicanteanana.png",
+    thumbBg: "#e8c948",
 
     info: {
       fermentacion: "5 días",
@@ -158,6 +159,7 @@ window.KIMCHI_PRODUCTS = [
     long: "Sandia, Cebolla Morada, Cilantro, Verdeo, Ajo, Jengibre y Pasta de Kimchi.",
 
     image: "img/productos/fotopicantesandia.png",
+    thumbBg: "#6b2d3c",
 
     info: {
       fermentacion: "4 días",

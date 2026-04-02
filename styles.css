@@ -91,9 +91,9 @@ body {
 
 .header__logo img,
 .header .brand__img {
-    height: 74px;
+    height: 85px;
     width: auto;
-    max-width: 248px;
+    max-width: 280px;
     object-fit: contain;
     padding: 0;
     display: block;
@@ -1582,20 +1582,116 @@ button.btn-outline:focus-visible {
     margin: 0 5px;
 }
 
-/* ── Página categoría (alineado a checkout-datos-boceto: crema, card 20px, bordes #d4e4b4) ── */
+/* ── Página categoría (Desktop: 2 columnas, Cards Simétricas) ── */
 body.page-category {
     background: var(--cream);
     min-height: 100vh;
-}
-
-.page-category .page-category-view {
-    background: transparent;
 }
 
 .page-category .page-category__wrap {
     max-width: 520px;
     margin: 0 auto;
     padding: 24px 16px 48px;
+}
+
+/* Título con la fuente Serif (Noto Serif KR) */
+.page-category .card__name {
+    font-family: var(--serif); /* Usa la variable definida en :root */
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--dark);
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Estilo de la Badge (Cápsula de ML) */
+.page-category .card__ml {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(232, 240, 212, 0.9); /* Verde muy clarito */
+    color: var(--dark);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 99px; /* Forma de cápsula */
+    border: 1px solid #c8dca0;
+    font-family: var(--ui); /* Fuente Sans para la badge */
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+/* Contenedor para que el nombre y la badge vivan bien juntos */
+.page-category .card__title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+/* Botón de la Card en Categoría */
+.page-category .card__btn {
+    width: 100%;
+    background-color: var(--dark) !important; /* Verde oscuro de Konchi */
+    color: var(--cream) !important;           /* Texto cremita */
+    border: none;
+    border-radius: 12px;                      /* Bordes redondeados */
+    padding: 14px 10px;                       /* Más alto para que se vea pro */
+    font-size: 14px;
+    font-weight: 700;
+    font-family: var(--ui);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    margin-top: auto;                         /* Lo empuja siempre al fondo */
+    transition: transform 0.2s, filter 0.2s;
+    display: block;
+}
+
+/* Efecto al tocar el botón */
+.page-category .card__btn:active {
+    transform: scale(0.98);
+    filter: brightness(1.1);
+}
+
+/* Contenedor de los puntos de picante */
+.page-category .spice {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-top: 4px;
+}
+
+/* El punto base (gris/apagado) */
+.page-category .spice-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #e0e0e0; /* Color gris suave para los niveles vacíos */
+    flex-shrink: 0;
+}
+
+/* El punto activo (naranja fuego) */
+.page-category .spice-dot.on {
+    background-color: var(--fire); /* Usa tu variable naranja #E8601A */
+    box-shadow: 0 0 4px rgba(232, 96, 26, 0.4);
+}
+
+/* Texto "Nivel X" al lado de los puntos */
+.page-category .spice-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray);
+    margin-left: 6px;
+    font-family: var(--ui);
+}
+
+/* Ajuste de márgenes en el cuerpo de la card para que el botón respire */
+.page-category .card__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 18px; /* Un poco más de aire interno */
+    gap: 8px;
 }
 
 .page-category__title {
@@ -1605,155 +1701,70 @@ body.page-category {
     color: var(--dark);
     text-align: center;
     margin: 0 0 10px;
-    line-height: 1.25;
 }
 
-.page-category .crumb--category {
-    max-width: none;
-    margin: 0 auto 22px;
-    padding: 0 4px 0;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--gray);
-    text-align: center;
-}
-
-.page-category .crumb--category a {
-    color: var(--dark);
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.page-category .crumb--category a:hover {
-    text-decoration: underline;
-}
-
-.page-category #productsGrid,
-.page-category .prod-list {
+.page-category #productsGrid {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    padding: 0 0 8px;
 }
 
+/* Estilo de Card base (Mobile) */
 .page-category .card {
     display: flex;
     flex-direction: row;
-    align-items: stretch;
-    min-height: 160px;
     background: #fff;
     border-radius: 20px;
     overflow: hidden;
     border: 0.5px solid #d4e4b4;
-    box-shadow: none;
+    min-height: 160px;
 }
 
 .page-category .card__img {
-    width: 36%;
-    flex: 0 0 36%;
-    flex-shrink: 0;
-    min-height: 160px;
-    background: var(--cream);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    border-right: none;
-}
-
-.page-category .card__body {
-    flex: 1;
-    min-width: 0;
+    width: 140px; /* Ancho fijo para que no se deforme */
+    flex: 0 0 140px;
+    background-color: transparent; /* Quitamos el crema para que mande tu imagen */
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 18px 16px 18px 14px;
-    text-align: left;
-    align-items: stretch;
-}
-
-.page-category .card__title-row {
-    display: flex;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-.page-category .card__name {
-    font-family: var(--serif);
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--dark);
-    line-height: 1.25;
-}
-
-.page-category .card__ml {
-    display: inline-block;
-    background: rgba(232, 240, 212, 0.9);
-    color: var(--dark);
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 20px;
-    border: 1px solid #c8dca0;
-    white-space: nowrap;
-    margin-top: 2px;
-    font-family: var(--ui);
-}
-
-.page-category .card__price {
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--fire);
-    margin: 0;
-}
-
-.page-category .spice {
-    display: flex;
-    gap: 3px;
     align-items: center;
-    flex-wrap: wrap;
+    justify-content: center;
+    overflow: hidden;
 }
 
-.page-category .spice-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #ddd;
-    flex-shrink: 0;
-}
-
-.page-category .spice-dot.on {
-    background: var(--fire);
-}
-
-.page-category .spice-label {
-    font-size: 10px;
-    color: var(--gray);
-    margin-left: 5px;
-    font-family: var(--ui);
-}
-
-.page-category .card__btn {
+.page-category .card__img-pic {
     width: 100%;
-    background: var(--dark);
-    color: var(--cream);
-    border: none;
-    border-radius: 14px;
-    padding: 14px 8px;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    font-family: var(--ui);
-    cursor: pointer;
-    margin-top: 4px;
-    align-self: stretch;
-    min-height: auto;
-    height: auto;
-    transition: opacity 0.15s ease, transform 0.15s ease;
+    height: 100%;
+    object-fit: cover; /* Cambiá a 'contain' si no querés que se recorte nada */
 }
 
-.page-category .card__btn:hover {
-    opacity: 0.94;
+/* ── AJUSTES DESKTOP (Aquí es donde ocurre la magia) ── */
+@media (min-width: 901px) {
+    .page-category .page-category__wrap {
+        max-width: 1100px; /* Ampliamos para las 2 columnas */
+    }
+
+    .page-category #productsGrid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        justify-content: center;
+    }
+
+    /* Centrado de la última card si es impar */
+    .page-category #productsGrid > .card:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+        justify-self: center;
+        width: calc(50% - 12px);
+    }
+
+    .page-category .card__img {
+        width: 180px; /* Un poco más grande en PC para que luzca el 1080x1080 */
+        flex: 0 0 180px;
+    }
+
+    .page-category__title {
+        font-size: 36px;
+        margin-bottom: 20px;
+    }
 }
 
 .modal__img {
@@ -4824,17 +4835,14 @@ button.drawer__search {
         margin-bottom: 16px;
     }
 
-    /* 2fr + 1fr + 1fr: Promo ancho = suma de las dos columnas pequeñas */
+    /* Grilla 3 columnas, tarjetas apaisadas (solo desktop) */
     #catalogo .cats.cats-grid {
         display: grid;
-        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
-        grid-template-rows: 1fr 1fr;
-        gap: 17px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
         margin: 28px auto 0;
-        max-width: min(1140px, 100%);
+        max-width: min(var(--container-wide), 100%);
         width: 100%;
-        /* Un poco más bajo que 2/1 para no dominar la vista (Apple-like) */
-        aspect-ratio: 2.18 / 1;
         min-height: 0;
         align-items: stretch;
         justify-items: stretch;
@@ -4843,58 +4851,67 @@ button.drawer__search {
     #catalogo .cats.cats-grid .cat {
         min-height: 0;
         min-width: 0;
-        border-radius: 22px;
+        border-radius: 28px;
         background: #1a1a1a;
         overflow: hidden;
-    }
-
-    /* Cuatro tiles iguales: cuadrado máximo dentro de la celda */
-    #catalogo .cats.cats-grid .cat:not(.cat--special) {
-        aspect-ratio: 1 / 1;
-        width: 100%;
-        height: auto;
-        max-width: 100%;
-        max-height: 100%;
-        align-self: center;
-        justify-self: center;
+        aspect-ratio: 16 / 9;
+        transition: transform 0.35s ease;
     }
 
     #catalogo .cats.cats-grid .cat--special {
-        grid-column: 1;
-        grid-row: 1 / -1;
+        grid-column: auto;
+        grid-row: auto;
+        aspect-ratio: 16 / 9;
+        width: 100%;
+        height: auto;
+        min-height: 0;
         align-self: stretch;
         justify-self: stretch;
-        aspect-ratio: auto !important;
-        width: 100%;
-        height: 100%;
-        min-height: 0 !important;
     }
 
-    #catalogo .cats.cats-grid .cat:nth-child(2) {
-        grid-column: 2;
-        grid-row: 1;
+    #catalogo .cats.cats-grid .cat::before {
+        transform: scale(1);
+        transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.35s ease;
     }
 
-    #catalogo .cats.cats-grid .cat:nth-child(3) {
-        grid-column: 3;
-        grid-row: 1;
+    #catalogo .cats.cats-grid .cat::after {
+        background: linear-gradient(
+            to top,
+            rgba(10, 25, 10, 0.35) 0%,
+            rgba(10, 25, 10, 0.08) 50%,
+            transparent 70%
+        );
     }
 
-    #catalogo .cats.cats-grid .cat:nth-child(4) {
-        grid-column: 2;
-        grid-row: 2;
-    }
+    @media (hover: hover) and (pointer: fine) {
+        #catalogo .cats.cats-grid .cat:hover {
+            transform: scale(1.02);
+        }
 
-    #catalogo .cats.cats-grid .cat:nth-child(5) {
-        grid-column: 3;
-        grid-row: 2;
+        #catalogo .cats.cats-grid .cat:hover::before {
+            transform: scale(1.07);
+            filter: brightness(1.08);
+        }
     }
 
     #catalogo .cat__name {
         font-family: var(--ui);
         font-weight: 700;
-        padding: 16px 18px;
-        font-size: 17px;
+        letter-spacing: -0.02em;
+        font-size: 24px;
+        line-height: 1.2;
+        padding: 20px 22px 22px;
+        width: 100%;
+        box-sizing: border-box;
+        text-align: left;
+        align-self: stretch;
+        margin-top: auto;
+        background: linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.82) 0%,
+            rgba(0, 0, 0, 0.42) 55%,
+            transparent 100%
+        );
     }
 
     .footer {
@@ -5874,6 +5891,50 @@ body {
         object-fit: cover;
         aspect-ratio: 1 / 1;
         vertical-align: top;
+    }
+
+    #catalogo .cats.cats-grid {
+        display: grid;
+        /* Hacemos 2 columnas para que las cards tengan buen tamaño y se lean bien */
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 24px;
+        max-width: 1000px; /* Acotamos el ancho para que no se estiren al infinito */
+        margin: 40px auto 0;
+        justify-content: center;
+    }
+
+    /* 2. Estilo de la Card de Categoría */
+    #catalogo .cat {
+        aspect-ratio: 16 / 7; /* Formato apaisado elegante */
+        border-radius: 28px;
+        transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    /* 3. Centrado automático si hay una sola card en la última fila */
+    #catalogo .cat:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+        justify-self: center;
+        width: calc(50% - 12px); /* Mismo ancho que las demás */
+    }
+
+    /* 4. Efecto Hover (El toque "Pro") */
+    .cat:hover {
+        transform: scale(1.02);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+
+    .cat:hover::before {
+        transform: scale(1.08); /* Zoom suave a la imagen de fondo */
+    }
+
+    /* 5. Título de la categoría */
+    .cat__name {
+        font-size: 26px;
+        padding: 24px 30px;
+        background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+        font-weight: 700;
+        letter-spacing: -0.02em;
     }
 
 }

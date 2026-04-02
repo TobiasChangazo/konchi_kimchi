@@ -887,8 +887,12 @@ function productCard(p) {
   const isCategoryPage = document.body.classList.contains("page-category");
 
   if (isCategoryPage) {
-    const imgStyle = p.image
-      ? `background-image:url('${p.image}');`
+    const thumbBg =
+      p.thumbBg && String(p.thumbBg).trim()
+        ? `--card-thumb-bg: ${String(p.thumbBg).trim()};`
+        : `--card-thumb-bg: var(--cream);`;
+    const imgHtml = p.image
+      ? `<img class="card__img-pic" src="${escapeHtml(p.image)}" alt="" loading="lazy" decoding="async" />`
       : "";
 
     const isPromo = (p.category === "Promo");
@@ -902,7 +906,7 @@ function productCard(p) {
     const spiceRow = buildCategorySpiceRow(p);
 
     el.innerHTML = `
-    <div class="card__img" style="${imgStyle}"></div>
+    <div class="card__img" style="${thumbBg}">${imgHtml}</div>
     <div class="card__body">
       <div class="card__title-row">
         <span class="card__name">${escapeHtml(main)}</span>
