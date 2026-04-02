@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Konchi - Categoría</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link href="styles.css?v=16" rel="stylesheet" />
+  <link href="styles.css?v=22" rel="stylesheet" />
 </head>
 
 <body class="page-category">
@@ -43,9 +43,10 @@
     </div>
   </header>
 
-  <section class="section" id="catalogo">
-    <div class="container">
-      <div class="crumb" id="crumb"></div>
+  <section class="section page-category-view" id="catalogo">
+    <div class="container page-category__wrap">
+      <h1 class="page-category__title" id="categoryTitle">Categoría</h1>
+      <nav class="crumb crumb--category" id="crumb" aria-label="Migas de pan"></nav>
       <div class="grid prod-list" id="productsGrid"></div>
     </div>
   </section>
@@ -94,9 +95,9 @@
     </div>
   </div>
 
-  <script src="productos.js?v=16"></script>
-  <script src="app.js?v=16"></script>
-  <script src="categoria.js?v=16"></script>
+  <script src="productos.js?v=22"></script>
+  <script src="app.js?v=22"></script>
+  <script src="categoria.js?v=22"></script>
 </body>
 
 </html>

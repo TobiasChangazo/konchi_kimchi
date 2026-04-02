@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Konchi Kimchi</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link href="styles.css?v=19" rel="stylesheet" />
+  <link href="styles.css?v=20" rel="stylesheet" />
   <link href="img/favicon/logo.ico" rel="icon" type="image/x-icon">
 </head>
 
@@ -196,11 +196,11 @@
   <main class="page-main" id="main-content">
   <section class="hero" id="inicio">
     <div class="hero__badge">Kimchi artesanal vegano</div>
-    <h1 class="hero__title">El kimchi que <em>fermenta</em> tu cocina</h1>
-    <p class="hero__sub">Elaborado con ingredientes frescos y locales.<br>Fermentación natural, sabores únicos.</p>
+    <h1 class="hero__title">El Sabor que le falta a tu <em>Paladar</em></h1>
+    <p class="hero__sub">Elaborado con ingredientes frescos.<br>Fermentación natural, sabores únicos.</p>
     <div class="hero__btns">
       <a class="btn-cream" href="#catalogo">Ver Categorias</a>
-      <a class="btn-outline" href="#info">Quiénes somos</a>
+      <a class="btn-outline" href="#info">Beneficios del Kimchi</a>
     </div>
   </section>
 
@@ -239,7 +239,7 @@
 
   <section class="sec-alt" id="info">
     <div class="container">
-      <h2 class="sec-title">Por qué fermentado</h2>
+      <h2 class="sec-title">Por qué Fermentado</h2>
       <p class="ben-intro">Cada frasco es un proceso vivo. La fermentación potencia los nutrientes y crea probióticos naturales.</p>
       <div class="ben-grid">
         <div class="ben">
@@ -255,7 +255,7 @@
         <div class="ben">
           <div class="ben__ico"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
           <div class="ben__title">100% vegano</div>
-          <div class="ben__text">Ingredientes frescos y locales</div>
+          <div class="ben__text">Ingredientes frescos</div>
         </div>
         <div class="ben">
           <div class="ben__ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
@@ -274,14 +274,14 @@
           <div class="step__num">1</div>
           <div>
             <div class="step__title">Elegí tus Productos</div>
-            <div class="step__sub">Tocá la Categoría que quieras y agregá al Carrito</div>
+            <div class="step__sub">Tocá la Categoría que quieras y agregalo al Carrito</div>
           </div>
         </div>
         <div class="step">
           <div class="step__num">2</div>
           <div>
             <div class="step__title">Completá tus Datos</div>
-            <div class="step__sub">Nombre, teléfono y tipo de entrega Retiro o Envío</div>
+            <div class="step__sub">Nombre, teléfono y tipo de entrega ( Retiro o Envío )</div>
           </div>
         </div>
         <div class="step">
@@ -315,7 +315,7 @@
 
       <ul class="footer__info">
         <li>Horario: 9:00 a 20:00hs</li>
-        <li>Entregas: Miércoles 9:00 a 18:00hs</li>
+        <li>Entregas: Miércoles y Viernes: 9:00 a 18:00hs</li>
         <li>Ubicación: Saavedra, CABA</li>
       </ul>
     </div>
@@ -461,106 +461,103 @@
       </template>
 
       <template id="tpl-contact">
-        <div class="new-layout" style="padding-top: 5px;">
-
-          <div class="insta-hero">
-            <a href="https://www.instagram.com/konchi.kimchi/" target="_blank" rel="noopener" class="insta-link">
-              <svg viewBox="0 0 24 24" class="insta-icon">
-                <path
-                  d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3z" />
-                <path d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />
-                <path d="M17.5 6.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+        <div class="contact-panel">
+          <section class="contact-panel__insta" aria-label="Instagram">
+            <a class="contact-panel__insta-link" href="https://www.instagram.com/konchi.kimchi/" target="_blank"
+              rel="noopener noreferrer">
+              <svg class="contact-panel__insta-svg" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" />
               </svg>
-              <span class="insta-handle">@konchi.kimchi</span>
+              <span class="contact-panel__insta-handle">@konchi.kimchi</span>
             </a>
-            <p class="insta-cta">Consultanos cualquier duda que tengas!</p>
-          </div>
+            <p class="contact-panel__insta-caption">Consúltanos cualquier duda que tengas!</p>
+          </section>
 
-          <hr class="separator">
+          <hr class="contact-panel__rule" />
 
-          <div class="details-list">
-
-            <div class="detail-row">
-              <span class="detail-icon">
+          <ul class="contact-panel__list">
+            <li class="contact-panel__row">
+              <span class="contact-panel__ico" aria-hidden="true">
                 <svg viewBox="0 0 24 24">
                   <path
                     d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
                 </svg>
               </span>
-              <div class="detail-text">
-                <strong>Horario de Atención:</strong><br>
-                Todos los días: 9 a 20hs
+              <div class="contact-panel__body">
+                <p class="contact-panel__label">Horario de Atención:</p>
+                <p class="contact-panel__detail">Todos los días: 9:00 a 20:00hs</p>
               </div>
-            </div>
+            </li>
 
-            <div class="detail-row">
-              <span class="detail-icon">
+            <li class="contact-panel__row">
+              <span class="contact-panel__ico" aria-hidden="true">
                 <svg viewBox="0 0 24 24">
                   <path
                     d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
                 </svg>
               </span>
-              <div class="detail-text">
-                <strong>Días de Entrega:</strong><br>
-                Miércoles y Viernes: 9 a 18hs
+              <div class="contact-panel__body">
+                <p class="contact-panel__label">Días de Entrega:</p>
+                <p class="contact-panel__detail">Miércoles y Viernes: 9:00 a 18:00hs</p>
               </div>
-            </div>
+            </li>
 
-            <div class="detail-row">
-              <span class="detail-icon">
+            <li class="contact-panel__row">
+              <span class="contact-panel__ico" aria-hidden="true">
                 <svg viewBox="0 0 24 24">
                   <path
-                    d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" />
+                    d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
                 </svg>
               </span>
-              <div class="detail-text">
-                <strong>Punto de Retiro:</strong><br>
-                Saavedra, CABA.
+              <div class="contact-panel__body">
+                <p class="contact-panel__label">Punto de Retiro:</p>
+                <p class="contact-panel__detail">Saavedra, CABA.</p>
               </div>
-            </div>
+            </li>
 
-            <div class="detail-row">
-              <span class="detail-icon">
+            <li class="contact-panel__row">
+              <span class="contact-panel__ico" aria-hidden="true">
                 <svg viewBox="0 0 24 24">
                   <path
                     d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
                 </svg>
               </span>
-              <div class="detail-text">
-                <strong>Envíos:</strong><br>
-                Hacemos envíos en CABA.<br>
+              <div class="contact-panel__body">
+                <p class="contact-panel__label">Envíos:</p>
+                <p class="contact-panel__detail">Hacemos envíos en CABA.</p>
               </div>
-            </div>
+            </li>
 
-            <div class="detail-row">
-              <span class="detail-icon" style="color:#e27f3d;">
+            <li class="contact-panel__row">
+              <span class="contact-panel__ico" aria-hidden="true">
                 <svg viewBox="0 0 24 24">
-                  <path
-                    d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4z" />
+                  <path d="M4 10h3v10H4V10zm7.5 0h3v10h-3V10zm7.5 0h3v10h-3V10zM12 1L2 6v2h20V6L12 1zM2 22h20v-3H2v3z" />
                 </svg>
               </span>
-              <div class="detail-text">
-                <strong style="color:#0465b9;">Tiempo de Elaboración:</strong><br>
-                <span style="font-weight:700;">10 días corridos</span> (para retiros y envíos).
+              <div class="contact-panel__body">
+                <p class="contact-panel__label">Tiempo de Elaboración:</p>
+                <p class="contact-panel__detail">
+                  <span class="contact-panel__highlight">10 días corridos</span> (para retiros y envíos).
+                </p>
               </div>
+            </li>
+          </ul>
+
+          <div class="contact-panel__pay">
+            <div class="contact-panel__pay-head">
+              <span class="contact-panel__ico contact-panel__ico--sm" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 10h3v10H4V10zm7.5 0h3v10h-3V10zm7.5 0h3v10h-3V10zM12 1L2 6v2h20V6L12 1zM2 22h20v-3H2v3z" />
+                </svg>
+              </span>
+              <p class="contact-panel__pay-title">Medio de Pago</p>
             </div>
-
-          </div>
-
-          <div
-            style="margin-top: 20px; background: #f4f6f5; padding: 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
-            <p
-              style="margin:0 0 5px; font-weight:800; font-size:13px; color:var(--letras); display:flex; align-items:center; gap:6px;">
-              <svg style="width:16px; height:16px; fill:currentColor" viewBox="0 0 24 24">
-                <path d="M4 10h3v7H4zM10.5 10h3v7h-3zM17 10h3v7h-3zM12 1L2 6v2h20V6zM2 22h20v-3H2z" />
-              </svg>
-              Medio de Pago
-            </p>
-            <p style="margin:0; font-size:13px; color:var(--texto); line-height:1.4;">
-              Únicamente aceptamos <strong>Transferencia Bancaria</strong>.
+            <p class="contact-panel__pay-text">
+              Únicamente aceptamos <strong>Transferencia Bancaria.</strong>
             </p>
           </div>
-
         </div>
       </template>
     </div>

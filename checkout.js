@@ -331,31 +331,62 @@ document.addEventListener("click", (e) => {
 const deliveryBtns = document.querySelectorAll('.delivery-btn');
 const deliveryInfo = document.getElementById('deliveryInfo');
 const addressWrapper = document.getElementById('addressFieldWrapper');
-let currentMethod = 'retiro'; 
+let currentMethod = 'retiro';
+
+const DELIV_SVG = {
+  pin: `<svg class="delivery-info__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><path d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg>`,
+  info: `<svg class="delivery-info__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>`,
+  house: `<svg class="delivery-info__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  truck: `<svg class="delivery-info__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H3a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h1"/><path d="M15 18h2"/><path d="M19 18h2a2 2 0 0 0 2-2v-3.65a2 2 0 0 0-.35-1.15l-2.15-2.15a2 2 0 0 0-1.35-.55H15"/><path d="M3 6h11"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>`,
+};
 
 const INFO_RETIRO = `
-  <strong>📌 Punto de Retiro: Saavedra, CABA</strong>
-  <b>Crisólogo Larralde 3676 3E.</b><br>
-  Nos pondremos en contacto para informarte horarios y días de entrega.
-  <span class="delivery-warning">⏳ Hasta 10 días corridos para entregarlo.</span>
+  <div class="delivery-info__rows">
+    <div class="delivery-info__row">
+      <span class="delivery-info__ico">${DELIV_SVG.pin}</span>
+      <div class="delivery-info__copy">
+        <p class="delivery-info__lead">Punto de Retiro: Saavedra, CABA</p>
+        <p class="delivery-info__sub">Crisólogo Larralde 3676 3E.</p>
+      </div>
+    </div>
+    <div class="delivery-info__row">
+      <span class="delivery-info__ico">${DELIV_SVG.info}</span>
+      <p class="delivery-info__copy delivery-info__copy--flat">Nos pondremos en contacto para informarte horarios y días de entrega.</p>
+    </div>
+    <div class="delivery-info__row delivery-info__row--accent">
+      <span class="delivery-info__ico">${DELIV_SVG.house}</span>
+      <p class="delivery-info__accent-inline">Hasta 10 días corridos para entregarlo.</p>
+    </div>
+  </div>
 `;
 
 const INFO_ENVIO = `
-  <strong>🚚 Envíos</strong>
-  <b>Enviamos los Miércoles de 9 a 18hs</b>.<br>
-  Nos pondremos en contacto para informarte horarios y días de entrega.
-  <span class="delivery-warning">⏳ Hasta 10 días corridos para entregarlo.</span>
+  <div class="delivery-info__rows">
+    <div class="delivery-info__row">
+      <span class="delivery-info__ico">${DELIV_SVG.truck}</span>
+      <div class="delivery-info__copy">
+        <p class="delivery-info__lead">Envíos en CABA</p>
+        <p class="delivery-info__sub">Enviamos los miércoles y viernes de 9:00 a 18:00&nbsp;hs.</p>
+      </div>
+    </div>
+    <div class="delivery-info__row">
+      <span class="delivery-info__ico">${DELIV_SVG.info}</span>
+      <p class="delivery-info__copy delivery-info__copy--flat">Nos pondremos en contacto para informarte horarios y días de entrega.</p>
+    </div>
+    <div class="delivery-info__row delivery-info__row--accent">
+      <span class="delivery-info__ico">${DELIV_SVG.house}</span>
+      <p class="delivery-info__accent-inline">Hasta 10 días corridos para entregarlo.</p>
+    </div>
+  </div>
 `;
 
 function setDeliveryMethod(method) {
   currentMethod = method;
 
   deliveryBtns.forEach(btn => {
-    if (btn.dataset.method === method) {
-      btn.classList.add('is-active');
-    } else {
-      btn.classList.remove('is-active');
-    }
+    const active = btn.dataset.method === method;
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-selected', active ? 'true' : 'false');
   });
 
   if (method === 'envio') {

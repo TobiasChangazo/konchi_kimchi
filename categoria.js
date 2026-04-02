@@ -15,6 +15,10 @@ function escCrumb(str) {
   activeCategory = cat;
 
   const crumb = document.getElementById("crumb");
+  const titleEl = document.getElementById("categoryTitle");
+  if (titleEl) {
+    titleEl.textContent = cat || "Productos";
+  }
   crumb.innerHTML = `<a href="index.html">Inicio</a><span>/</span>${escCrumb(cat || "Categoría")}`;
 
   renderProducts();
